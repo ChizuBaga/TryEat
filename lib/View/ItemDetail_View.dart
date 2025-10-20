@@ -1,7 +1,6 @@
 // lib/item_details_page.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:chikankan/Model/item_model.dart';  // Import your model
 import 'package:chikankan/Controller/MNB_classifier.dart'; // Import your classifier
 
 class ItemDetailsPage extends StatelessWidget {
