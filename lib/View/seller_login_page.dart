@@ -168,7 +168,7 @@ class _SellerLoginPageState extends State<SellerLoginPage> {
                   obscureText: true,
                   decoration: const InputDecoration(
                     labelText: 'Password',
-                    hintText: '********',
+                    hintText: '',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),

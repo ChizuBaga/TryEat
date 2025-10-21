@@ -37,7 +37,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-
+    
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -139,7 +139,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                   obscureText: true,
                   decoration: const InputDecoration(
                     labelText: 'Password',
-                    hintText: '********',
+                    hintText: '',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),

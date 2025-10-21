@@ -8,7 +8,7 @@ class NaiveBayesClassifier {
   late List<int> _classes;
   bool _isModelLoaded = false;
   static final NaiveBayesClassifier _instance = NaiveBayesClassifier._internal();
-
+  
   // 2. Define a factory constructor to always return the same instance
   factory NaiveBayesClassifier() {
     return _instance;

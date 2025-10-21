@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'seller_register_widgets.dart';
 import 'seller_verification.dart';
-import '../Model/sellerData.dart';
+import '../Model/seller_data.dart';
 import '../Controller/user_auth.dart';
 
 class SellerRegisterPage extends StatefulWidget {
@@ -435,8 +435,9 @@ class _Step1PersonalState extends State<_Step1Personal> {
             controller: widget.passwordController,
             obscureText: true,
             validator: (value) {
-              if (value == null || value.isEmpty)
+              if (value == null || value.isEmpty) {
                 return 'Password cannot be empty';
+              }
               if (!_hasMinLength ||
                   !_hasUppercase ||
                   !_hasLowercase ||
@@ -641,10 +642,12 @@ class _Step2Verification extends StatelessWidget {
             controller: icNumberController,
             keyboardType: TextInputType.number,
             validator: (value) {
-              if (value == null || value.isEmpty)
+              if (value == null || value.isEmpty) {
                 return 'IC Number cannot be empty';
-              if (!RegExp(r'^\d{12}$').hasMatch(value.replaceAll('-', '')))
+              }
+              if (!RegExp(r'^\d{12}$').hasMatch(value.replaceAll('-', ''))) {
                 return 'Enter a valid 12-digit IC number';
+              }
               return null;
             },
           ),
@@ -802,10 +805,12 @@ class _Step3Business extends StatelessWidget {
             controller: postcodeController,
             keyboardType: TextInputType.number,
             validator: (value) {
-              if (value == null || value.isEmpty)
+              if (value == null || value.isEmpty) {
                 return 'Postcode cannot be empty';
-              if (!RegExp(r'^\d{5}$').hasMatch(value))
+              }
+              if (!RegExp(r'^\d{5}$').hasMatch(value)) {
                 return 'Enter a valid 5-digit postcode';
+              }
               return null;
             },
           ),
