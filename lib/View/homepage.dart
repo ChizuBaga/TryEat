@@ -48,6 +48,7 @@ class HomePage extends StatelessWidget {
                   subtitle: Text("\$${doc['Price'].toStringAsFixed(2)}"),
                   trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {
+                    
                     // 4. Navigate to the ItemDetailsPage on tap
                     Navigator.push(
                       context,

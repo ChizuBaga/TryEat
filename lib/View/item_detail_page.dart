@@ -17,6 +17,7 @@ class ItemDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     // 1. Define a reference to the specific document
     final DocumentReference docRef = FirebaseFirestore.instance
         .collection('Seller')
@@ -39,7 +40,6 @@ class ItemDetailsPage extends StatelessWidget {
            if (!snapshot.hasData || !snapshot.data!.exists) {
              return const Center(child: Text("Item not found."));
           }
-
           // 3. If data exists, create an Item object using our model
           final Item item = Item.fromFirestore(snapshot.data!);
 
