@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
-class Usertype extends StatelessWidget {
-  const Usertype({super.key});
+class customerHomepage extends StatelessWidget {
+  const customerHomepage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('User Type'),
+        title: const Text('Customer Homepage'),
       ),
       body: const Center(
         child: Text(
-          'This is Page of User Type',
+          'This is Customer Homepage',
           style: TextStyle(fontSize: 20),
         ),
       ),

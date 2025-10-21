@@ -73,7 +73,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
     } catch (e) {
       // Handle other generic errors
       setState(() {
-        _errorMessage = 'An unexpected error occurred.';
+        _errorMessage = 'An unexpected error occurred: $e';
       });
     } finally {
       // Always set loading state back to false
