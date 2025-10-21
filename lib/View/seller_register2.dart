@@ -1,6 +1,6 @@
-import 'package:chikankan/Model/sellerData.dart';
+import 'package:chikankan/Model/seller_data.dart';
 import 'package:flutter/material.dart';
-import 'package:chikankan/View/sellerRegister3.dart'; // the next page
+import 'package:chikankan/View/seller_register3.dart'; // the next page
 
 class SellerRegisterPage2 extends StatefulWidget {
   final SellerData data;
