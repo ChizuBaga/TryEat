@@ -1,8 +1,8 @@
 import 'package:chikankan/Model/sellerData.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:chikankan/Controller/userAU.dart'; 
+import 'package:chikankan/Controller/user_auth.dart'; 
 import 'package:flutter/material.dart';
-import 'package:chikankan/View/sellerVerification.dart'; // the next page
+import 'package:chikankan/View/seller_verification.dart'; // the next page
 
 class SellerRegisterPage3 extends StatefulWidget {
   final SellerData data;

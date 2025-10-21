@@ -1,7 +1,7 @@
 import 'package:chikankan/View/userType.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:chikankan/Controller/userAU.dart';
+import 'package:chikankan/Controller/user_auth.dart';
 import 'package:chikankan/View/homepage.dart';
 
 class CustomerLoginPage extends StatefulWidget {
