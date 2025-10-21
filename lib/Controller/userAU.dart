@@ -4,10 +4,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 enum UserRole { customer, seller }
 
+// Define a structure to hold the core status
+class AuthStatus {
+  final UserRole role;
+  final bool? isVerified;
+
+  AuthStatus(this.role, {this.isVerified});
+}
+
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
-
+  
   String _getCollectionName(UserRole role) {
     return role == UserRole.seller ? 'sellers' : 'customers';
   }
@@ -78,4 +86,34 @@ class AuthService {
   Future<void> signOut() async {
     await _auth.signOut();
   }
+
+  Future<AuthStatus?> getUserAuthStatus(String uid) async {
+  try {
+    //Check the 'customers' collection
+    final customerDoc = await _db.collection('customers').doc(uid).get();
+    if (customerDoc.exists) {
+      return AuthStatus(UserRole.customer);
+    }
+
+    //Check the 'sellers' collection
+    final sellerDoc = await _db.collection('sellers').doc(uid).get();
+    if (sellerDoc.exists) {
+      final data = sellerDoc.data();
+      // Default false
+      final isVerified = data?['isVerified'] ?? false;
+      // Return status
+      return AuthStatus(
+        UserRole.seller,
+        isVerified: isVerified,
+      );
+    }
+
+    // User exists in Auth but not in a role collection
+    return null; 
+    
+  } catch (e) {
+    print("Error fetching user status: $e");
+    return null;
+  }
+}
 }
