@@ -37,7 +37,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-
+    
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -73,7 +73,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
     } catch (e) {
       // Handle other generic errors
       setState(() {
-        _errorMessage = 'An unexpected error occurred.';
+        _errorMessage = 'An unexpected error occurred: $e';
       });
     } finally {
       // Always set loading state back to false
@@ -139,7 +139,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                   obscureText: true,
                   decoration: const InputDecoration(
                     labelText: 'Password',
-                    hintText: '********',
+                    hintText: '',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),

@@ -1,7 +1,7 @@
-import 'package:chikankan/Model/sellerData.dart';
-import 'package:chikankan/View/logintry.dart';
+import 'package:chikankan/Model/seller_data.dart';
+import 'package:chikankan/View/customer_login_page.dart';
 import 'package:flutter/material.dart';
-import 'package:chikankan/View/sellerRegister2.dart'; // the next page
+import 'package:chikankan/View/seller_register2.dart'; // the next page
 
 class SellerRegisterPage1 extends StatefulWidget {
   const SellerRegisterPage1({super.key});

@@ -20,7 +20,6 @@ class GeminiService {
     } catch (e) {
       // Handle API errors gracefully
       print('Gemini API Error: $e');
-      // Provide a user-friendly error
       return 'Could not generate summary at this time.';
     }
   }

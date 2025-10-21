@@ -45,18 +45,46 @@ class _SellerLoginPageState extends State<SellerLoginPage> {
 
     try {
       // Attempt to sign in with email and password
+      // User? user = await _authService.signIn(
+      //   email: _emailController.text.trim(),
+      //   password: _passwordController.text.trim(),
+      // );
+
+      // // If sign-in is successful and the widget is still mounted
+      // if (mounted && user != null) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     const SnackBar(content: Text('Login Successful!')),
+      //   );
+      //   // Navigate to the seller homepage and remove the login page from the stack
+      //   Navigator.pushReplacementNamed(context, '/seller_homepage');
+      // }
       User? user = await _authService.signIn(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+        email: _emailController.text,
+        password: _passwordController.text,
       );
 
-      // If sign-in is successful and the widget is still mounted
-      if (mounted && user != null) {
+      if (user == null || !mounted) return;
+
+      final AuthStatus? userRole = await _authService.getUserAuthStatus(user.uid);
+      if (!mounted) return;
+
+      if(userRole!.role == UserRole.seller) {
+        final isVerified = userRole.isVerified!;
+        if (isVerified) {
+          Navigator.pushReplacementNamed(context, '/seller_homepage');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Login Successful!')),
+          );
+        } else {
+          _authService.signOut();
+          Navigator.pushReplacementNamed(context, '/seller_verification');
+        }
+      } else {
+        _authService.signOut();
+        Navigator.pushReplacementNamed(context, '/seller_register');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login Successful!')),
+          const SnackBar(content: Text('Error: Please re-register.')),
         );
-        // Navigate to the seller homepage and remove the login page from the stack
-        Navigator.pushReplacementNamed(context, '/seller_homepage');
       }
     } on FirebaseAuthException catch (e) {
       // Handle specific Firebase authentication errors
@@ -140,7 +168,7 @@ class _SellerLoginPageState extends State<SellerLoginPage> {
                   obscureText: true,
                   decoration: const InputDecoration(
                     labelText: 'Password',
-                    hintText: '********',
+                    hintText: '',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),

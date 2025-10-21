@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:chikankan/View/ItemDetail_View.dart'; // Import the details page we will create next
+import 'package:chikankan/View/item_detail_page.dart'; // Import the details page we will create next
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
