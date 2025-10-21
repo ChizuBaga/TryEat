@@ -1,8 +1,10 @@
+import 'package:chikankan/View/sellerHomepage.dart';
+import 'package:chikankan/View/sellerVerification.dart';
 import 'package:chikankan/View/userType.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:chikankan/Controller/user_auth.dart';
-import 'package:chikankan/View/homepage.dart';
+import 'package:chikankan/View/cushomepage.dart';
 
 class CustomerLoginPage extends StatefulWidget {
   const CustomerLoginPage({super.key});
@@ -13,7 +15,7 @@ class CustomerLoginPage extends StatefulWidget {
 
 class _CustomerLoginPageState extends State<CustomerLoginPage> {
   final AuthService _authService = AuthService();
-  
+    
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -37,13 +39,30 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
         password: _passwordController.text,
       );
 
-      // Sign-in successful! Navigate to the next screen.
-      if (mounted && user != null) {
+      if (user == null || !mounted) return;
+
+      final AuthStatus? userRole = await _authService.getUserAuthStatus(user.uid);
+      if (!mounted) return;
+
+            Widget nextPage;// Redirect them to either 
+      if(userRole!.role == UserRole.customer) {
+        nextPage = const cusHomepage();
+      } else if (userRole!.role == UserRole.seller) {
+        final isVerified = userRole!.isVerified!;
+        if (isVerified) {
+          nextPage = const sellerHomepage();
+        } else {
+          _authService.signOut();
+          nextPage = const SellerVerification();
+        }
+      } else {
+        _authService.signOut();
+        nextPage = const Usertype();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login Successful!')),
+          const SnackBar(content: Text('Error: Please re-register.')),
         );
-        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const Homepage()));
       }
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => nextPage));
 
     } on FirebaseAuthException catch (e) {
       String message;
@@ -91,7 +110,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
               const SizedBox(height: 24),
 
               const Text(
-                'Customer Login',
+                'Login',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 24,
@@ -104,12 +123,12 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
               ),
               const SizedBox(height: 40),
 
-              const Text('Username:', style: TextStyle(fontWeight: FontWeight.w600)),
+              const Text('Email:', style: TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _usernameController,
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(hintText: 'username'),
+                decoration: const InputDecoration(hintText: 'example@gmail.com'),
                 validator: (value) {
                   if (value == null || value.isEmpty || !value.contains('@')) {
                     return 'Please enter a valid email address.';

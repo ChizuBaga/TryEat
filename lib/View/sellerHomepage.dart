@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
-class Homepage extends StatelessWidget {
-  const Homepage({super.key});
+class sellerHomepage extends StatelessWidget {
+  const sellerHomepage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Homepage'),
+        title: const Text('Seller Homepage'),
       ),
       body: const Center(
         child: Text(
-          'This is Homepage',
+          'This is Seller Homepage',
           style: TextStyle(fontSize: 20),
         ),
       ),
