@@ -69,7 +69,7 @@ class _SellerLoginPageState extends State<SellerLoginPage> {
       if (!mounted) return;
 
       if(userRole!.role == UserRole.seller) {
-        final isVerified = userRole.isVerified!;
+        final isVerified = userRole!.isVerified!;
         if (isVerified) {
           Navigator.pushReplacementNamed(context, '/seller_homepage');
           ScaffoldMessenger.of(context).showSnackBar(
