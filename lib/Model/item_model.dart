@@ -27,11 +27,11 @@ class Item {
     return Item(
       id: doc.id,
       name: data['Name'] ?? 'No Name',
-      category: data['Name'] ?? 'Unknown',
-      description: data['Name'] ?? '',
-      price: (data['Price'] ?? 0.0).toDouble(),
+      category: data['Category'] ?? 'General',
+      description: data['Description'] ?? 'No description',
+      price: (data['Price'] is num) ? data['Price'].toDouble() : 0.00,
       imageUrl: data['imageUrl'] ?? 'Unknown',
-      isAvailable: data['item_avail'] ?? true,
+      isAvailable: data['isAvailable'] ?? false,
       comments: data['Comments'] != null
           ? List<String>.from(data['Comments'])
           : null,

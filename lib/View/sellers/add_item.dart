@@ -22,7 +22,8 @@ class _AddItemState extends State<AddItem> {
   // Text editing controllers for the input fields
   final TextEditingController _foodNameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();  
+  final TextEditingController _categoryController = TextEditingController();
 
   File? _selectedImage; // To store the selected image file
   String? _imageUrl; // To store the uploaded image URL
@@ -86,7 +87,6 @@ class _AddItemState extends State<AddItem> {
       // 1. Upload image
       _imageUrl = await _uploadImage();
       if (_selectedImage != null && _imageUrl == null) {
-        // If image was selected but upload failed, stop here
         setState(() {
           _isLoading = false;
         });
@@ -104,15 +104,17 @@ class _AddItemState extends State<AddItem> {
       final String itemName = _foodNameController.text.trim();
       final double itemPrice = double.tryParse(_priceController.text.trim()) ?? 0.0;
       final String itemDescription = _descriptionController.text.trim();
+      final String itemCategory = _categoryController.text.trim();
 
       await FirebaseFirestore.instance.collection('items').add({
-        'name': itemName,
-        'price': itemPrice,
-        'description': itemDescription,
-        'imageUrl': _imageUrl, // This can be null if no image was selected
+        'Name': itemName,
+        'Price': itemPrice,
+        'Category': itemCategory,
+        'Description': itemDescription,
+        'imageUrl': _imageUrl, 
         'isAvailable': true, // Default to available
-        'sellerId': sellerId, // Associate item with the seller
-        'createdAt': FieldValue.serverTimestamp(), // Timestamp
+        'sellerId': sellerId, 
+        'createdAt': FieldValue.serverTimestamp(), 
       });
 
       // Show success message and navigate back
@@ -143,11 +145,11 @@ class _AddItemState extends State<AddItem> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 252, 248, 221),
       appBar: AppBar(
-        title: const Text('Add Item', style: TextStyle(color: Colors.black)),
+        toolbarHeight: 0,
         backgroundColor: Colors.white,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black), // Back button color
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -158,9 +160,11 @@ class _AddItemState extends State<AddItem> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    const Text(
-                      'Add Catalogue Item',
-                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                    Center(
+                      child: const Text(
+                        'Add Catalogue Item',
+                        style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                      ),
                     ),
                     const SizedBox(height: 30),
 
@@ -251,6 +255,28 @@ class _AddItemState extends State<AddItem> {
                     ),
                     const SizedBox(height: 20),
 
+                    // --- Category ---
+                    const Text('Category:', style: TextStyle(fontSize: 16)),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _categoryController,
+                      decoration: InputDecoration(
+                        hintText: 'e.g. Noodles',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter food name';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+
+
                     // --- Description ---
                     const Text('Description:', style: TextStyle(fontSize: 16)),
                     const SizedBox(height: 8),
@@ -283,7 +309,7 @@ class _AddItemState extends State<AddItem> {
                       child: ElevatedButton(
                         onPressed: _saveItem,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
+                          backgroundColor: const Color.fromARGB(255, 255, 153, 0),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8.0),

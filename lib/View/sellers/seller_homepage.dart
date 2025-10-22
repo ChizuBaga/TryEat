@@ -1,4 +1,7 @@
+import 'package:chikankan/View/sellers/seller_chat.dart';
 import 'package:chikankan/View/sellers/seller_dashboard.dart';
+import 'package:chikankan/View/sellers/seller_pending_order.dart';
+import 'package:chikankan/View/sellers/seller_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart'; 
 import 'package:cloud_firestore/cloud_firestore.dart' hide Order; 
@@ -28,16 +31,23 @@ class _SellerHomepageState extends State<SellerHomepage> {
   late final Future<DocumentSnapshot> _sellerDataFuture;
 
   final OrderService _orderService = OrderService();
-  // ⭐️ State variable to track which nav bar item is active (usually managed by a top-level Shell)
-  int _selectedIndex = 2; // Assuming the Catalogue/Orders icon is the 3rd item (index 2)
+  
+  int _selectedIndex = 0; 
 
   void _onNavTap(int index) {
-      // ⭐️ You would typically handle navigation here, e.g., using a PageView or Navigator.push
       setState(() {
           _selectedIndex = index;
-          // Example: if (index == 0) Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const SellerHomePage()));
-      });
+          if (index == 0) {
+            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const SellerHomepage()));
+          } else if (index == 1) {
+            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const SellerChat()));
+          } else if (index == 2) {
+            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const SellerPendingOrder()));
+          } else {
+          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const SellerProfile()));
+      }});
   }
+  
   @override
   void initState() {
     super.initState();
@@ -171,11 +181,11 @@ class _SellerHomepageState extends State<SellerHomepage> {
     return Container(
       padding: const EdgeInsets.all(20.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color.fromARGB(255, 255, 153, 0),
         borderRadius: BorderRadius.circular(12.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey,
             spreadRadius: 2,
             blurRadius: 5,
             offset: const Offset(0, 3),
@@ -190,12 +200,12 @@ class _SellerHomepageState extends State<SellerHomepage> {
           children: [
             Text(
               "Today's Sales",
-              style: TextStyle(fontSize: 16, color: Colors.black54),
+              style: TextStyle(fontSize: 16, color: Colors.white),
             ),
             SizedBox(height: 8),
             Text(
               'RM0.00',
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
             ),
           ],
         ),
@@ -284,12 +294,12 @@ class _SellerHomepageState extends State<SellerHomepage> {
         _buildActionCard(
           title: 'Dashboard',
           icon: Icons.bar_chart,
-          color: Colors.grey[200]!,
+          color: const Color.fromARGB(255, 255, 153, 0)
         ),
         _buildActionCard(
           title: 'View Catalogue',
           icon: Icons.menu_book,
-          color: Colors.grey[200]!,
+          color: const Color.fromARGB(255, 255, 153, 0)
         ),
       ],
     );
@@ -327,9 +337,9 @@ class _SellerHomepageState extends State<SellerHomepage> {
             children: [
               Text(
                 title,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
               ),
-              Icon(icon, size: 80, color: Colors.black87),
+              Icon(icon, size: 80, color: Colors.white),
             ],
           ),
         ),
