@@ -1,7 +1,7 @@
+import 'package:chikankan/View/customers/customer_homepage.dart';
 import 'package:flutter/material.dart';
-import 'customer_homepage.dart';
-import 'customer_chat.dart'; 
-import 'customer_cart.dart';
+import '../customer_chat.dart'; 
+import '../customer_cart.dart';
 //import 'customer_order.dart'; 
 //import 'customer_profile.dart'; 
 

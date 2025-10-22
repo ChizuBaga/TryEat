@@ -47,20 +47,20 @@ class ItemDetailsPage extends StatelessWidget {
           double positivePercentage = 0.0;
           double negativePercentage = 0.0;
           
-          if (item.comments.isNotEmpty) {
-            for (final comment in item.comments) {
+          if (item.comments!.isNotEmpty) {
+            for (final comment in item.comments ?? []) {
               if (classifier.predict(comment) == 1) {
                 positiveCount++;
               }
             }
-            positivePercentage = (positiveCount / item.comments.length) * 100;
+            positivePercentage = (positiveCount / item.comments!.length) * 100;
             negativePercentage = 100 - positivePercentage;
           }
 
           // --- 5. NEW: Prepare latest 10 comments for Gemini ---
           // Get the last 10 comments from the list
-          final latest10Comments = item.comments.sublist(
-            math.max(0, item.comments.length - 10)
+          final latest10Comments = item.comments!.sublist(
+            math.max(0, item.comments!.length - 10)
           );
           // Join them into a single string
           final String commentsText = latest10Comments.join("\n- ");
@@ -135,7 +135,7 @@ class ItemDetailsPage extends StatelessWidget {
               const SizedBox(height: 8),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: item.comments.map((comment) => Card(
+                children: item.comments!.map((comment) => Card(
                   child: ListTile(
                     leading: const Icon(Icons.chat_bubble_outline),
                     title: Text(comment),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../Controller/user_auth.dart';
+import '../../Controller/user_auth.dart';
 
 class CustomerSignUpPage extends StatefulWidget {
   const CustomerSignUpPage({super.key});

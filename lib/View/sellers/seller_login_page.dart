@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../Controller/user_auth.dart'; 
+import '../../Controller/user_auth.dart'; 
 
-class CustomerLoginPage extends StatefulWidget {
-  const CustomerLoginPage({super.key});
+class SellerLoginPage extends StatefulWidget {
+  const SellerLoginPage({super.key});
 
   @override
-  State<CustomerLoginPage> createState() => _CustomerLoginPageState();
+  State<SellerLoginPage> createState() => _SellerLoginPageState();
 }
 
-class _CustomerLoginPageState extends State<CustomerLoginPage> {
+class _SellerLoginPageState extends State<SellerLoginPage> {
   // Initialize Firebase Auth Service
   final AuthService _authService = AuthService();
 
@@ -37,13 +37,14 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
     try {
+      //For debug
       // Attempt to sign in with email and password
       User? user = await _authService.signIn(
         email: _emailController.text.trim(),
@@ -55,8 +56,39 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login Successful!')),
         );
-        Navigator.pushReplacementNamed(context, '/customer_tab');
+        // Navigate to the seller homepage and remove the login page from the stack
+        Navigator.pushReplacementNamed(context, '/seller_homepage');
       }
+      
+      //For deployment
+      // User? user = await _authService.signIn(
+      //   email: _emailController.text,
+      //   password: _passwordController.text,
+      // );
+
+      // if (user == null || !mounted) return;
+
+      // final AuthStatus? userRole = await _authService.getUserAuthStatus(user.uid);
+      // if (!mounted) return;
+
+      // if(userRole!.role == UserRole.seller) {
+      //   final isVerified = userRole!.isVerified!;
+      //   if (isVerified) {
+      //     Navigator.pushReplacementNamed(context, '/seller_homepage');
+      //     ScaffoldMessenger.of(context).showSnackBar(
+      //       const SnackBar(content: Text('Login Successful!')),
+      //     );
+      //   } else {
+      //     _authService.signOut();
+      //     Navigator.pushReplacementNamed(context, '/seller_verification');
+      //   }
+      // } else {
+      //   _authService.signOut();
+      //   Navigator.pushReplacementNamed(context, '/seller_register');
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     const SnackBar(content: Text('Error: Please re-register.')),
+      //   );
+      // }
     } on FirebaseAuthException catch (e) {
       // Handle specific Firebase authentication errors
       String message;
@@ -73,7 +105,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
     } catch (e) {
       // Handle other generic errors
       setState(() {
-        _errorMessage = 'An unexpected error occurred: $e';
+        _errorMessage = 'An unexpected error occurred.';
       });
     } finally {
       // Always set loading state back to false
@@ -105,7 +137,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                 const SizedBox(height: 15),
 
                 const Text(
-                  'Customer Login',
+                  'Seller Login',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 ),
@@ -174,7 +206,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _handleSignIn, // Disable button when loading
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 255, 153, 0),
+                      backgroundColor: Color.fromARGB(255, 255, 153, 0),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -206,13 +238,13 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      'Don''t have an account?',
+                      'New seller? ',
                       style: TextStyle(fontSize: 16, color: Colors.black54),
                     ),
                     GestureDetector(
-                      onTap: () => Navigator.pushNamed(context, '/customer_signup'),
+                      onTap: () => Navigator.pushNamed(context, '/seller_register'),
                       child: const Text(
-                        'Sign up',
+                        'Register your business',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

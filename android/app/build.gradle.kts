@@ -16,17 +16,20 @@ dependencies {
     implementation("com.huawei.agconnect:agconnect-core:1.5.2.300")
 }
 
-val keystoreProperties = Properties().apply {
-    val keystoreFile = rootProject.file("key.properties")
-    if (keystoreFile.exists()) {
-        load(FileInputStream(keystoreFile))
-    }
+val keystorePropertiesFile = rootProject.file("key.properties")
+val keystoreProperties = Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
 android {
     namespace = "com.example.chikankan"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "29.0.14206865"
+
+    lint {
+        disable += "MissingNamespace"
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -40,17 +43,19 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "eatseesee.huawei"
-        minSdk = flutter.minSdkVersion
+        minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
     signingConfigs {
-       create("release") {
-            keyAlias = keystoreProperties.getProperty("keyAlias")
-            keyPassword = keystoreProperties.getProperty("keyPassword")
-            storeFile = File(rootProject.file(keystoreProperties.getProperty("storeFile")!!).toURI())
-            storePassword = keystoreProperties.getProperty("storePassword")
+        create("release") {
+            if (keystoreProperties.containsKey("storeFile")) {
+                storeFile = File(rootProject.file(keystoreProperties.getProperty("storeFile")!!).toURI())
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
         }
     }
     buildTypes {
@@ -75,4 +80,10 @@ android {
 
 flutter {
     source = "../.."
+}
+
+repositories {
+    google()
+    mavenCentral()
+    maven(url = "https://developer.huawei.com/repo/")
 }

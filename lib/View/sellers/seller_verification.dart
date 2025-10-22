@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../View/seller_login_page.dart';
+import 'seller_login_page.dart';
 
 class SellerVerification extends StatelessWidget {
   const SellerVerification({super.key});

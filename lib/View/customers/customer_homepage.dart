@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:chikankan/View/item_detail_page.dart'; // Make sure this path is correct
+import 'package:chikankan/View/item_detail_page.dart';
 
 class CustomerHomepage extends StatelessWidget {
   const CustomerHomepage({super.key});
@@ -18,17 +18,13 @@ class CustomerHomepage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         automaticallyImplyLeading: false,
+        title: _buildSearchBar(),
       ),
       backgroundColor: const Color.fromARGB(255, 252, 248, 221),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: _buildSearchBar(),
-          ),
-          const SizedBox(height: 24),
+      body: ListView(
+        //crossAxisAlignment: CrossAxisAlignment.start,
+        children: [          
+          const SizedBox(height: 16),
 
           // Section Title
           const Padding(
@@ -83,6 +79,119 @@ class CustomerHomepage extends StatelessWidget {
               },
             ),
           ),
+
+          const SizedBox(height: 24),
+
+          //new
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              'New',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          SizedBox(
+            height: 190,
+            child: StreamBuilder<QuerySnapshot>(
+              stream: itemsStream,
+              builder: (context, snapshot) {
+                // Handle loading, error, and empty states
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError || !snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(child: Text("No items found."));
+                }
+
+                // This ListView builds the horizontal row of ProductCards
+                return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, index) {
+                    DocumentSnapshot doc = snapshot.data!.docs[index];
+                    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+                    
+                    return ProductCard(
+                      name: data['Name'] ?? 'No Name',
+                      price: (data['Price'] as num?)?.toDouble() ?? 0.0,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ItemDetailsPage(
+                              sellerId: "Seller1",
+                              itemId: doc.id,
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          //last order
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              'Last Order',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          SizedBox(
+            height: 190,
+            child: StreamBuilder<QuerySnapshot>(
+              stream: itemsStream,
+              builder: (context, snapshot) {
+                // Handle loading, error, and empty states
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError || !snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(child: Text("No items found."));
+                }
+
+                // This ListView builds the horizontal row of ProductCards
+                return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, index) {
+                    DocumentSnapshot doc = snapshot.data!.docs[index];
+                    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+                    
+                    return ProductCard(
+                      name: data['Name'] ?? 'No Name',
+                      price: (data['Price'] as num?)?.toDouble() ?? 0.0,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ItemDetailsPage(
+                              sellerId: "Seller1",
+                              itemId: doc.id,
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+
         ],
       ),
     );
@@ -96,7 +205,7 @@ class CustomerHomepage extends StatelessWidget {
         filled: true,
         fillColor: const Color.fromARGB(255, 255, 226, 129),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
+          borderRadius: BorderRadius.circular(40.0),
           borderSide: BorderSide.none,
         ),
         contentPadding: EdgeInsets.zero,
