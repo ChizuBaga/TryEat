@@ -45,3 +45,7 @@ app.*.map.json
 /android/app/release
 firebase.json
 
+# Android Keystore and Credentials
+/android/*.jks
+/android/*.keystore
+/android/key.properties
