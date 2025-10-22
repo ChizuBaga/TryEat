@@ -1,3 +1,7 @@
+import java.io.FileInputStream
+import java.util.Properties
+import java.io.File
+
 plugins {
     id("com.android.application")
     // START: FlutterFire Configuration
@@ -10,6 +14,13 @@ plugins {
 
 dependencies {
     implementation("com.huawei.agconnect:agconnect-core:1.5.2.300")
+}
+
+val keystoreProperties = Properties().apply {
+    val keystoreFile = rootProject.file("key.properties")
+    if (keystoreFile.exists()) {
+        load(FileInputStream(keystoreFile))
+    }
 }
 
 android {
@@ -34,11 +45,29 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
-
+    signingConfigs {
+       create("release") {
+            keyAlias = keystoreProperties.getProperty("keyAlias")
+            keyPassword = keystoreProperties.getProperty("keyPassword")
+            storeFile = File(rootProject.file(keystoreProperties.getProperty("storeFile")!!).toURI())
+            storePassword = keystoreProperties.getProperty("storePassword")
+        }
+    }
     buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+        // Line 56 - 60 (Corrected Release block)
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
+            
+            // Standard release config
+            isMinifyEnabled = true 
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+
+        // Keep the debug block as is (or simplify it)
+        getByName("debug") {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
