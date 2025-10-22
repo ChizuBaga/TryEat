@@ -20,8 +20,6 @@ class ItemDetailsPage extends StatelessWidget {
 
     // 1. Define a reference to the specific document
     final DocumentReference docRef = FirebaseFirestore.instance
-        .collection('Seller')
-        .doc(sellerId)
         .collection('items')
         .doc(itemId);
 
@@ -73,7 +71,7 @@ class ItemDetailsPage extends StatelessWidget {
               // --- Display Name and Price ---
               Text(item.name, style: Theme.of(context).textTheme.headlineMedium),
               const SizedBox(height: 8),
-              Text("\$${item.price.toStringAsFixed(2)}", style: Theme.of(context).textTheme.titleLarge),
+              Text("RM${item.price.toStringAsFixed(2)}", style: Theme.of(context).textTheme.titleLarge),
               const Divider(height: 32),
 
               // --- Comments Analyzer Widget ---

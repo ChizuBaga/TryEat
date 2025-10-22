@@ -203,7 +203,7 @@ class _SellerLoginPageState extends State<SellerLoginPage> {
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _handleSignIn, // Disable button when loading
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
+                      backgroundColor: Color.fromARGB(255, 255, 153, 0),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -212,6 +212,7 @@ class _SellerLoginPageState extends State<SellerLoginPage> {
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
+                      elevation: 6,
                     ),
                     // Show a loading indicator or text
                     child: _isLoading

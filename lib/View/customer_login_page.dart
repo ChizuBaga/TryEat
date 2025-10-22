@@ -55,7 +55,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login Successful!')),
         );
-        Navigator.pushReplacementNamed(context, '/customer_homepage');
+        Navigator.pushReplacementNamed(context, '/customer_tab');
       }
     } on FirebaseAuthException catch (e) {
       // Handle specific Firebase authentication errors
@@ -174,7 +174,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _handleSignIn, // Disable button when loading
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
+                      backgroundColor: const Color.fromARGB(255, 255, 153, 0),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -183,6 +183,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
+                      elevation: 6,
                     ),
                     // Show a loading indicator or text
                     child: _isLoading

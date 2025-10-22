@@ -52,7 +52,7 @@ class SelectUserTypePage extends StatelessWidget {
                   onPressed: () =>
                       Navigator.pushNamed(context, '/seller_login'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
+                    backgroundColor: const Color.fromARGB(255, 255, 153, 0),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -61,6 +61,7 @@ class SelectUserTypePage extends StatelessWidget {
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
+                    elevation: 6,
                   ),
                   child: const Text("I'm a Seller"),
                 ),
@@ -76,7 +77,7 @@ class SelectUserTypePage extends StatelessWidget {
                   onPressed: () =>
                       Navigator.pushNamed(context, '/customer_login'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
+                    backgroundColor: const Color.fromARGB(255, 255, 153, 0),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -85,6 +86,7 @@ class SelectUserTypePage extends StatelessWidget {
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
+                    elevation: 6,
                   ),
                   child: const Text("I'm a Customer"),
                 ),
