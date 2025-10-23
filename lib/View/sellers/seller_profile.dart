@@ -34,7 +34,7 @@ class _SellerProfileState extends State<SellerProfile> {
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 252, 248, 221),
-      appBar: AppBar(backgroundColor: Colors.white, elevation: 0, toolbarHeight: 0),
+      appBar: AppBar(backgroundColor: Color.fromARGB(255, 252, 248, 221), elevation: 0, toolbarHeight: 0),
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance.collection('sellers').doc(currentUser!.uid).snapshots(),
         builder: (context, snapshot) {
@@ -100,32 +100,6 @@ class _SellerProfileState extends State<SellerProfile> {
                         style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 20),
-
-                      // 4. Average Rating Card (Placeholder/Static Data)
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                        padding: const EdgeInsets.all(16.0),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12.0),
-                          boxShadow: [BoxShadow(color: Colors.grey[100]!, spreadRadius: 1, blurRadius: 5)],
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text('Average Rating', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                            // Static 3-star placeholder
-                            Row(
-                              children: List.generate(5, (index) => Icon(
-                                  index < 3 ? Icons.star : Icons.star_border, // Static 3/5 rating
-                                  color: Colors.amber, size: 24,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 30),
 
                       // 5. Profile Details
                       _buildProfileDetailRow(Icons.person, seller.username ?? 'username'),

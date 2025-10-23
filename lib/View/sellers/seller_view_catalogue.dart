@@ -29,7 +29,6 @@ class _SellerCataloguePageState extends State<SellerCataloguePage> {
           .where('sellerId', isEqualTo: _currentSellerId) 
           .snapshots()
           .map((snapshot) {
-        // Convert the QuerySnapshot into a List of Item objects
         return snapshot.docs.map((doc) => Item.fromFirestore(doc)).toList();
       });
     } else {
@@ -37,8 +36,7 @@ class _SellerCataloguePageState extends State<SellerCataloguePage> {
       _itemsStream = Stream.value([]);
     }
   }
-
-  
+ 
   int _selectedIndex = 0; //Default Homepage since not appear in btm bar
 
   void _onNavTap(int index) {
@@ -181,7 +179,6 @@ class _SellerCataloguePageState extends State<SellerCataloguePage> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8.0),
                   color: Colors.grey[400],
-                  // In a real app, use Image.network or Image.asset
                   image: DecorationImage(
                     image: NetworkImage(item.imageUrl), 
                     fit: BoxFit.cover,

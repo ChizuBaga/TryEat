@@ -60,16 +60,16 @@ class ItemController {
   }
 
   //edit_item.dart
-  Future<String?> uploadNewImage(File? _newSelectedImage) async {
-    if (_newSelectedImage == null) return null; // No new image to upload
+  Future<String?> uploadNewImage(File? newSelectedImage) async {
+    if (newSelectedImage == null) return null; // No new image to upload
 
     try {
       final storageRef = FirebaseStorage.instance
           .ref()
           .child('item_images')
-          .child('${DateTime.now().millisecondsSinceEpoch}_${_newSelectedImage!.path.split('/').last}');
+          .child('${DateTime.now().millisecondsSinceEpoch}_${newSelectedImage.path.split('/').last}');
       
-      final uploadTask = storageRef.putFile(_newSelectedImage!);
+      final uploadTask = storageRef.putFile(newSelectedImage);
       final snapshot = await uploadTask.whenComplete(() => {});
       final downloadUrl = await snapshot.ref.getDownloadURL();
       return downloadUrl;

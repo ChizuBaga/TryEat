@@ -1,4 +1,5 @@
 import 'package:chikankan/Controller/seller_navigation_handler.dart';
+import 'package:chikankan/View/sellers/seller_current_order.dart';
 import 'package:chikankan/View/sellers/seller_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart'; 
@@ -83,10 +84,6 @@ class _SellerHomepageState extends State<SellerHomepage> {
             _buildQuickActionsGrid(),
             
             const SizedBox(height: 30),
-
-            // --- 4. Average Rating ---
-            _buildAverageRatingCard(),
-            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -241,27 +238,34 @@ class _SellerHomepageState extends State<SellerHomepage> {
       statusColor = Colors.green;
     }
     
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey, width: 0.2)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            order.orderId,
-            style: const TextStyle(fontSize: 16, color: Colors.black87),
-          ),
-          Text(
-            order.orderStatus,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: statusColor,
+    return InkWell(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => SellerCurrentOrder(order: order),),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+        decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: Colors.grey, width: 0.2)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              order.orderId,
+              style: const TextStyle(fontSize: 16, color: Colors.black87),
             ),
-          ),
-        ],
+            Text(
+              order.orderStatus,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: statusColor,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -330,42 +334,4 @@ class _SellerHomepageState extends State<SellerHomepage> {
       ),
     );
   }
-
-  Widget _buildAverageRatingCard() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            'Average Rating',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          // Simple Star Rating Placeholder
-          Row(
-            children: List.generate(
-              5,
-              (index) => Icon(
-                index < 4 ? Icons.star : Icons.star_border,
-                color: Colors.amber,
-                size: 24,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  } 
 }
