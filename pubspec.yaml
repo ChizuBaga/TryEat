@@ -39,6 +39,7 @@ dependencies:
   firebase_storage: 13.0.3 
   image_picker: ^1.0.4 
   intl: ^0.18.1
+  huawei_site: 6.5.1+303
   # huawei_push: ^6.13.0+300
   
 

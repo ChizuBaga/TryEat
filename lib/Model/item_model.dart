@@ -8,7 +8,7 @@ class Item {
   final String description;
   final String imageUrl;
   bool isAvailable;
-  final List<String>? comments; // <- make nullable
+  final List<String>? comments; 
 
   Item({
     required this.id,
@@ -18,7 +18,7 @@ class Item {
     required this.description,
     required this.imageUrl,
     this.isAvailable = true,
-    this.comments, // <- optional
+    this.comments,
   });
 
   factory Item.fromFirestore(DocumentSnapshot doc) {

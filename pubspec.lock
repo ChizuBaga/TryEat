@@ -312,6 +312,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.2"
+  huawei_site:
+    dependency: "direct main"
+    description:
+      name: huawei_site
+      sha256: "31474f51c17ef50c0f6109cbee8a606ab00955464bea625ad7aeed752e855f1e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.5.1+303"
   image_picker:
     dependency: "direct main"
     description:

@@ -1,13 +1,11 @@
-// File: add_item.dart
-
-import 'dart:io'; // Required for File type
-
+import 'dart:io'; 
+import 'package:chikankan/Controller/seller_navigation_handler.dart';
 import 'package:chikankan/View/sellers/bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // To get seller's UID
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AddItem extends StatefulWidget {
   const AddItem({super.key});
@@ -31,12 +29,13 @@ class _AddItemState extends State<AddItem> {
 
   int _selectedIndex = 2;
   void _onNavTap(int index) {
-      // ⭐️ You would typically handle navigation here, e.g., using a PageView or Navigator.push
-      setState(() {
-          _selectedIndex = index;
-          // Example: if (index == 0) Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const SellerHomePage()));
-      });
+    final handler = SellerNavigationHandler(context);
+    setState(() {
+      _selectedIndex = index;
+    });
+    handler.navigate(index);
   }
+
   // Function to pick an image from the gallery
   Future<void> _pickImage() async {
     final picker = ImagePicker();

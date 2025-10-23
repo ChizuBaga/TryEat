@@ -1,22 +1,12 @@
-import 'package:chikankan/View/sellers/seller_chat.dart';
+import 'package:chikankan/Controller/seller_navigation_handler.dart';
 import 'package:chikankan/View/sellers/seller_dashboard.dart';
-import 'package:chikankan/View/sellers/seller_pending_order.dart';
-import 'package:chikankan/View/sellers/seller_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart'; 
-import 'package:cloud_firestore/cloud_firestore.dart' hide Order; 
+import 'package:cloud_firestore/cloud_firestore.dart'; 
 import 'package:chikankan/Model/order_model.dart';
 import 'package:chikankan/View/sellers/seller_view_catalogue.dart';
 import 'package:chikankan/Controller/order_service.dart';
 import 'package:chikankan/View/sellers/bottom_navigation_bar.dart';
-
-// Data model for orders
-class Order {
-  final String id;
-  final String status;
-
-  Order(this.id, this.status); 
-}
 
 class SellerHomepage extends StatefulWidget {
   const SellerHomepage({super.key});
@@ -35,17 +25,11 @@ class _SellerHomepageState extends State<SellerHomepage> {
   int _selectedIndex = 0; 
 
   void _onNavTap(int index) {
-      setState(() {
-          _selectedIndex = index;
-          if (index == 0) {
-            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const SellerHomepage()));
-          } else if (index == 1) {
-            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const SellerChat()));
-          } else if (index == 2) {
-            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const SellerPendingOrder()));
-          } else {
-          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const SellerProfile()));
-      }});
+    final handler = SellerNavigationHandler(context);
+    setState(() {
+      _selectedIndex = index;
+    });
+    handler.navigate(index);
   }
   
   @override

@@ -1,19 +1,15 @@
-// File: edit_item_page.dart
-
 import 'dart:io';
+import 'package:chikankan/Controller/seller_navigation_handler.dart';
+import 'package:chikankan/View/sellers/bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart'; // For currency formatting
-
-// Assuming your Item model is defined in item_model.dart or similar
 import 'package:chikankan/Model/item_model.dart'; 
-// You might need to adjust this path
+
 
 class EditItem extends StatefulWidget {
-  final Item item; // The item object passed from the previous page
+  final Item item;
 
   const EditItem({super.key, required this.item});
 
@@ -32,6 +28,15 @@ class _EditItemState extends State<EditItem> {
   File? _newSelectedImage; // To store a newly picked image file
   String? _currentImageUrl; // The URL of the currently displayed image
   bool _isLoading = false; // For showing loading indicators
+  int _selectedIndex = 0; //Default Homepage since not appear in btm bar
+
+  void _onNavTap(int index) {
+    final handler = SellerNavigationHandler(context);
+    setState(() {
+      _selectedIndex = index;
+    });
+    handler.navigate(index);
+  }
 
   @override
   void initState() {
@@ -59,7 +64,6 @@ class _EditItemState extends State<EditItem> {
     if (pickedFile != null) {
       setState(() {
         _newSelectedImage = File(pickedFile.path);
-        // We don't update _currentImageUrl yet, as it's not uploaded
       });
     }
   }
@@ -78,7 +82,6 @@ class _EditItemState extends State<EditItem> {
       final downloadUrl = await snapshot.ref.getDownloadURL();
       return downloadUrl;
     } catch (e) {
-      print('Error uploading new image: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to upload new image: $e')),
       );
@@ -138,7 +141,6 @@ class _EditItemState extends State<EditItem> {
       );
       Navigator.of(context).pop(); // Go back to catalogue
     } catch (e) {
-      print('Error updating item: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to update item: $e')),
       );
@@ -185,8 +187,6 @@ class _EditItemState extends State<EditItem> {
           const SnackBar(content: Text('Item deleted successfully!')),
         );
         Navigator.of(context).pop(); // Pop this page
-        // You might need to pop again if you want to go past the catalogue to home
-        // Navigator.of(context).pop(); 
       } catch (e) {
         print('Error deleting item: $e');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -239,7 +239,7 @@ class _EditItemState extends State<EditItem> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          const SizedBox(height: 10), // Space from app bar
+                          const SizedBox(height: 10),
                 
                           // --- Food Image Display & Upload ---
                           const Text('Food Image:', style: TextStyle(fontSize: 16)),
@@ -384,83 +384,9 @@ class _EditItemState extends State<EditItem> {
               ],
             ),
           ),
-      // --- Reusable Bottom Navigation Bar ---
-      bottomNavigationBar: _buildBottomNavBar(context),
-    );
-  }
-
-  // --- Reusable Bottom Navigation Bar (can be refactored to a common widget) ---
-  // You would typically import and use your SellerBottomNavBar widget here
-  // For now, I'll include a minimal version to avoid errors if you haven't moved it.
-  Widget _buildBottomNavBar(BuildContext context) {
-    // These streams are for demonstration if SellerBottomNavBar is not used.
-    final Stream<int> _unreadMessagesStream = const Stream.empty();
-    final Stream<int> _newOrdersStream = const Stream.empty();
-
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      backgroundColor: Colors.white,
-      selectedItemColor: Colors.black,
-      unselectedItemColor: Colors.grey,
-      showSelectedLabels: false,
-      showUnselectedLabels: false,
-      currentIndex: 2, // Highlight Catalogue/Orders as we are on an item-related page
-      items: [
-        const BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Home'),
-        _buildBottomNavItemWithIndicator(
-          icon: Icons.chat_bubble_outline,
-          label: 'Chat',
-          stream: _unreadMessagesStream,
-        ),
-        _buildBottomNavItemWithIndicator(
-          icon: Icons.shopping_cart_outlined,
-          label: 'Orders',
-          stream: _newOrdersStream,
-        ),
-        const BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
-      ],
-      onTap: (index) {
-        // Handle navigation taps (e.g., Navigator.push to respective pages)
-        print('Tapped index: $index');
-      },
-    );
-  }
-
-  BottomNavigationBarItem _buildBottomNavItemWithIndicator({
-    required IconData icon,
-    required String label,
-    required Stream<int> stream,
-    int initialCount = 0,
-  }) {
-    return BottomNavigationBarItem(
-      label: label,
-      icon: StreamBuilder<int>(
-        stream: stream,
-        initialData: initialCount,
-        builder: (context, snapshot) {
-          final unseenCount = snapshot.data ?? 0;
-          return Stack(
-            children: [
-              Icon(icon),
-              if (unseenCount > 0)
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 12,
-                      minHeight: 12,
-                    ),
-                  ),
-                ),
-            ],
-          );
-        },
+      bottomNavigationBar: SellerBottomNavBar(
+        currentIndex: _selectedIndex,
+        onTap: _onNavTap,
       ),
     );
   }

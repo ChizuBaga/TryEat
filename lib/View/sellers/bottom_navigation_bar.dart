@@ -1,5 +1,4 @@
-// File: seller_bottom_nav_bar.dart
-
+//Change after chat and order module done
 import 'package:flutter/material.dart';
 
 // ⭐️ This widget must be Stateful if it manages its own streams,

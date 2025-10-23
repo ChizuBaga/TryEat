@@ -14,9 +14,7 @@ class OrderService {
 
     return _db
         .collection('orders')
-        // ⭐️ Filter orders where seller_ID matches the logged-in user's UID
         .where('seller_ID', isEqualTo: _currentSellerId)
-        // ⭐️ Optional: Add a filter for status if you only want 'Preparing', 'Ready for Pickup', etc.
         // .where('orderStatus', isNotEqualTo: 'Completed')
         .snapshots()
         .map((snapshot) {

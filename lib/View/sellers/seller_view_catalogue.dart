@@ -1,14 +1,10 @@
+import 'package:chikankan/Controller/seller_navigation_handler.dart';
 import 'package:chikankan/View/sellers/add_item.dart';
 import 'package:chikankan/View/sellers/bottom_navigation_bar.dart';
 import 'package:chikankan/View/sellers/custom_toggle_button.dart';
 import 'package:chikankan/View/sellers/edit_item.dart';
-import 'package:chikankan/View/sellers/seller_chat.dart';
-import 'package:chikankan/View/sellers/seller_homepage.dart';
-import 'package:chikankan/View/sellers/seller_pending_order.dart';
-import 'package:chikankan/View/sellers/seller_profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:chikankan/Model/item_model.dart';
 
@@ -46,17 +42,11 @@ class _SellerCataloguePageState extends State<SellerCataloguePage> {
   int _selectedIndex = 0; //Default Homepage since not appear in btm bar
 
   void _onNavTap(int index) {
-      setState(() {
-          _selectedIndex = index;
-          if (index == 0) {
-            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const SellerHomepage()));
-          } else if (index == 1) {
-            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const SellerChat()));
-          } else if (index == 2) {
-            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const SellerPendingOrder()));
-          } else {
-          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const SellerProfile()));
-      }});
+    final handler = SellerNavigationHandler(context);
+    setState(() {
+      _selectedIndex = index;
+    });
+    handler.navigate(index);
   }
 
   void _toggleAvailability(Item item, bool newValue) {

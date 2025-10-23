@@ -1,4 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class SellerData {
+  final String? id;
+
   String? username;
   String? phoneNumber;
   String? email;
@@ -14,11 +18,20 @@ class SellerData {
   String? postcode;
   String? state;
 
+  //Additional Data
+  String? profileImageUrl;
+  double? averageRating;
+  DateTime? joinDate;
+  Timestamp? lastmodified;
+
   SellerData({
+    this.id,
+
     this.username, 
     this.phoneNumber,
     this.email,
     this.password, 
+
     this.icName,
     this.icNumber,
     this.icFrontImagePath, 
@@ -26,6 +39,46 @@ class SellerData {
     this.businessName,
     this.address, 
     this.postcode,
-    this.state
+    this.state,
+
+    this.profileImageUrl,
+    this.averageRating,
+    this.joinDate,
+    this.lastmodified
   });
+
+  factory SellerData.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>?;
+    if (data == null) {
+      throw StateError('Missing data for seller document ${doc.id}');
+    }
+
+    return SellerData(
+      id: doc.id,
+      username: data['username'],
+      phoneNumber: data['phone_number'], 
+      email: data['email'],
+      businessName: data['businessName'],
+      address: data['address'],
+      postcode: data['postcode'],
+      state: data['state'],
+      lastmodified: data['modifyProfileAt'],
+
+      joinDate: data['created_at'] as DateTime,
+      profileImageUrl: data['profileImageUrl'],
+
+    );
+  }
+  Map<String, dynamic> toFirestoreUpdate() {
+    return {
+      'username': username,
+      'phone_number': phoneNumber,
+      'email': email,
+      'businessName': businessName,
+      'address': address,
+      'postcode': postcode,
+      'state': state,
+      'profileImageUrl': profileImageUrl,
+    };
+  }
 }
