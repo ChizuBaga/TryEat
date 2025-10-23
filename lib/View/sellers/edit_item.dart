@@ -1,9 +1,9 @@
 import 'dart:io';
+import 'package:chikankan/Controller/item_controller.dart';
 import 'package:chikankan/Controller/seller_navigation_handler.dart';
 import 'package:chikankan/View/sellers/bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:chikankan/Model/item_model.dart'; 
 
@@ -18,6 +18,7 @@ class EditItem extends StatefulWidget {
 }
 
 class _EditItemState extends State<EditItem> {
+  ItemController _itemController = ItemController();
   final _formKey = GlobalKey<FormState>();
 
   // Text editing controllers
@@ -68,39 +69,6 @@ class _EditItemState extends State<EditItem> {
     }
   }
 
-  Future<String?> _uploadNewImage() async {
-    if (_newSelectedImage == null) return null; // No new image to upload
-
-    try {
-      final storageRef = FirebaseStorage.instance
-          .ref()
-          .child('item_images')
-          .child('${DateTime.now().millisecondsSinceEpoch}_${_newSelectedImage!.path.split('/').last}');
-      
-      final uploadTask = storageRef.putFile(_newSelectedImage!);
-      final snapshot = await uploadTask.whenComplete(() => {});
-      final downloadUrl = await snapshot.ref.getDownloadURL();
-      return downloadUrl;
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to upload new image: $e')),
-      );
-      return null;
-    }
-  }
-
-  Future<void> _deleteOldImage(String? oldImageUrl) async {
-    if (oldImageUrl == null || oldImageUrl.isEmpty) return;
-    if (!oldImageUrl.contains('firebasestorage.googleapis.com')) return; // Not a Firebase Storage URL
-
-    try {
-      final ref = FirebaseStorage.instance.refFromURL(oldImageUrl);
-      await ref.delete();
-    } catch (e) {
-      print('Error deleting old image from Storage: $e');
-    }
-  }
-
   // --- CRUD Operations ---
   Future<void> _updateItem() async {
     if (!_formKey.currentState!.validate()) {
@@ -111,30 +79,35 @@ class _EditItemState extends State<EditItem> {
       _isLoading = true;
     });
 
-    try {
-      String? finalImageUrl = _currentImageUrl; // Start with existing URL
-
+    String? finalImageUrl = _currentImageUrl;
+    String? errorMessage;
+    try {      
       if (_newSelectedImage != null) {
         // If a new image was selected, upload it
-        final newUploadedUrl = await _uploadNewImage();
+        final newUploadedUrl = await _itemController.uploadNewImage(_newSelectedImage);
         if (newUploadedUrl != null) {
           // If upload successful, delete the old image (if it exists)
-          await _deleteOldImage(widget.item.imageUrl);
+          await _itemController.deleteOldImage(widget.item.imageUrl);
           finalImageUrl = newUploadedUrl; // Update to new URL
         } else {
           // If new image upload failed, stop and inform user
-          setState(() { _isLoading = false; });
-          return;
+          errorMessage = 'Failed to upload new image.';
+          throw Exception(errorMessage);
         }
       }
 
-      await FirebaseFirestore.instance.collection('items').doc(widget.item.id).update({
-        'name': _foodNameController.text.trim(),
-        'price': double.tryParse(_priceController.text.trim()) ?? 0.0,
-        'description': _descriptionController.text.trim(),
+      final updateItems = {
+        'Name': _foodNameController.text.trim(),
+        'Price': double.tryParse(_priceController.text.trim()) ?? 0.0,
+        'Description': _descriptionController.text.trim(),
         'imageUrl': finalImageUrl,
         'updatedAt': FieldValue.serverTimestamp(),
-      });
+      };
+
+      await _itemController.updateItem(
+        itemId: widget.item.id,
+        updateItems: updateItems,
+      );
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Item updated successfully!')),
@@ -177,18 +150,15 @@ class _EditItemState extends State<EditItem> {
         _isLoading = true;
       });
       try {
-        // Delete image from Storage first
-        await _deleteOldImage(widget.item.imageUrl);
+        bool success = await _itemController.deleteItem(widget.item.id, widget.item.imageUrl);
         
-        // Delete document from Firestore
-        await FirebaseFirestore.instance.collection('items').doc(widget.item.id).delete();
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Item deleted successfully!')),
-        );
-        Navigator.of(context).pop(); // Pop this page
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Successfully delete item!')),
+          );
+          Navigator.of(context).pop();
+        }
       } catch (e) {
-        print('Error deleting item: $e');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to delete item: $e')),
         );

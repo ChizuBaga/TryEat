@@ -21,7 +21,7 @@ class _EditProfileState extends State<EditProfile> {
   final _formKey = GlobalKey<FormState>();
   final User? currentUser = FirebaseAuth.instance.currentUser;
   bool _isBusinessNameEditable = true;//default true for user to change business name
-  Timestamp? modifyProfileAt;
+  Timestamp? modifyBNAt;
 
   // Controllers initialized with passed data
   late TextEditingController _businessNameController;
@@ -31,7 +31,6 @@ class _EditProfileState extends State<EditProfile> {
   late TextEditingController _addressController;
 
   File? _newProfileImage; 
-  String? _currentProfileImageUrl; 
   bool _isLoading = false;
   int _selectedIndex = 3;
 
@@ -51,21 +50,20 @@ class _EditProfileState extends State<EditProfile> {
     _phoneController = TextEditingController(text: widget.seller.phoneNumber ?? '');
     _emailController = TextEditingController(text: widget.seller.email ?? '');
     _addressController = TextEditingController(text: widget.seller.address ?? '');
-    _currentProfileImageUrl = widget.seller.profileImageUrl;
-    modifyProfileAt = widget.seller.lastmodified;
+    modifyBNAt = widget.seller.lastBusinessNamemodified;
   }
 
-  void _checkNameEditability(Timestamp? modifyProfileAt) {
-  if (modifyProfileAt == null) {
+  void _checkNameEditability(Timestamp? modifyBNAt) {
+  if (modifyBNAt == null) {
     _isBusinessNameEditable = true;
     return;
   }
 
-  final lastModifiedDate = modifyProfileAt.toDate();
+  final lastModifiedDate = modifyBNAt.toDate();
   final oneYearAgo = DateTime.now().subtract(const Duration(days: 365));//Return true or false
 
   setState(() {
-    // If the last modification was less than one year ago, cannot edit, else can;
+    // If the last modification was less than one year ago, cannot edit
     _isBusinessNameEditable = lastModifiedDate.isBefore(oneYearAgo);
   });
 }
@@ -115,14 +113,13 @@ class _EditProfileState extends State<EditProfile> {
     }
   }
 
-  // File: edit_profile.dart (Inside _EditProfileState)
-
 Future<void> _saveChanges() async {
   if (!_formKey.currentState!.validate()) return;
   setState(() { _isLoading = true; });
 
   try {
     String? finalProfileImageUrl = widget.seller.profileImageUrl;
+    Map<String, dynamic> updateData = {};
 
     if (_newProfileImage != null) {
       final newUrl = await _uploadProfileImage();
@@ -139,15 +136,22 @@ Future<void> _saveChanges() async {
       }
     }
 
-    final updateData = {
-      'businessName': _businessNameController.text.trim(),
+    final originalBusinessName = widget.seller.businessName ?? '';
+    final newBusinessName = _businessNameController.text.trim();
+    bool businessNameWasChanged = (newBusinessName != originalBusinessName);
+
+    updateData = {
+      'businessName': newBusinessName,
       'username': _usernameController.text.trim(),
       'phone_number': _phoneController.text.trim(),
       'email': _emailController.text.trim(),
       'address': _addressController.text.trim(),
       'profileImageUrl': finalProfileImageUrl, 
-      'modifyProfileAt': FieldValue.serverTimestamp(),
     };
+
+    if (businessNameWasChanged) {
+      updateData['modifyBusinessNameAt'] = FieldValue.serverTimestamp();
+    }
 
     await FirebaseFirestore.instance
         .collection('sellers')
@@ -168,6 +172,7 @@ Future<void> _saveChanges() async {
 
   @override
   Widget build(BuildContext context) {
+    _checkNameEditability(widget.seller.lastBusinessNamemodified);
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 252, 248, 221),
       appBar: AppBar(

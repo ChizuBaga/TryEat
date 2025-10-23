@@ -22,7 +22,7 @@ class SellerData {
   String? profileImageUrl;
   double? averageRating;
   DateTime? joinDate;
-  Timestamp? lastmodified;
+  Timestamp? lastBusinessNamemodified;
 
   SellerData({
     this.id,
@@ -44,7 +44,7 @@ class SellerData {
     this.profileImageUrl,
     this.averageRating,
     this.joinDate,
-    this.lastmodified
+    this.lastBusinessNamemodified
   });
 
   factory SellerData.fromFirestore(DocumentSnapshot doc) {
@@ -62,9 +62,9 @@ class SellerData {
       address: data['address'],
       postcode: data['postcode'],
       state: data['state'],
-      lastmodified: data['modifyProfileAt'],
+      lastBusinessNamemodified: data['modifyBusinessNameAt'],
 
-      joinDate: data['created_at'] as DateTime,
+      joinDate: (data['created_at'] is Timestamp) ? (data['created_at'] as Timestamp).toDate() : null,
       profileImageUrl: data['profileImageUrl'],
 
     );
