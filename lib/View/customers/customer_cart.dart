@@ -1,28 +1,24 @@
 import 'package:flutter/material.dart';
-import 'customer_checkout.dart'; // Import the new checkout page
+import 'customer_checkout.dart';
 
-// ---
-// STEP 1: Create a class to model your cart item data
-// ---
 class CartItem {
   final String id;
   final String name;
   final double price;
-  final String imageUrl; // Placeholder for your image
-  bool isSelected;       // This will be controlled by the checkbox
+  final String imageUrl;
+  final int quantity;
+  // bool isSelected; //multiple item
 
   CartItem({
     required this.id,
     required this.name,
     required this.price,
     required this.imageUrl,
-    this.isSelected = false, // Items are not selected by default
+    required this.quantity,
+    // this.isSelected = false,
   });
 }
 
-// ---
-// STEP 2: Stateful Widget
-// ---
 class CustomerCart extends StatefulWidget {
   const CustomerCart({super.key});
 
@@ -31,111 +27,178 @@ class CustomerCart extends StatefulWidget {
 }
 
 class _CustomerCartState extends State<CustomerCart> {
-  // ---
-  // STEP 3: Create mock data for your cart
-  // You will replace this with a call to Firebase
-  // ---
+  // Mock data
   final List<CartItem> _cartItems = [
-    CartItem(id: '1', name: 'Red Bean Bun', price: 4.50, imageUrl: 'placeholder'),
-    CartItem(id: '2', name: 'Chocolate Bun', price: 5.00, imageUrl: 'placeholder'),
-    CartItem(id: '3', name: 'Kaya Puff', price: 3.20, imageUrl: 'placeholder'),
-    CartItem(id: '4', name: 'Red Bean Bun', price: 4.50, imageUrl: 'placeholder'),
-    CartItem(id: '5', name: 'Chocolate Bun', price: 5.00, imageUrl: 'placeholder'),
-    CartItem(id: '6', name: 'Kaya Puff', price: 3.20, imageUrl: 'placeholder'),
-    CartItem(id: '7', name: 'Kaya Puff', price: 3.20, imageUrl: 'placeholder'),
-    CartItem(id: '8', name: 'Kaya Puff', price: 3.20, imageUrl: 'placeholder'),
-    CartItem(id: '9', name: 'Kaya Puff', price: 3.20, imageUrl: 'placeholder'),
-    CartItem(id: '10', name: 'Kaya Puff', price: 3.20, imageUrl: 'placeholder'),
+    CartItem(
+      id: '1',
+      name: 'Red Bean Bun',
+      price: 4.50,
+      imageUrl: 'placeholder',
+      quantity: 2,
+    ),
+    CartItem(
+      id: '2',
+      name: 'Chocolate Bun',
+      price: 5.00,
+      imageUrl: 'placeholder',
+      quantity: 1,
+    ),
+    CartItem(
+      id: '3',
+      name: 'Kaya Puff',
+      price: 3.20,
+      imageUrl: 'placeholder',
+      quantity: 3,
+    ),
+    CartItem(
+      id: '4',
+      name: 'Red Bean Bun',
+      price: 4.50,
+      imageUrl: 'placeholder',
+      quantity: 1,
+    ),
+    CartItem(
+      id: '5',
+      name: 'Chocolate Bun',
+      price: 5.00,
+      imageUrl: 'placeholder',
+      quantity: 1,
+    ),
+    CartItem(
+      id: '6',
+      name: 'Kaya Puff',
+      price: 3.20,
+      imageUrl: 'placeholder',
+      quantity: 1,
+    ),
   ];
 
-  // ---
-  // Calculate the total price of selected items
-  // ---
+  String? _selectedItemId;
+
+  // --- Calculate total price of the SINGLE selected item ---
   double get _totalPrice {
-    double total = 0.0;
-    for (var item in _cartItems) {
-      if (item.isSelected) {
-        total += item.price;
-      }
+    if (_selectedItemId == null) {
+      return 0.0;
     }
-    return total;
+    CartItem selectedItem;
+    try {
+      // Find the selected item using firstWhere
+      selectedItem = _cartItems.firstWhere(
+        (item) => item.id == _selectedItemId,
+      );
+
+      // Explicitly check if quantity is somehow null AFTER finding the item
+      // Although 'quantity' is required, this adds extra safety
+      final int quantity = selectedItem.quantity ?? 0;
+      return selectedItem.price * quantity;
+    } catch (e) {
+      // This catch block handles the case where firstWhere finds NO item
+      // (which shouldn't happen if _selectedItemId comes from the list, but it's safe)
+      print("Error finding selected item in _totalPrice: $e");
+      return 0.0; // Return 0 if item not found or error occurs
+    }
+  }
+
+  // --- Get the SINGLE selected CartItem object ---
+  CartItem? get _selectedCartItem {
+    if (_selectedItemId == null) {
+      return null;
+    }
+    try {
+      return _cartItems.firstWhere((item) => item.id == _selectedItemId);
+    } catch (e) {
+      return null;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 252, 248, 221),
+      backgroundColor: const Color.fromARGB(255, 255, 254, 246),
       appBar: AppBar(
-        title: const Text('Cart', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Cart',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.transparent,
         automaticallyImplyLeading: false,
         centerTitle: true,
       ),
-      // ---
-      // STEP 4: Use a Column to hold the List and the Checkout Bar
-      // ---
       body: Column(
         children: [
-          // The list of items should take up all available space
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 4.0),
+            child: Text(
+              '(Select one item to checkout at a time)',
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.black54,
+                fontStyle: FontStyle.italic,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
               itemCount: _cartItems.length,
               itemBuilder: (context, index) {
                 final item = _cartItems[index];
                 return CartItemCard(
                   item: item,
-                  //update the state of the checkbox
-                  onChanged: (bool? newValue) {
+                  isSelected: _selectedItemId == item.id,
+                  onChanged: (String? selectedId) {
                     setState(() {
-                      _cartItems[index].isSelected = newValue ?? false;
+                      _selectedItemId = selectedId;
                     });
                   },
                 );
               },
             ),
           ),
-          // ---
-          // STEP 6: Conditionally show the Checkout Button based on price
-          // ---
-          if (_totalPrice > 0)
+          // Conditionally show Checkout Button if an item is selected
+          if (_selectedItemId != null) // Check if an item ID is selected
             _buildCheckoutButton(context)
           else
-            const SizedBox.shrink(), // Show nothing if no items are selected
+            const SizedBox.shrink(),
         ],
       ),
     );
   }
 
-  // ---
-  // A widget for the bottom checkout button
-  // ---
   Widget _buildCheckoutButton(BuildContext context) {
+    final selectedItem = _selectedCartItem;
+    if (selectedItem == null) return const SizedBox.shrink();
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0)
-          .copyWith(bottom: 32.0), // Extra padding for the home bar
+      padding: const EdgeInsets.symmetric(
+        horizontal: 24.0,
+        vertical: 16.0,
+      ).copyWith(bottom: 32.0),
       child: SizedBox(
-        width: double.infinity, // Make the button full-width
+        width: double.infinity,
         child: ElevatedButton(
           onPressed: () {
-            // Get all selected items
-            final selectedItems =
-                _cartItems.where((item) => item.isSelected).toList();
-
-            // Navigate to the new CheckoutPage
+            // Navigate with the SINGLE selected item (which now includes quantity)
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    CheckoutPage(items: selectedItems, total: _totalPrice),
+                builder: (context) => CheckoutPage(
+                  items: [selectedItem], // Pass list with one item
+                  total:
+                      _totalPrice, // Pass the calculated total (price * quantity)
+                ),
               ),
             );
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color.fromARGB(255, 255, 153, 0), // Black button
-            foregroundColor: Colors.white, // White text
-            padding:
-                const EdgeInsets.symmetric(vertical: 16.0), // Button height
+            backgroundColor: const Color.fromARGB(255, 255, 153, 0),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12.0),
             ),
@@ -151,23 +214,22 @@ class _CustomerCartState extends State<CustomerCart> {
   }
 }
 
-// ---
-// STEP 5: Create a dedicated widget for the Cart Item Card
-// ---
 class CartItemCard extends StatelessWidget {
   final CartItem item;
-  final Function(bool?)? onChanged;
+  final bool isSelected;
+  final Function(String?)? onChanged;
 
   const CartItemCard({
     super.key,
     required this.item,
+    required this.isSelected,
     required this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color.fromARGB(255, 255, 229, 143),
+      color: const Color.fromARGB(255, 252, 248, 221),
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       elevation: 2,
@@ -175,7 +237,6 @@ class CartItemCard extends StatelessWidget {
         padding: const EdgeInsets.all(12.0),
         child: Row(
           children: [
-            // Image Placeholder
             Container(
               width: 60,
               height: 60,
@@ -183,12 +244,14 @@ class CartItemCard extends StatelessWidget {
                 color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(8.0),
               ),
-              child:
-                  Icon(Icons.image_outlined, color: Colors.grey[400], size: 32),
+              child: Icon(
+                Icons.image_outlined,
+                color: Colors.grey[400],
+                size: 32,
+              ),
             ),
             const SizedBox(width: 16.0),
 
-            // Item Name and Price
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,23 +268,37 @@ class CartItemCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     'RM${item.price.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[700],
-                    ),
+                    style: TextStyle(fontSize: 15, color: Colors.grey[800]),
                   ),
+
+                  const SizedBox(height: 4),
+
+                  // Text(
+                  //   'Qty: ${item.quantity}',
+                  //   style: TextStyle(fontSize: 15, color: Colors.grey[800]),
+                  // ),
                 ],
               ),
             ),
+            const SizedBox(width: 20.0),
+
+            Text(
+                    'Qty: ${item.quantity}',
+                    style: TextStyle(fontSize: 16, color: Colors.grey[800]),
+                  ),
+
             const SizedBox(width: 16.0),
-            
-            Checkbox(
-              value: item.isSelected,
-              onChanged: onChanged,
-              activeColor: const Color.fromARGB(255, 255, 166, 0), 
-              checkColor: Colors.white,
-              shape: const CircleBorder(),
-              side: BorderSide(color: Colors.grey[400]!, width: 2),
+
+            Radio<String>(
+              value: item.id,
+              groupValue: isSelected ? item.id : null,
+              onChanged: (String? value) {
+                // Call the callback with the item's ID when tapped
+                if (onChanged != null) {
+                  onChanged!(item.id);
+                }
+              },
+              activeColor: const Color.fromARGB(255, 255, 166, 0),
             ),
           ],
         ),
@@ -229,4 +306,3 @@ class CartItemCard extends StatelessWidget {
     );
   }
 }
-
