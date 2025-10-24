@@ -13,13 +13,17 @@ class CustomerHomepage extends StatelessWidget {
         .snapshots();
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        title: _buildSearchBar(),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(70),
+        child: AppBar(
+          backgroundColor: const Color.fromARGB(255, 255, 229, 143),
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          title: _buildSearchBar(),
+        ),
       ),
-      backgroundColor: const Color.fromARGB(255, 252, 248, 221),
+
+      backgroundColor: const Color.fromARGB(255, 255, 254, 246),
       body: ListView(
         children: [
           const SizedBox(height: 16),
@@ -53,7 +57,7 @@ class CustomerHomepage extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         SizedBox(
-          height: 190, 
+          height: 190,
           child: StreamBuilder<QuerySnapshot>(
             stream: stream,
             builder: (context, snapshot) {
@@ -101,19 +105,23 @@ class CustomerHomepage extends StatelessWidget {
     );
   }
 
-  // Search bar 
+  // Search bar
   Widget _buildSearchBar() {
-    return TextField(
-      decoration: InputDecoration(
-        hintText: 'Search',
-        prefixIcon: const Icon(Icons.search, color: Colors.grey),
-        filled: true,
-        fillColor: const Color.fromARGB(255, 255, 226, 129),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(40.0),
-          borderSide: BorderSide.none,
+    return Material(
+      elevation: 4,
+      borderRadius: BorderRadius.circular(40.0),
+      child: TextField(
+        decoration: InputDecoration(
+          hintText: 'Search',
+          prefixIcon: const Icon(Icons.search, color: Colors.grey),
+          filled: true,
+          fillColor: const Color.fromARGB(255, 252, 248, 221),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(40.0),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: EdgeInsets.zero,
         ),
-        contentPadding: EdgeInsets.zero,
       ),
     );
   }
@@ -122,7 +130,7 @@ class CustomerHomepage extends StatelessWidget {
 // card widget
 class StoreCard extends StatelessWidget {
   final String name;
-  final String imageUrl; 
+  final String imageUrl;
   final VoidCallback onTap;
 
   const StoreCard({
@@ -144,7 +152,7 @@ class StoreCard extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.0),
           ),
-          color: Color.fromARGB(255, 255, 225, 0), 
+          color: const Color.fromARGB(255, 252, 248, 221),
           elevation: 6,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

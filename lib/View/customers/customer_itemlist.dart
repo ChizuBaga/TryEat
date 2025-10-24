@@ -28,7 +28,7 @@ class CustomerItemListPage extends StatelessWidget {
         .get();
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 252, 248, 221),
+      backgroundColor: const Color.fromARGB(255, 255, 254, 246),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -60,6 +60,7 @@ class CustomerItemListPage extends StatelessWidget {
           // Build the main UI
           return ListView(
             children: [
+              const SizedBox(height: 6),
               // --- Store Header ---
               _buildStoreHeader(sellerData),
               const SizedBox(height: 24),
@@ -239,7 +240,7 @@ class CustomerItemListPage extends StatelessWidget {
    required String itemId,
    required bool isAvailable,
  }) {
-   final Color tileColor = isAvailable ? const Color.fromARGB(255, 255, 225, 0) : Colors.grey[350]!; 
+   final Color tileColor = isAvailable ? const Color.fromARGB(255, 252, 248, 221) : Colors.grey[300]!; 
    final Color textColor = isAvailable ? Colors.black : Colors.grey[600]!;
    final Color iconColor = isAvailable ? Colors.black54 : Colors.grey[600]!;
    final VoidCallback? onTap = isAvailable
