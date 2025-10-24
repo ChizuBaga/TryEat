@@ -1,30 +1,18 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:huawei_location/huawei_location.dart';
 import 'dart:math';
 
 class Harversine{
-  GeoPoint geoPoint;
   double r = 6371;
-  double lat;
-  double lon;
+  double customerLat;
+  double customerLon;
+  double sellerLat;
+  double sellerLon;
 
-  Harversine(this.lat, this.lon, {required this.geoPoint});
-
-  Harversine getCoordinates(GeoPoint gp){
-    double lat = gp.latitude;
-    double lon = gp.longitude;
-    return Harversine(lat, lon, geoPoint: geoPoint);
-  }
-
-  //getters
-  double getLat(){
-    return lat;
-  }
-
-  double getLon(){
-    return lon;
-  }
+  Harversine({
+    required this.customerLat, 
+    required this.customerLon, 
+    required this.sellerLat, 
+    required this.sellerLon,
+});
 
   double toRadian(double degree){
     return degree * (pi / 180);
@@ -39,8 +27,8 @@ class Harversine{
   }
 
   //Calc distance of 2 points
-  double calcDistance (double lat2, double lon2){
-    double a = aTerm(lat2, lon2);
+  double calcDistance (){
+    double a = aTerm(customerLat, customerLon, sellerLat, sellerLon);
     return r * calcC(a);
   }
   
@@ -50,13 +38,17 @@ class Harversine{
   }
 
   //a-term calculation
-  double aTerm(double lat2, double lon2){
-    double rad1 = toRadian(lat);
-    double rad2 = toRadian(lon);
-    double radDiff1 = radDifferences(rad1, rad2);
-    double radDiff2 = radDifferences(toRadian(lat2), toRadian(lon2));
+  double aTerm(customerLat, customerLon, sellerLat, sellerLon){
+    double latRad = toRadian(customerLat);
+    double lonRad = toRadian(customerLon);
+    double latRad2 = toRadian(sellerLat);
+    double lonRad2 = toRadian(sellerLon);
 
-    double a = sinnSquare((radDiff1) / 2) + cos(rad1) * cos(rad2) * sinnSquare(radDiff2 / 2);
+    //Calc Differences
+    double radDiff1 = radDifferences(latRad, latRad2);
+    double radDiff2 = radDifferences(lonRad, lonRad2);
+
+    double a = sinnSquare((radDiff1) / 2) + cos(latRad) * cos(latRad2) * sinnSquare(radDiff2 / 2);
     return a;
   }
 

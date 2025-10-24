@@ -33,6 +33,7 @@ void main() async {
   
   //Initialize Huawei Location Service
   await locator<FusedLocationProviderClient>().initFusedLocationService();
+  
   runApp(const MainApp());
 }
 
