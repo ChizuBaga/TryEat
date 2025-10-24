@@ -1,13 +1,10 @@
-// File: add_item.dart
-
-import 'dart:io'; // Required for File type
-
+import 'dart:io'; 
+import 'package:chikankan/Controller/item_controller.dart';
+import 'package:chikankan/Controller/seller_navigation_handler.dart';
 import 'package:chikankan/View/sellers/bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // To get seller's UID
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AddItem extends StatefulWidget {
   const AddItem({super.key});
@@ -24,19 +21,31 @@ class _AddItemState extends State<AddItem> {
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();  
   final TextEditingController _categoryController = TextEditingController();
+  final TextEditingController _reservedDaysController = TextEditingController();
 
   File? _selectedImage; // To store the selected image file
-  String? _imageUrl; // To store the uploaded image URL
   bool _isLoading = false; // To show loading indicator
+
+  //Dropdown options
+  final List<String> _orderTypes = ['Instant', 'Pre-order'];
+  final List<String> _deliveryModesInstant = ['Self-delivery', '3rd Party'];
+  final List<String> _deliveryModesPreOrder = ['Meet-up', 'Self-delivery', '3rd Party', 'Self-collection'];
+
+  String? _selectedOrderType;
+  String? _selectedDeliveryMode;
+
+  //Item Controller
+  final ItemController _itemController = ItemController();
 
   int _selectedIndex = 2;
   void _onNavTap(int index) {
-      // ⭐️ You would typically handle navigation here, e.g., using a PageView or Navigator.push
-      setState(() {
-          _selectedIndex = index;
-          // Example: if (index == 0) Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const SellerHomePage()));
-      });
+    final handler = SellerNavigationHandler(context);
+    setState(() {
+      _selectedIndex = index;
+    });
+    handler.navigate(index);
   }
+
   // Function to pick an image from the gallery
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -45,101 +54,70 @@ class _AddItemState extends State<AddItem> {
     if (pickedFile != null) {
       setState(() {
         _selectedImage = File(pickedFile.path);
-        // Clear previous image URL if a new image is picked
-        _imageUrl = null; 
       });
-    }
-  }
-
-  // Function to upload image to Firebase Storage
-  Future<String?> _uploadImage() async {
-    if (_selectedImage == null) return null;
-
-    try {
-      final storageRef = FirebaseStorage.instance
-          .ref()
-          .child('item_images')
-          .child('${DateTime.now().millisecondsSinceEpoch}.jpg'); // Unique name
-      
-      final uploadTask = storageRef.putFile(_selectedImage!);
-      final snapshot = await uploadTask.whenComplete(() => {});
-      final downloadUrl = await snapshot.ref.getDownloadURL();
-      return downloadUrl;
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to upload image: $e')),
-      );
-      return null;
     }
   }
 
   // Function to save item details to Firestore
   Future<void> _saveItem() async {
-    if (!_formKey.currentState!.validate()) {
-      return; // If form is not valid, do not proceed
+    if (!_formKey.currentState!.validate()) return;
+
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error: User not logged in.')));
+      return;
     }
 
     setState(() {
       _isLoading = true;
     });
 
+    String? imageUrl;
+    bool success = false;
+    String errorMessage = 'Failed to add item.';
+
     try {
-      // 1. Upload image
-      _imageUrl = await _uploadImage();
-      if (_selectedImage != null && _imageUrl == null) {
-        setState(() {
-          _isLoading = false;
-        });
-        return;
+      if (_selectedImage != null) {
+        imageUrl = await _itemController.uploadImage(_selectedImage!);
+        if (imageUrl == null) {
+          errorMessage = 'Failed to upload image. Please try again.';
+          throw Exception('Image upload failed.');
+        }
       }
 
-      // Get current seller's UID
-      final User? currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) {
-        throw Exception("No seller is currently logged in.");
-      }
-      final String sellerId = currentUser.uid;
+      final int reservedDays = int.tryParse(_reservedDaysController.text.trim()) ?? 0;
 
-      // 2. Prepare data for Firestore
-      final String itemName = _foodNameController.text.trim();
-      final double itemPrice = double.tryParse(_priceController.text.trim()) ?? 0.0;
-      final String itemDescription = _descriptionController.text.trim();
-      final String itemCategory = _categoryController.text.trim();
-
-      await FirebaseFirestore.instance.collection('items').add({
-        'Name': itemName,
-        'Price': itemPrice,
-        'Category': itemCategory,
-        'Description': itemDescription,
-        'imageUrl': _imageUrl, 
-        'isAvailable': true, // Default to available
-        'sellerId': sellerId, 
-        'createdAt': FieldValue.serverTimestamp(), 
-      });
-
-      // Show success message and navigate back
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Item added successfully!')),
+      success = await _itemController.saveItemDetails(
+        sellerId: currentUser.uid,
+        itemName: _foodNameController.text.trim(),
+        itemPrice: double.tryParse(_priceController.text.trim()) ?? 0.0,
+        itemCategory: _categoryController.text.trim(),
+        itemDescription: _descriptionController.text.trim(),
+        orderType: _selectedOrderType!,
+        deliveryMode: _selectedDeliveryMode!,
+        reservedDays: reservedDays,
+        imageUrl: imageUrl,
       );
-      Navigator.of(context).pop(); // Go back to catalogue page
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Item added successfully!')),
+        );
+        Navigator.of(context).pop();
+      } else {
+        errorMessage = 'Failed to save item details to database.';
+        throw Exception(errorMessage);
+      }
 
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add item: $e')),
+        SnackBar(content: Text(errorMessage)),
       );
     } finally {
       setState(() {
         _isLoading = false;
       });
     }
-  }
-
-  @override
-  void dispose() {
-    _foodNameController.dispose();
-    _priceController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
   }
 
   @override
@@ -276,6 +254,69 @@ class _AddItemState extends State<AddItem> {
                     ),
                     const SizedBox(height: 20),
 
+                    // --- Order Type ---
+                    _buildDropdownField<String>(
+                      label: 'Order Type',
+                      selectedValue: _selectedOrderType,
+                      items: _orderTypes,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _selectedOrderType = newValue;
+                          _selectedDeliveryMode = null;
+                          _reservedDaysController.clear();
+                        });
+                      },
+                      validator: (v) => v == null ? 'Select order type' : null,
+                    ),
+
+                    // --- Reserved Days ---
+                    if (_selectedOrderType == 'Pre-order')
+                     ...[const Text('Reserved Days:', style: TextStyle(fontSize: 16)),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _reservedDaysController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          hintText: 'Not more than 15 days',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter reserved days.';
+                          }
+                          final int? days = int.tryParse(value);
+                          if (days == null || days <= 0) { 
+                            return 'Please enter a valid number of days greater than 0.';
+                          }
+                          if (days > 15) {
+                            return 'Reserved days cannot be more than 15.';
+                          }
+                          return null;
+                        },
+                      ),],
+                      
+                    // --- Delivery Mode ---
+                    if (_selectedOrderType != null)
+                      ...[const SizedBox(height: 8),
+                      _buildDropdownField<String>(
+                        label: 'Delivery Mode',
+                        selectedValue: _selectedDeliveryMode,
+                        
+                        items: _selectedOrderType == 'Instant' 
+                            ? _deliveryModesInstant 
+                            : _deliveryModesPreOrder, 
+                            
+                        onChanged: (newValue) {
+                          setState(() {
+                            _selectedDeliveryMode = newValue;
+                          });
+                        },
+                        validator: (v) => v == null ? 'Select delivery mode' : null,
+                      ),],
+
 
                     // --- Description ---
                     const Text('Description:', style: TextStyle(fontSize: 16)),
@@ -329,6 +370,38 @@ class _AddItemState extends State<AddItem> {
         currentIndex: _selectedIndex,
         onTap: _onNavTap,
       ), // Reusing existing bottom nav bar
+    );
+  }
+
+  Widget _buildDropdownField<T>({
+    required String label,
+    required T? selectedValue,
+    required List<T> items,
+    required ValueChanged<T?> onChanged,
+    String? Function(T?)? validator,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('$label:', style: const TextStyle(fontSize: 16)),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<T>(
+          value: selectedValue,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+          ),
+          items: items.map((T value) {
+            return DropdownMenuItem<T>(
+              value: value,
+              child: Text(value.toString()),
+            );
+          }).toList(),
+          onChanged: onChanged,
+          validator: validator != null ? (value) => validator(value) : null,
+        ),
+        const SizedBox(height: 20),
+      ],
     );
   }
 }

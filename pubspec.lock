@@ -320,6 +320,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.14.2+301"
+  huawei_site:
+    dependency: "direct main"
+    description:
+      name: huawei_site
+      sha256: "31474f51c17ef50c0f6109cbee8a606ab00955464bea625ad7aeed752e855f1e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.5.1+303"
   image_picker:
     dependency: "direct main"
     description:
@@ -509,6 +517,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.1"
+  swipe_to:
+    dependency: "direct main"
+    description:
+      name: swipe_to
+      sha256: "58f61031803ece9b0efe09006809e78904c640c6d42d48715d1d1c3c28f8499a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.6"
   term_glyph:
     dependency: transitive
     description:

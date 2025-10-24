@@ -1,22 +1,13 @@
-import 'package:chikankan/View/sellers/seller_chat.dart';
+import 'package:chikankan/Controller/seller_navigation_handler.dart';
+import 'package:chikankan/View/sellers/seller_current_order.dart';
 import 'package:chikankan/View/sellers/seller_dashboard.dart';
-import 'package:chikankan/View/sellers/seller_pending_order.dart';
-import 'package:chikankan/View/sellers/seller_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart'; 
-import 'package:cloud_firestore/cloud_firestore.dart' hide Order; 
+import 'package:cloud_firestore/cloud_firestore.dart'; 
 import 'package:chikankan/Model/order_model.dart';
 import 'package:chikankan/View/sellers/seller_view_catalogue.dart';
 import 'package:chikankan/Controller/order_service.dart';
 import 'package:chikankan/View/sellers/bottom_navigation_bar.dart';
-
-// Data model for orders
-class Order {
-  final String id;
-  final String status;
-
-  Order(this.id, this.status); 
-}
 
 class SellerHomepage extends StatefulWidget {
   const SellerHomepage({super.key});
@@ -35,17 +26,11 @@ class _SellerHomepageState extends State<SellerHomepage> {
   int _selectedIndex = 0; 
 
   void _onNavTap(int index) {
-      setState(() {
-          _selectedIndex = index;
-          if (index == 0) {
-            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const SellerHomepage()));
-          } else if (index == 1) {
-            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const SellerChat()));
-          } else if (index == 2) {
-            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const SellerPendingOrder()));
-          } else {
-          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const SellerProfile()));
-      }});
+    final handler = SellerNavigationHandler(context);
+    setState(() {
+      _selectedIndex = index;
+    });
+    handler.navigate(index);
   }
   
   @override
@@ -99,10 +84,6 @@ class _SellerHomepageState extends State<SellerHomepage> {
             _buildQuickActionsGrid(),
             
             const SizedBox(height: 30),
-
-            // --- 4. Average Rating ---
-            _buildAverageRatingCard(),
-            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -257,27 +238,34 @@ class _SellerHomepageState extends State<SellerHomepage> {
       statusColor = Colors.green;
     }
     
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey, width: 0.2)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            order.orderId,
-            style: const TextStyle(fontSize: 16, color: Colors.black87),
-          ),
-          Text(
-            order.orderStatus,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: statusColor,
+    return InkWell(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => SellerCurrentOrder(order: order),),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+        decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: Colors.grey, width: 0.2)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              order.orderId,
+              style: const TextStyle(fontSize: 16, color: Colors.black87),
             ),
-          ),
-        ],
+            Text(
+              order.orderStatus,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: statusColor,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -346,42 +334,4 @@ class _SellerHomepageState extends State<SellerHomepage> {
       ),
     );
   }
-
-  Widget _buildAverageRatingCard() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            'Average Rating',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          // Simple Star Rating Placeholder
-          Row(
-            children: List.generate(
-              5,
-              (index) => Icon(
-                index < 4 ? Icons.star : Icons.star_border,
-                color: Colors.amber,
-                size: 24,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  } 
 }
