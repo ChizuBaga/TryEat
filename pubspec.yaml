@@ -41,7 +41,6 @@ dependencies:
   intl: ^0.20.2
   http: ^1.5.0
   huawei_location: ^6.14.2+301
-  intl: ^0.18.1
   huawei_site: 6.5.1+303
   swipe_to: ^1.0.4
   # huawei_push: ^6.13.0+300

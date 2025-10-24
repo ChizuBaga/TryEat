@@ -1,9 +1,9 @@
 import 'package:chikankan/View/customers/customer_homepage.dart';
 import 'package:flutter/material.dart';
-import '../customer_chat.dart'; 
-import '../customer_cart.dart';
-//import 'customer_order.dart'; 
-//import 'customer_profile.dart'; 
+import 'customer_chat.dart'; 
+import 'customer_cart.dart';
+import 'customer_order.dart'; 
+import 'customer_profile.dart'; 
 
 class CustomerTab extends StatefulWidget {
   const CustomerTab({super.key});
@@ -19,8 +19,8 @@ class _CustomerTabState extends State<CustomerTab> {
     CustomerHomepage(),
     CustomerChat(), 
     CustomerCart(),
-    // CustomerOrder(),
-    // CustomerProfile(),
+    CustomerOrder(),
+    CustomerProfile(),
   ];
 
   void _onItemTapped(int index) {
@@ -60,10 +60,10 @@ class _CustomerTabState extends State<CustomerTab> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Color.fromARGB(255, 255, 153, 0), // Changed color for example
+        selectedItemColor: Color.fromARGB(255, 255, 153, 0),
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed, // Good for 4+ items
+        type: BottomNavigationBarType.fixed,
         showUnselectedLabels: true,
       ),
     );
