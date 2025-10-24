@@ -149,7 +149,7 @@ class _CustomerHomepageState extends State<CustomerHomepage> {
         const SizedBox(height: 12),
         SizedBox(
           height: 190,
-          child: StreamBuilder<QuerySnapshot>(
+          child: StreamBuilder<QuerySnapshot>( //here??? wo zhende bu dong
             stream: stream,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {

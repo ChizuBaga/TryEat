@@ -82,7 +82,7 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 254, 246),
       appBar: AppBar(
-        title: const Text("Item Details"),
+        title: const Text("Item Details", style: TextStyle(fontWeight: FontWeight.bold),),
         centerTitle: true,
         backgroundColor: Color.fromARGB(255, 255, 229, 143), 
         elevation: 0, 
@@ -199,6 +199,18 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    const SizedBox(height: 10),
+
+                    Text(
+                      item.orderType ?? 'N/A',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.black87,
+                        fontStyle: FontStyle.italic,
+                        fontSize: 20,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+
                     const SizedBox(height: 16),
                     Text(
                       "RM${item.price.toStringAsFixed(2)}",
@@ -208,6 +220,7 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                           ?.copyWith(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
                     ),
+                    
                     const SizedBox(height: 24),
 
                     // --- Comments Analysis ---
