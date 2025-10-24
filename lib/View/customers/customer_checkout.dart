@@ -193,7 +193,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 252, 248, 221),
       appBar: AppBar(
-        title: const Text('Checkout', style: TextStyle(color: Colors.black)),
+        title: const Text('Checkout', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 255, 229, 143), // Your color
         elevation: 1,

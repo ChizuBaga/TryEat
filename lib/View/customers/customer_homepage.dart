@@ -7,7 +7,7 @@ class CustomerHomepage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Stream<QuerySnapshot> storesStream = FirebaseFirestore.instance
+    final Stream<QuerySnapshot> storesStream = FirebaseFirestore.instance //here gua?? now the data is from here ma?
         .collection('sellers')
         .where('isVerified', isEqualTo: true)
         .snapshots();
@@ -29,11 +29,7 @@ class CustomerHomepage extends StatelessWidget {
           const SizedBox(height: 16),
           _buildStoreSection(context, title: 'Nearby', stream: storesStream),
           _buildStoreSection(context, title: 'New', stream: storesStream),
-          _buildStoreSection(
-            context,
-            title: 'Last Order',
-            stream: storesStream,
-          ),
+          _buildStoreSection(context, title: 'Last Order', stream: storesStream),
         ],
       ),
     );
@@ -58,7 +54,7 @@ class CustomerHomepage extends StatelessWidget {
         const SizedBox(height: 12),
         SizedBox(
           height: 190,
-          child: StreamBuilder<QuerySnapshot>(
+          child: StreamBuilder<QuerySnapshot>( //here??? wo zhende bu dong
             stream: stream,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
