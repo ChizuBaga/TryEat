@@ -432,14 +432,15 @@ class _GeminiSummaryWidgetState extends State<_GeminiSummaryWidget> {
      // --- TEMPORARY DISABLE ---
      _summaryFuture = Future.value("AI Summary is temporarily disabled.");
 
-     /* --- ORIGINAL CODE ---
-     if (widget.commentsText.trim().isEmpty) {
-       _summaryFuture = Future.value("No comments found to summarize.");
-     } else {
-       _summaryFuture = _geminiService.summarizeComments(widget.commentsText);
-     }
-     */
+    /* --- ORIGINAL CODE (now commented out) ---
+    if (widget.commentsText.trim().isEmpty) {
+      _summaryFuture = Future.value("No comments found to summarize.");
+    } else {
+      _summaryFuture = _geminiService.summarizeComments(widget.commentsText);
+    }
+    */
   }
+
 
   @override
   Widget build(BuildContext context) {

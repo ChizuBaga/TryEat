@@ -7,7 +7,7 @@ class SellerData {
   String? phoneNumber;
   String? email;
   String? password;
-
+  
   String? icName;
   String? icNumber;
   String? icFrontImagePath; // Store file path or URL after upload

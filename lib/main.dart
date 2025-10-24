@@ -24,13 +24,18 @@ import 'View/customers/customer_tab.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   setupLocator();
+
+  //Initialize Naive Bayes Classifier
   await locator<NaiveBayesClassifier>().loadModel();
   
+  //Initialize Huawei Location Service
   await locator<FusedLocationProviderClient>().initFusedLocationService();
+  
   //print("API key: " + dotenv.env['HUAWEI_API_KEY']!);
   //await Site.initialize(apiKey: dotenv.env['HUAWEI_API_KEY']!);
   runApp(const MainApp());
