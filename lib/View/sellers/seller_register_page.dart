@@ -1,9 +1,10 @@
 //import 'dart:io';
 //import 'package:file_picker/file_picker.dart';
-import 'package:chikankan/Controller/huawei_site.dart';
+import 'package:chikankan/Controller/geocoding.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:huawei_site/huawei_site.dart';
 import 'seller_register_widgets.dart';
 import 'seller_verification.dart';
 import '../../Model/seller_data.dart';
@@ -174,8 +175,8 @@ class _SellerRegisterPageState extends State<SellerRegisterPage> {
 
     // 3. Attempt to register with Firebase
     try {
-      String? address = _sellerData.address!;
-      GeoPoint? location = await findingforwardGeocoding(address);      
+      String? fullAddr = _sellerData.address! + _sellerData.postcode! + _sellerData.state!;
+      GeoPoint? location = await getCoordinateFromAddress(fullAddr);      
       User? user = await _authService.signUp(
         email: _sellerData.email!,
         password: _sellerData.password!,
@@ -184,7 +185,7 @@ class _SellerRegisterPageState extends State<SellerRegisterPage> {
         role: UserRole.seller,
         additionalData: {
           'businessName': _sellerData.businessName!,
-          'address': address,
+          'address': _sellerData.address!,
           'postcode': _sellerData.postcode!,
           'state': _sellerData.state!,
           'icName': _sellerData.icName!,

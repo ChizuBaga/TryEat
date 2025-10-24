@@ -26,7 +26,7 @@ class ProfileController {
           .child('user_profile')
           .child('${userId}_${DateTime.now().millisecondsSinceEpoch}.jpg');
       
-      final uploadTask = storageRef.putFile(newImage!);
+      final uploadTask = storageRef.putFile(newImage);
       final snapshot = await uploadTask.whenComplete(() => {});
       final downloadUrl = await snapshot.ref.getDownloadURL();
       return downloadUrl;
