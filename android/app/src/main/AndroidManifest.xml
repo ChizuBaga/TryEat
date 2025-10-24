@@ -49,4 +49,7 @@
     <!--Location permission-->
     <uses-permission android:name="android.permission.ACCESS_COARES_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
+    <!-- Required to fetch data from the internet. -->
+    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

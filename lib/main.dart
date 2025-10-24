@@ -13,6 +13,7 @@ import 'package:chikankan/View/sellers/seller_login_page.dart';
 import 'package:chikankan/View/sellers/seller_register_page.dart';
 import 'package:chikankan/View/sellers/seller_verification.dart';
 import 'package:chikankan/View/select_user_type_page.dart';
+import 'package:huawei_location/huawei_location.dart';
 import 'View/customer_cart.dart';
 import 'View/customer_chat.dart';
 import 'View/customers/customer_tab.dart';
@@ -25,6 +26,7 @@ void main() async {
   setupLocator();
   await locator<NaiveBayesClassifier>().loadModel();
   
+  await locator<FusedLocationProviderClient>().initFusedLocationService();
   runApp(const MainApp());
 }
 

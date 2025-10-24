@@ -36,8 +36,11 @@ dependencies:
   firebase_ai: ^3.4.0
   firebase_auth: ^6.1.1
   file_picker: ^8.0.0
-  firebase_storage: 13.0.3 
+  firebase_storage: ^13.0.3 
   image_picker: ^1.0.4 
+  intl: ^0.20.2
+  http: ^1.5.0
+  huawei_location: ^6.14.2+301
   intl: ^0.18.1
   huawei_site: 6.5.1+303
   swipe_to: ^1.0.4
