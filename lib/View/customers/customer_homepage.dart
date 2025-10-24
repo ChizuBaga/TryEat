@@ -84,7 +84,7 @@ class CustomerHomepage extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (context) => CustomerItemListPage(
                             // pass the store's ID and Name to the next page
-                            storeId: doc.id,
+                            sellerId: doc.id,
                             storeName: data['businessName'] ?? 'Store Name',
                           ),
                         ),

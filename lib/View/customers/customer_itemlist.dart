@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:chikankan/View/item_detail_page.dart'; // Make sure this path is correct
+import 'package:chikankan/View/item_detail_page.dart';
 
 class CustomerItemListPage extends StatelessWidget {
-  final String storeId;
+  final String sellerId;
   final String storeName;
 
   const CustomerItemListPage({
     super.key,
-    required this.storeId,
+    required this.sellerId,
     required this.storeName,
   });
 
@@ -17,13 +17,15 @@ class CustomerItemListPage extends StatelessWidget {
     // --- Stream for ITEMS from this store ---
     final Stream<QuerySnapshot> itemsStream = FirebaseFirestore.instance
         .collection('items')
-        .where('storeId', isEqualTo: storeId)
+        .where('sellerId', isEqualTo: sellerId) 
         .snapshots();
 
     // --- Future for SELLER info ---
     // We fetch this once and build the UI.
-    final Future<DocumentSnapshot> sellerDocFuture =
-        FirebaseFirestore.instance.collection('sellers').doc(storeId).get();
+    final Future<DocumentSnapshot> sellerDocFuture = FirebaseFirestore.instance
+        .collection('sellers')
+        .doc(sellerId) 
+        .get();
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 252, 248, 221),
@@ -46,7 +48,9 @@ class CustomerItemListPage extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           // --- Handle Error ---
-          if (snapshot.hasError || !snapshot.hasData || !snapshot.data!.exists) {
+          if (snapshot.hasError ||
+              !snapshot.hasData ||
+              !snapshot.data!.exists) {
             return const Center(child: Text('Could not load store details.'));
           }
 
@@ -75,20 +79,26 @@ class CustomerItemListPage extends StatelessWidget {
                     return const Center(child: Text("Error loading items."));
                   }
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return const Center(child: Text("This store has no items."));
+                    return const Center(
+                      child: Text("This store has no items."),
+                    );
                   }
 
                   // Build the list of items
                   return ListView.builder(
                     itemCount: snapshot.data!.docs.length,
-                    shrinkWrap: true, // Important inside a parent ListView
+                    shrinkWrap: true, 
                     physics:
-                        const NeverScrollableScrollPhysics(), // Parent handles scrolling
+                        const NeverScrollableScrollPhysics(), 
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     itemBuilder: (context, index) {
                       DocumentSnapshot doc = snapshot.data!.docs[index];
                       Map<String, dynamic> data =
                           doc.data() as Map<String, dynamic>;
+
+                      // --- GRAB THE isAvailable FIELD ---
+                      // Default to false (unavailable) if the field doesn't exist
+                      bool isAvailable = data['isAvailable'] ?? false;
 
                       return _buildItemTile(
                         context: context,
@@ -96,12 +106,13 @@ class CustomerItemListPage extends StatelessWidget {
                         price: (data['Price'] as num?)?.toDouble() ?? 0.0,
                         imageUrl: data['imageUrl'] ?? 'placeholder',
                         itemId: doc.id,
+                        isAvailable: isAvailable,
                       );
                     },
                   );
                 },
               ),
-              const SizedBox(height: 32), // Padding at the bottom
+              const SizedBox(height: 32), 
             ],
           );
         },
@@ -109,10 +120,7 @@ class CustomerItemListPage extends StatelessWidget {
     );
   }
 
-  // --- UPDATED WIDGET ---
-  // Header widget now accepts sellerData
   Widget _buildStoreHeader(Map<String, dynamic> sellerData) {
-    // Get address from the seller data
     String address = sellerData['address'] ?? 'No Address Provided';
 
     return Column(
@@ -125,9 +133,11 @@ class CustomerItemListPage extends StatelessWidget {
             color: Colors.grey[300],
             borderRadius: BorderRadius.circular(12.0),
           ),
-          child:
-              const Icon(Icons.image_outlined, color: Colors.black, size: 48),
-          // TODO: Replace with Image.network
+          child: const Icon(
+            Icons.image_outlined,
+            color: Colors.black,
+            size: 48,
+          ),
         ),
         const SizedBox(height: 16),
 
@@ -136,9 +146,8 @@ class CustomerItemListPage extends StatelessWidget {
           storeName,
           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 4), // Reduced space
-
-        // --- ADDED ADDRESS ---
+        const SizedBox(height: 4),
+        // address
         Text(
           address,
           style: const TextStyle(fontSize: 16, color: Colors.black54),
@@ -146,16 +155,15 @@ class CustomerItemListPage extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
-        
-        // Removed Star Rating
       ],
     );
   }
 
-  // --- UPDATED WIDGET ---
-  // Now a simple widget that receives sellerData
+  // Seller Info widget
   Widget _buildSellerInfo(
-      BuildContext context, Map<String, dynamic> sellerData) {
+    BuildContext context,
+    Map<String, dynamic> sellerData,
+  ) {
     // Extract data
     String username = sellerData['username'] ?? 'N/A';
     String phoneNumber = sellerData['phone_number'] ?? 'N/A';
@@ -166,24 +174,20 @@ class CustomerItemListPage extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(40.0), // Pill shape
-          border: Border.all(color: Colors.grey[300]!), // Light border
+          borderRadius: BorderRadius.circular(40.0),
+          border: Border.all(color: Colors.grey[300]!),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             // Seller Username
-            Flexible( // Added Flexible to prevent overflow
+            Flexible(
               child: Row(
-                mainAxisSize: MainAxisSize.min, // Keeps content snug
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon( // <-- ADDED ICON
-                    Icons.person_outline,
-                    color: Colors.grey[700],
-                    size: 20,
-                  ),
+                  Icon(Icons.person_outline, color: Colors.grey[700], size: 20),
                   const SizedBox(width: 8),
-                  Flexible( // Added Flexible to prevent text overflow
+                  Flexible(
                     child: Text(
                       username,
                       style: TextStyle(
@@ -191,28 +195,23 @@ class CustomerItemListPage extends StatelessWidget {
                         color: Colors.grey[800],
                         fontWeight: FontWeight.w500,
                       ),
-                      overflow: TextOverflow.ellipsis, // Handle long text
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
             ),
-            
-            // Added some spacing between the two elements
-            const SizedBox(width: 16), 
+
+            const SizedBox(width: 16),
 
             // Contact Number
-            Flexible( // Added Flexible to prevent overflow
+            Flexible(
               child: Row(
-                mainAxisSize: MainAxisSize.min, // Keeps content snug
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon( // <-- ADDED ICON
-                    Icons.phone_outlined,
-                    color: Colors.grey[700],
-                    size: 20,
-                  ),
+                  Icon(Icons.phone_outlined, color: Colors.grey[700], size: 20),
                   const SizedBox(width: 8),
-                  Flexible( // Added Flexible to prevent text overflow
+                  Flexible(
                     child: Text(
                       phoneNumber,
                       style: TextStyle(
@@ -220,7 +219,7 @@ class CustomerItemListPage extends StatelessWidget {
                         color: Colors.grey[800],
                         fontWeight: FontWeight.w500,
                       ),
-                      overflow: TextOverflow.ellipsis, // Handle long text
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
@@ -232,57 +231,100 @@ class CustomerItemListPage extends StatelessWidget {
     );
   }
 
-  // --- UPDATED WIDGET ---
-  // Item list tile widget now has new styling
-  Widget _buildItemTile({
-    required BuildContext context,
-    required String name,
-    required double price,
-    required String imageUrl,
-    required String itemId,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6.0), // A bit less space
-      // Use ListTile's built-in properties for styling
-      child: ListTile(
-        tileColor: Colors.grey[200], // Background color from screenshot
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
-        ),
-        // Image
-        leading: Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            color: Colors.grey[300],
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          child:
-              const Icon(Icons.image_outlined, color: Colors.black, size: 24),
-          // TODO: Replace with ClipRRect(...)
-        ),
+ Widget _buildItemTile({
+   required BuildContext context,
+   required String name,
+   required double price,
+   required String imageUrl,
+   required String itemId,
+   required bool isAvailable,
+ }) {
+   final Color tileColor = isAvailable ? const Color.fromARGB(255, 255, 225, 0) : Colors.grey[350]!; 
+   final Color textColor = isAvailable ? Colors.black : Colors.grey[600]!;
+   final Color iconColor = isAvailable ? Colors.black54 : Colors.grey[600]!;
+   final VoidCallback? onTap = isAvailable
+       ? () {
+           Navigator.push(
+             context,
+             MaterialPageRoute(
+               builder: (context) =>
+                   ItemDetailsPage(sellerId: sellerId, itemId: itemId),
+             ),
+           );
+         }
+       : null;
 
-        // Title & Price
-        title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text('RM${price.toStringAsFixed(2)}'),
+   // --- Build the image widget ---
+   Widget imageWidget;
+   if (imageUrl == 'placeholder' || imageUrl.isEmpty) {
+     imageWidget = Icon(Icons.image_outlined, color: iconColor, size: 24);
+   } else {
+     imageWidget = Image.network(
+       imageUrl,
+       fit: BoxFit.cover,
+       loadingBuilder: (context, child, loadingProgress) {
+         if (loadingProgress == null) return child;
+         return Center(
+           child: CircularProgressIndicator(
+             value: loadingProgress.expectedTotalBytes != null
+                 ? loadingProgress.cumulativeBytesLoaded /
+                     loadingProgress.expectedTotalBytes!
+                 : null,
+           ),
+         );
+       },
+       errorBuilder: (context, error, stackTrace) {
+         return Icon(Icons.broken_image, color: iconColor, size: 24);
+       },
+     );
+   }
 
-        // Arrow
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: () {
-          // Navigate to the ItemDetailsPage
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ItemDetailsPage(
-                sellerId: storeId, // Pass the storeId as the sellerId
-                itemId: itemId, // Pass the specific item's ID
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
+   // --- Apply fade effect if unavailable ---
+   if (!isAvailable) {
+     imageWidget = Opacity(
+       opacity: 0.5,
+       child: imageWidget,
+     );
+   }
+
+   return Padding(
+     padding: const EdgeInsets.symmetric(vertical: 6.0),
+     child: Card( 
+       elevation: isAvailable ? 6.0 : 0.0, 
+       shadowColor: Colors.black,
+       shape: RoundedRectangleBorder(
+         borderRadius: BorderRadius.circular(12.0),
+       ),
+       color: tileColor, 
+       clipBehavior: Clip.antiAlias, 
+       child: ListTile(
+         leading: ClipRRect(
+           borderRadius: BorderRadius.circular(8.0),
+           child: SizedBox(
+             width: 60, 
+             height: 60,
+             child: imageWidget,
+           ),
+         ),
+         title: Text(
+           name,
+           style: TextStyle(
+             fontWeight: FontWeight.bold,
+             color: textColor,
+             decoration: !isAvailable ? TextDecoration.lineThrough : null,
+           ),
+         ),
+         subtitle: Text(
+           isAvailable
+               ? 'RM${price.toStringAsFixed(2)}'
+               : 'Unavailable',
+           style: TextStyle(color: textColor),
+         ),
+         trailing: Icon(Icons.arrow_forward_ios, size: 16, color: iconColor),
+         onTap: onTap,
+       ),
+     ),
+   );
+ }
 }
-
 
