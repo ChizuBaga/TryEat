@@ -1,5 +1,6 @@
 import 'dart:io';
-import 'package:chikankan/Controller/seller_navigation_handler.dart';
+import 'package:chikankan/Controller/profile_controller.dart';
+import 'package:chikankan/Controller/seller_navigation_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,6 +23,7 @@ class _EditProfileState extends State<EditProfile> {
   final User? currentUser = FirebaseAuth.instance.currentUser;
   bool _isBusinessNameEditable = true;//default true for user to change business name
   Timestamp? modifyBNAt;
+   final ProfileController _profileController = ProfileController();
 
   // Controllers initialized with passed data
   late TextEditingController _businessNameController;
@@ -77,98 +79,62 @@ class _EditProfileState extends State<EditProfile> {
       });
     }
   }
-  Future<String?> _uploadProfileImage() async {
-    if (_newProfileImage == null) return null;
 
-    try {
-      final storageRef = FirebaseStorage.instance
-          .ref()
-          .child('user_profile')
-          .child('${currentUser!.uid}_${DateTime.now().millisecondsSinceEpoch}.jpg');
-      
-      final uploadTask = storageRef.putFile(_newProfileImage!);
-      final snapshot = await uploadTask.whenComplete(() => {});
-      final downloadUrl = await snapshot.ref.getDownloadURL();
-      return downloadUrl;
-    } catch (e) {
-      print('Error uploading profile image: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to upload profile image: $e')),
-      );
-      return null;
-    }
-  }
-
-  Future<void> _deleteOldProfileImage(String? oldImageUrl) async {
-    //Image is not at firebase storage
-    if (oldImageUrl == null || oldImageUrl.isEmpty || !oldImageUrl.contains('firebasestorage.googleapis.com')) {
-      return;
-    }
-    try {
-      final ref = FirebaseStorage.instance.refFromURL(oldImageUrl);
-      await ref.delete();
-      print('Old profile image deleted from Storage: $oldImageUrl');
-    } catch (e) {
-      print('Error deleting old profile image from Storage: $e');
-    }
-  }
-
-Future<void> _saveChanges() async {
-  if (!_formKey.currentState!.validate()) return;
-  setState(() { _isLoading = true; });
-
-  try {
+  Future<void> _saveChanges() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (currentUser == null);
+    setState(() { _isLoading = true; });
     String? finalProfileImageUrl = widget.seller.profileImageUrl;
-    Map<String, dynamic> updateData = {};
 
-    if (_newProfileImage != null) {
-      final newUrl = await _uploadProfileImage();
+    try {
+      if (_newProfileImage != null) {
+        final newUrl = await _profileController.uploadProfileImage(_newProfileImage!, currentUser!.uid);
 
-      if (newUrl != null) {
-        if (widget.seller.profileImageUrl != null && widget.seller.profileImageUrl!.isNotEmpty) {
-           await _deleteOldProfileImage(widget.seller.profileImageUrl);
+        if (newUrl != null) {
+          if (widget.seller.profileImageUrl != null && widget.seller.profileImageUrl!.isNotEmpty) {
+            await _profileController.deleteOldProfileImage(widget.seller.profileImageUrl);
+          }
+          finalProfileImageUrl = newUrl;
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Warning: Profile image upload failed. Saving text data only.')),
+          );
         }
-        finalProfileImageUrl = newUrl;
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Warning: Profile image upload failed. Saving text data only.')),
-        );
       }
+
+      final originalBusinessName = widget.seller.businessName ?? '';
+      final newBusinessName = _businessNameController.text.trim();
+      bool businessNameWasChanged = (newBusinessName != originalBusinessName);
+
+      Map<String, dynamic> updateData = {
+        'businessName': newBusinessName,
+        'username': _usernameController.text.trim(),
+        'phone_number': _phoneController.text.trim(),
+        'email': _emailController.text.trim(),
+        'address': _addressController.text.trim(),
+        'profileImageUrl': finalProfileImageUrl, 
+      };
+
+      if (businessNameWasChanged) {
+        updateData['modifyBusinessNameAt'] = FieldValue.serverTimestamp();
+      }
+
+      await _profileController.updateProfile(
+        userId: currentUser!.uid,
+        updateData: updateData,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile updated successfully!')));
+      Navigator.of(context).pop(); 
+    } on FirebaseException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Firestore Error: ${e.message}')));
     }
-
-    final originalBusinessName = widget.seller.businessName ?? '';
-    final newBusinessName = _businessNameController.text.trim();
-    bool businessNameWasChanged = (newBusinessName != originalBusinessName);
-
-    updateData = {
-      'businessName': newBusinessName,
-      'username': _usernameController.text.trim(),
-      'phone_number': _phoneController.text.trim(),
-      'email': _emailController.text.trim(),
-      'address': _addressController.text.trim(),
-      'profileImageUrl': finalProfileImageUrl, 
-    };
-
-    if (businessNameWasChanged) {
-      updateData['modifyBusinessNameAt'] = FieldValue.serverTimestamp();
+    catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update: $e')));
+    } finally {
+      setState(() { _isLoading = false; });
     }
-
-    await FirebaseFirestore.instance
-        .collection('sellers')
-        .doc(currentUser!.uid)
-        .update(updateData);
-
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile updated successfully!')));
-    Navigator.of(context).pop(); 
-  } on FirebaseException catch (e) {
-     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Firestore Error: ${e.message}')));
   }
-  catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update: $e')));
-  } finally {
-    setState(() { _isLoading = false; });
-  }
-}
 
   @override
   Widget build(BuildContext context) {

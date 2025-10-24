@@ -1,4 +1,4 @@
-import 'package:chikankan/Controller/seller_navigation_handler.dart';
+import 'package:chikankan/Controller/seller_navigation_controller.dart';
 import 'package:chikankan/View/sellers/add_item.dart';
 import 'package:chikankan/View/sellers/bottom_navigation_bar.dart';
 import 'package:chikankan/View/sellers/custom_toggle_button.dart';

@@ -49,3 +49,5 @@ firebase.json
 /android/*.jks
 /android/*.keystore
 /android/key.properties
+
+.env

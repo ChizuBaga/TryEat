@@ -1,31 +1,42 @@
-import 'package:huawei_site/huawei_site.dart';
+import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 
-Future<void> getCoordinatesFromAddress(String address) async {
+Future<GeoPoint?> findingforwardGeocoding(String address) async {
+  final apiKey = dotenv.env['HUAWEI_API_KEY'];
+  const String rootUrl = 'https://siteapi.cloud.huawei.com/mapApi/v1/siteService/geocode';
+  final String requestUrl = '$rootUrl?key=${Uri.encodeComponent(apiKey!)}';
+
+  final Map<String, dynamic> requestBody = {
+    'address': address,
+    'countryCode': 'MY',
+  };
+
   try {
-    SearchService searchService = await SearchService.create(
-      apiKey: "YOUR_API_KEY", 
+    final response = await http.post(
+      Uri.parse(requestUrl),
+      headers: {'Content-Type': 'application/json; charset=UTF-8'},
+      body: jsonEncode(requestBody),
     );
 
-    // Create a GeocodeRequest
-    GeocodeRequest request = GeocodeRequest(
-      query: address,
-      countryCode: "MY",
-      language: "en",
-    );
-
-    // Send the request
-    GeocodeResponse response = await searchService.geocode(request);
-
-    if (response.sites != null && response.sites!.isNotEmpty) {
-      double lat = response.sites!.first.location!.lat!;
-      double lng = response.sites!.first.location!.lng!;
-      
-      print('Address: $address');
-      print('Latitude: $lat, Longitude: $lng');
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data['sites'] != null && data['sites'].isNotEmpty) {
+        final site = data['sites'][0];
+        final lat = site['location']['lat'];
+        final lng = site['location']['lng'];
+        print('Address: $address');
+        print('Latitude: $lat, Longitude: $lng');
+        return GeoPoint(lat, lng);
+      } else {
+        print('No results found for "$address"');
+      }
     } else {
-      print("No results found for address: $address");
+      print('Request failed: ${response.statusCode}');
+      print(response.body);
     }
   } catch (e) {
-    print("Error during geocoding: $e");
+    print('Error: $e');
   }
 }

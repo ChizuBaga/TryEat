@@ -1,11 +1,14 @@
-import 'package:chikankan/Controller/order_service.dart';
-import 'package:chikankan/Controller/seller_navigation_handler.dart';
+import 'package:chikankan/Controller/order_controller.dart';
+import 'package:chikankan/Controller/seller_navigation_controller.dart';
 import 'package:chikankan/Model/orderItem.dart';
 import 'package:chikankan/Model/order_model.dart';
 import 'package:chikankan/View/sellers/bottom_navigation_bar.dart';
+import 'package:chikankan/View/sellers/chat_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:swipe_to/swipe_to.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SellerCurrentOrder extends StatefulWidget {
   final Orders order; // The Order object passed from the Seller Homepage
@@ -37,15 +40,129 @@ class _OrderDetailPageState extends State<SellerCurrentOrder> {
   }
   
   // --- Actions ---
-  void _chatWithCustomer() {
-    print('Starting chat with customer: ${widget.order.customerId}');
-    // Navigate to chat screen
+  void _chatWithCustomer() async {
+  final sellerId = FirebaseAuth.instance.currentUser?.uid;
+  final customerId = widget.order.customerId;
+
+  if (sellerId == null || customerId.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Error: Seller or Customer ID missing.')),
+    );
+    return;
   }
 
-  void _callCustomer() {
-    print('Calling customer: ${widget.order.customerId}');
-    // Use url_launcher to dial the customer's phone number
+  List<String> ids = [sellerId, customerId];
+  ids.sort();
+  final chatRoomId = ids.join('_');
+
+  final chatDocRef = FirebaseFirestore.instance.collection('chats').doc(chatRoomId);
+
+  // Check Existence
+  final chatDoc = await chatDocRef.get();
+
+  // If chat exist go to chatroom
+  if (chatDoc.exists) {
+    print('Chat room already exists: $chatRoomId');
+    String customerName = chatDoc['customerName'];
+    // Navigate to existing chat screen
+    _navigateToChatScreen(chatRoomId, customerId, customerName);
+
+  } else {
+    // Get Customer name
+    DocumentSnapshot customerDoc = await FirebaseFirestore.instance
+        .collection('customers')
+        .doc(customerId)
+        .get();
+    String customerName = 'Customer'; // Default name
+    if (customerDoc.exists) {
+      final data = customerDoc.data() as Map<String, dynamic>;
+      // Assuming 'username' is the field for the customer's name
+      customerName = data['username'] ?? 'Customer'; 
+
+    }
+    // Create New Chat Room
+    print('Creating new chat room: $chatRoomId');
+    try {
+      await chatDocRef.set({
+        'chatRoomId': chatRoomId,
+        'participants': [sellerId, customerId],
+        'customerName': customerName,
+        'timestamp': FieldValue.serverTimestamp(),
+        'lastMessage': '',
+        'lastMessageTime': FieldValue.serverTimestamp(),
+        'lastMessageSenderId': '',
+        'unreadCount': 0,                
+      });
+      
+      _navigateToChatScreen(chatRoomId, customerId, customerName);
+
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to create chat: $e')),
+      );
+    }
   }
+}
+
+void _navigateToChatScreen(String chatRoomId, String customerId, String customerName) {
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (context) => ChatScreen(
+        chatRoomId: chatRoomId,
+        otherParticipantId: customerId,
+        otherParticipantName: customerName,
+      ),
+    ),
+  );
+  print("Navigating to chat screen with ID: $chatRoomId");
+}
+
+  void _callCustomer() async {
+  final String customerId = widget.order.customerId;
+  String? customerPhone;
+
+  setState(() {
+    _isProcessing = true;
+  });
+
+  try {
+    // 1. Access firebase
+    DocumentSnapshot customerDoc = await FirebaseFirestore.instance
+        .collection('customers')
+        .doc(customerId)
+        .get();
+
+    if (customerDoc.exists) {
+      final data = customerDoc.data() as Map<String, dynamic>;
+      customerPhone = data['phone_number']; 
+      
+      if (customerPhone != null && customerPhone.isNotEmpty) {
+        // Format the launch URI
+        final Uri phoneLaunchUri = Uri(
+          scheme: 'tel',
+          path: customerPhone,
+        );
+
+        // Launch the dialer
+        if (await canLaunchUrl(phoneLaunchUri)) {
+          await launchUrl(phoneLaunchUri);
+        } else {
+          throw Exception('Could not launch dialer.');
+        }
+      } else {
+        throw Exception('Customer phone number not found in profile.');
+      }
+    } else {
+      throw Exception('Customer not exist.');
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to call customer: ${e.toString().split(':').last}')),
+    );
+  } finally {
+    setState(() { _isProcessing = false; });
+  }
+}
 
   // Final Action to mark order as complete/shipped/ready
   void _swipeToComplete(DragUpdateDetails details) async {
@@ -68,7 +185,7 @@ class _OrderDetailPageState extends State<SellerCurrentOrder> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Order status updated!')),
         );
-        Navigator.of(context).pop(); // Go back to orders list
+        Navigator.of(context).pop(); 
       }
 
     } catch (e) {
@@ -77,7 +194,7 @@ class _OrderDetailPageState extends State<SellerCurrentOrder> {
           SnackBar(content: Text('Failed to complete order: $e')),
         );
         setState(() {
-          _isProcessing = false; // Reset swipe button
+          _isProcessing = false; 
         });
       }
     }
@@ -85,9 +202,6 @@ class _OrderDetailPageState extends State<SellerCurrentOrder> {
 
   @override
   Widget build(BuildContext context) {
-    // Note: The UI is very similar to the image, but we replace the hardcoded
-    // list with the actual data from the widget.
-    
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 252, 248, 221),
       appBar: AppBar(
@@ -166,7 +280,6 @@ class _OrderDetailPageState extends State<SellerCurrentOrder> {
     );
   }
 
-  // Helper for Order Item Row
   Widget _buildOrderItemRow(OrderItemDisplay item) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15.0),
@@ -211,7 +324,6 @@ class _OrderDetailPageState extends State<SellerCurrentOrder> {
     );
   }
 
-  // Helper for Chat/Call Buttons
   Widget _buildContactButton(String text, IconData icon, VoidCallback onPressed) {
     return OutlinedButton.icon(
       onPressed: onPressed,
@@ -238,7 +350,6 @@ class _OrderDetailPageState extends State<SellerCurrentOrder> {
         decoration: BoxDecoration(
           color: trackColor, 
           borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: Colors.blue, width: 2), // Blue border
         ),
         child: Center(
           child: _isProcessing

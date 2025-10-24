@@ -1,4 +1,4 @@
-import 'package:chikankan/Controller/seller_navigation_handler.dart';
+import 'package:chikankan/Controller/seller_navigation_controller.dart';
 import 'package:chikankan/View/sellers/seller_current_order.dart';
 import 'package:chikankan/View/sellers/seller_dashboard.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; 
 import 'package:chikankan/Model/order_model.dart';
 import 'package:chikankan/View/sellers/seller_view_catalogue.dart';
-import 'package:chikankan/Controller/order_service.dart';
+import 'package:chikankan/Controller/order_controller.dart';
 import 'package:chikankan/View/sellers/bottom_navigation_bar.dart';
 
 class SellerHomepage extends StatefulWidget {

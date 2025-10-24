@@ -1,4 +1,5 @@
-import 'package:chikankan/Controller/seller_navigation_handler.dart';
+import 'package:chikankan/Controller/profile_controller.dart';
+import 'package:chikankan/Controller/seller_navigation_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,6 +18,7 @@ class SellerProfile extends StatefulWidget {
 class _SellerProfileState extends State<SellerProfile> {
   final User? currentUser = FirebaseAuth.instance.currentUser;
   int _selectedIndex = 3; // Profile tab index
+  final ProfileController _profileController = ProfileController();
 
   void _onNavTap(int index) {
     final handler = SellerNavigationHandler(context);
@@ -36,7 +38,7 @@ class _SellerProfileState extends State<SellerProfile> {
       backgroundColor: const Color.fromARGB(255, 252, 248, 221),
       appBar: AppBar(backgroundColor: Color.fromARGB(255, 252, 248, 221), elevation: 0, toolbarHeight: 0),
       body: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance.collection('sellers').doc(currentUser!.uid).snapshots(),
+        stream: _profileController.streamSellerProfile(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
