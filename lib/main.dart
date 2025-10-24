@@ -20,12 +20,16 @@ import 'View/customers/customer_tab.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   setupLocator();
+
+  //Initialize Naive Bayes Classifier
   await locator<NaiveBayesClassifier>().loadModel();
   
+  //Initialize Huawei Location Service
   await locator<FusedLocationProviderClient>().initFusedLocationService();
   runApp(const MainApp());
 }
