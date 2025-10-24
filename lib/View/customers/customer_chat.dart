@@ -6,13 +6,16 @@ class CustomerChat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 252, 248, 221),
       appBar: AppBar(
-        title: const Text('Customer Chat'),
-        backgroundColor: Colors.black,
+        title: const Text('Chats', style: TextStyle(fontWeight: FontWeight.bold),),
+        backgroundColor: Colors.transparent,
+        automaticallyImplyLeading: false,
+        centerTitle: true,
       ),
       body: const Center(
         child: Text(
-          'This is chat',
+          'This is chats',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,

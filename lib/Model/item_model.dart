@@ -1,14 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Item {
-  final String id;
-  final String name;
-  final double price;
-  final String category;
-  final String description;
-  final String imageUrl;
+  String id;
+  String name;
+  double price;
+  String category;
+  String description;
+  String imageUrl;
   bool isAvailable;
-  final List<String>? comments; // <- make nullable
+  String orderType;
+  String deliveryMode;
+  int? reservedDays; 
+  final List<String>? comments; 
 
   Item({
     required this.id,
@@ -18,7 +21,10 @@ class Item {
     required this.description,
     required this.imageUrl,
     this.isAvailable = true,
-    this.comments, // <- optional
+    required this.orderType,
+    required this.deliveryMode,
+    this.reservedDays,
+    this.comments,
   });
 
   factory Item.fromFirestore(DocumentSnapshot doc) {
@@ -35,6 +41,9 @@ class Item {
       comments: data['Comments'] != null
           ? List<String>.from(data['Comments'])
           : null,
+      orderType: data['OrderType'] ?? 'Instant',
+      deliveryMode: data['DeliveryMode'] ?? 'Seller-Delivery',
+      reservedDays: data['ReservedDays'] ?? 0,
     );
   }
 }

@@ -1,5 +1,7 @@
 //import 'dart:io';
 //import 'package:file_picker/file_picker.dart';
+import 'package:chikankan/Controller/huawei_site.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'seller_register_widgets.dart';
@@ -172,6 +174,8 @@ class _SellerRegisterPageState extends State<SellerRegisterPage> {
 
     // 3. Attempt to register with Firebase
     try {
+      String? address = _sellerData.address!;
+      GeoPoint? location = await findingforwardGeocoding(address);      
       User? user = await _authService.signUp(
         email: _sellerData.email!,
         password: _sellerData.password!,
@@ -180,7 +184,7 @@ class _SellerRegisterPageState extends State<SellerRegisterPage> {
         role: UserRole.seller,
         additionalData: {
           'businessName': _sellerData.businessName!,
-          'address': _sellerData.address!,
+          'address': address,
           'postcode': _sellerData.postcode!,
           'state': _sellerData.state!,
           'icName': _sellerData.icName!,
@@ -189,6 +193,7 @@ class _SellerRegisterPageState extends State<SellerRegisterPage> {
           'bankStatementImagePath': _sellerData.bankStatementImagePath!,
           'isVerified': false,
           'verificationPending': true,
+          'location': location,
         },
       );
       if (mounted && user != null) {
@@ -211,6 +216,7 @@ class _SellerRegisterPageState extends State<SellerRegisterPage> {
       });
     } catch (e) {
       setState(() {
+        print('An unexpected error occurred: $e');
         _errorMessage = 'An unexpected error occurred. Please try again.';
       });
     } finally {
@@ -466,11 +472,12 @@ class _Step1PersonalState extends State<_Step1Personal> {
             child: ElevatedButton(
               onPressed: widget.onNext,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
+                backgroundColor: const Color.fromARGB(255, 255, 153, 0),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                elevation: 6,
               ),
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -680,12 +687,12 @@ class _Step2Verification extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: onBack,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    side: const BorderSide(color: Colors.black),
+                    backgroundColor: Color.fromARGB(255, 255, 184, 32),
+                    foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    elevation: 6,
                   ),
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -709,11 +716,12 @@ class _Step2Verification extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: onNext,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
+                    backgroundColor: const Color.fromARGB(255, 255, 153, 0),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    elevation: 6,
                   ),
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -847,12 +855,12 @@ class _Step3Business extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: onBack,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    side: const BorderSide(color: Colors.black),
+                    backgroundColor: Color.fromARGB(255, 255, 184, 32),
+                    foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    elevation: 6,
                   ),
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -881,6 +889,7 @@ class _Step3Business extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    elevation: 6,
                   ),
                   child: isLoading
                       ? const SizedBox(
