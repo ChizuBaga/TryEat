@@ -36,19 +36,57 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
     });
   }
 
+   Widget _buildChip(String label, {IconData? icon}) { 
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: icon != null ? 8.0 : 12.0, vertical: 6.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20.0),
+        border: Border.all(color: Colors.grey[300]!),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey,
+            spreadRadius: 1, blurRadius: 2, offset: const Offset(0, 1),
+          ),
+        ]
+      ),
+      child: Row( 
+        mainAxisSize: MainAxisSize.min, 
+        children: [
+          if (icon != null)
+            Icon(
+              icon,
+              size: 18, 
+              color: Colors.grey[700],
+            ),
+          if (icon != null) 
+            const SizedBox(width: 5),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.black,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _addToCart(Item item) {
     print(
         'Adding ${item.name} (x$_quantity) to cart. Total: ${item.price * _quantity}');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Container(
-          padding: const EdgeInsets.all(14),
-          height: 50, 
+          padding: const EdgeInsets.all(10),
+          height: 40, 
           child: Center(
             child: Text(
               '✅ ${item.name} (x$_quantity) added to cart!',
               style: const TextStyle(
-                fontSize: 16,
+                fontSize: 14,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
                 height: 1.3,
@@ -132,6 +170,36 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
               : <String>[]; // Empty list if comments are null
           final String commentsText = latest10Comments.join("\n- ");
 
+          String orderTypeText;
+          IconData? orderTypeIcon;
+          final String? fetchedOrderType = item.orderType;
+          if (fetchedOrderType != null && fetchedOrderType.toLowerCase() == 'pre-order') {
+            final int reservedDays = item.reservedDays ?? 0;
+            orderTypeText = 'Pre-order: ${reservedDays}d';
+            orderTypeIcon = Icons.calendar_today_outlined; // Calendar icon
+          } else if (fetchedOrderType != null && fetchedOrderType.toLowerCase() == 'instant') {
+            orderTypeText = 'Instant';
+            orderTypeIcon = Icons.bolt; // Bolt/Flash icon
+          } else {
+            orderTypeText = fetchedOrderType ?? 'N/A';
+            orderTypeIcon = null; // No specific icon
+          }
+
+          String deliveryModeText = item.deliveryMode ?? 'N/A';
+          IconData? deliveryModeIcon;
+          final String deliveryModeLower = deliveryModeText.toLowerCase();
+          if (deliveryModeLower.contains('delivery')) {
+             deliveryModeIcon = Icons.directions_car_outlined;
+          } else if (deliveryModeLower.contains('meet-up') || deliveryModeLower.contains('meetup')) {
+             deliveryModeIcon = Icons.people_outline;
+          } else if (deliveryModeLower.contains('self-collection') || deliveryModeLower.contains('pickup')) {
+             deliveryModeIcon = Icons.storefront_outlined;
+          } else if (deliveryModeLower.contains('3rd party') || deliveryModeLower.contains('third party')) {
+             deliveryModeIcon = Icons.local_shipping_outlined; 
+          } else {
+             deliveryModeIcon = Icons.help_outline; 
+          }
+
           return Column(
             children: [
               Expanded(
@@ -179,7 +247,7 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                       ),
                     ),
 
-                    // --- Name, Description, Price ---
+                    // --- Name, Description, Price, ordertype, delivery mode ---
                     Text(
                       item.name,
                       style: Theme.of(context)
@@ -202,17 +270,6 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                     const SizedBox(height: 10),
 
                     Text(
-                      item.orderType ?? 'N/A',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.black87,
-                        fontStyle: FontStyle.italic,
-                        fontSize: 20,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-
-                    const SizedBox(height: 16),
-                    Text(
                       "RM${item.price.toStringAsFixed(2)}",
                       style: Theme.of(context)
                           .textTheme
@@ -221,7 +278,18 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                       textAlign: TextAlign.center,
                     ),
                     
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildChip(orderTypeText, icon: orderTypeIcon), 
+                        const SizedBox(width: 10),
+                        _buildChip(deliveryModeText, icon: deliveryModeIcon), 
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
 
                     // --- Comments Analysis ---
                     Card(
