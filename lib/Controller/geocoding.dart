@@ -5,46 +5,46 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:huawei_site/huawei_site.dart';
 
-// Future<GeoPoint?> findingforwardGeocoding(String address) async {
-//   final apiKey = dotenv.env['HUAWEI_API_KEY'];
-//   const String rootUrl = 'https://siteapi.cloud.huawei.com/mapApi/v1/siteService/geocode';
-//   final String requestUrl = '$rootUrl?key=${Uri.encodeComponent(apiKey!)}';
+Future<GeoPoint?> getCoordinatesFromAddress(String address) async {
+  final apiKey = dotenv.env['HUAWEI_API_KEY'];
+  const String rootUrl = 'https://siteapi.cloud.huawei.com/mapApi/v1/siteService/geocode';
+  final String requestUrl = '$rootUrl?key=${Uri.encodeComponent(apiKey!)}';
 
-//   final Map<String, dynamic> requestBody = {
-//     'address': address,
-//     'countryCode': 'MY',
-//   };
+  final Map<String, dynamic> requestBody = {
+    'address': address,
+    'countryCode': 'MY',
+  };
 
-//   try {
-//     final response = await http.post(
-//       Uri.parse(requestUrl),
-//       headers: {'Content-Type': 'application/json; charset=UTF-8'},
-//       body: jsonEncode(requestBody),
-//     );
+  try {
+    final response = await http.post(
+      Uri.parse(requestUrl),
+      headers: {'Content-Type': 'application/json; charset=UTF-8'},
+      body: jsonEncode(requestBody),
+    );
 
-//     if (response.statusCode == 200) {
-//       final data = jsonDecode(response.body);
-//       if (data['sites'] != null && data['sites'].isNotEmpty) {
-//         final site = data['sites'][0];
-//         final lat = site['location']['lat'];
-//         final lng = site['location']['lng'];
-//         print('Address: $address');
-//         print('Latitude: $lat, Longitude: $lng');
-//         return GeoPoint(lat, lng);
-//       } else {
-//         print('No results found for "$address"');
-//       }
-//     } else {
-//       print('Request failed: ${response.statusCode}');
-//       print(response.body);
-//     }
-//   } catch (e) {
-//     print('Error: $e');
-//   }
-// }
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data['sites'] != null && data['sites'].isNotEmpty) {
+        final site = data['sites'][0];
+        final lat = site['location']['lat'];
+        final lng = site['location']['lng'];
+        print('Address: $address');
+        print('Latitude: $lat, Longitude: $lng');
+        return GeoPoint(lat, lng);
+      } else {
+        print('No results found for "$address"');
+      }
+    } else {
+      print('Request failed: ${response.statusCode}');
+      print(response.body);
+    }
+  } catch (e) {
+    print('Error: $e');
+  }
+}
 
 // Future<GeoPoint?> getCoordinatesFromAddress(String address) async {
-//   final apiKey = "DgEDAKaLrwSa5+yjIM54s5xxtbad+CsZRZNNyKHlKiI1BKU78fV8j/mgI1wyebhN0fYF8uAZXJHrebFhn6I4xZ4hs3X4ybq397fZzw==";
+//   final apiKey = dotenv.env['HUAWEI_API_KEY'];
 //   try {
 //     SearchService searchService = await SearchService.create(
 //       apiKey: apiKey,
@@ -186,45 +186,45 @@ import 'package:huawei_site/huawei_site.dart';
 //   }
 // }
 
-const String googleApiKey = "AIzaSyB_wLfizkV5jye-I3RQyx9pck1WOu3YodM"; 
+// const String googleApiKey = "AIzaSyB_wLfizkV5jye-I3RQyx9pck1WOu3YodM"; 
 
-Future<GeoPoint?> getCoordinateFromAddress(String address) async {
-  // 1. Construct the API URL
-  final encodedAddress = Uri.encodeComponent(address);
-  // Using the Google Maps Geocoding API endpoint
-  final url = Uri.parse(
-    'https://maps.googleapis.com/maps/api/geocode/json?address=$encodedAddress&key=$googleApiKey'
-  );
+// Future<GeoPoint?> getCoordinateFromAddress(String address) async {
+//   // 1. Construct the API URL
+//   final encodedAddress = Uri.encodeComponent(address);
+//   // Using the Google Maps Geocoding API endpoint
+//   final url = Uri.parse(
+//     'https://maps.googleapis.com/maps/api/geocode/json?address=$encodedAddress&key=$googleApiKey'
+//   );
 
-  try {
-    // 2. Send the HTTP Request
-    final response = await http.get(url);
+//   try {
+//     // 2. Send the HTTP Request
+//     final response = await http.get(url);
 
-    if (response.statusCode == 200) {
-      final jsonBody = json.decode(response.body);
+//     if (response.statusCode == 200) {
+//       final jsonBody = json.decode(response.body);
       
-      // 3. Process the response status
-      if (jsonBody['status'] == 'OK' && jsonBody['results'].isNotEmpty) {
-        final geometry = jsonBody['results'][0]['geometry']['location'];
+//       // 3. Process the response status
+//       if (jsonBody['status'] == 'OK' && jsonBody['results'].isNotEmpty) {
+//         final geometry = jsonBody['results'][0]['geometry']['location'];
         
-        final double lat = geometry['lat'];
-        final double lng = geometry['lng'];
+//         final double lat = geometry['lat'];
+//         final double lng = geometry['lng'];
         
-        print('Google Geocoding successful for: $address');
-        print('Latitude: $lat, Longitude: $lng');
+//         print('Google Geocoding successful for: $address');
+//         print('Latitude: $lat, Longitude: $lng');
         
-        return GeoPoint(lat, lng);
-      } else {
-        // Handle API-specific errors (e.g., ZERO_RESULTS, OVER_QUERY_LIMIT)
-        print('Google Geocoding failed. Status: ${jsonBody['status']}');
-        return null;
-      }
-    } else {
-      print('Google API HTTP Error. Status Code: ${response.statusCode}');
-      return null;
-    }
-  } catch (e) {
-    print('Network or Parsing Error during geocoding: $e');
-    return null;
-  }
-}
+//         return GeoPoint(lat, lng);
+//       } else {
+//         // Handle API-specific errors (e.g., ZERO_RESULTS, OVER_QUERY_LIMIT)
+//         print('Google Geocoding failed. Status: ${jsonBody['status']}');
+//         return null;
+//       }
+//     } else {
+//       print('Google API HTTP Error. Status Code: ${response.statusCode}');
+//       return null;
+//     }
+//   } catch (e) {
+//     print('Network or Parsing Error during geocoding: $e');
+//     return null;
+//   }
+// }
