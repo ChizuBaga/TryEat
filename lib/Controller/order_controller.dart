@@ -10,13 +10,13 @@ class OrderController {
   // Stream current orders relevant to the logged-in seller
   Stream<List<Orders>> streamCurrentOrders() {
     if (_currentSellerId == null) {
-      return Stream.value([]); // Return empty stream if no user is logged in
+      return Stream.value([]); 
     }
 
     return _db
         .collection('orders')
         .where('seller_ID', isEqualTo: _currentSellerId)
-        // .where('orderStatus', isNotEqualTo: 'Completed')
+        .where('orderStatus', whereIn: ['Preparing', 'Ready for Pickup'])
         .snapshots()
         .map((snapshot) {
       // Map the Firestore documents to your Order model
@@ -24,7 +24,7 @@ class OrderController {
     });
   }
   
-  //seller_current_orders.dart
+  // seller_current_orders.dart
   // Fetches detailed information for a single item ID
   Future<Map<String, dynamic>?> getItemDetails(String itemId) async {
     try {
@@ -62,7 +62,7 @@ class OrderController {
     return _db
         .collection('orders')
         .where('seller_ID', isEqualTo: _currentSellerId)
-        .where('orderStatus', isEqualTo: 'pending')
+        .where('orderStatus', isEqualTo: 'Pending')
         .snapshots()
         .map((snapshot) {
       // Map the Firestore documents to your Order model

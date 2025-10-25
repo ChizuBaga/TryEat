@@ -156,7 +156,7 @@ void _navigateToChatScreen(String chatRoomId, String customerId, String customer
       backgroundColor: const Color.fromARGB(255, 252, 248, 221),
       appBar: AppBar(
         title: const Text('Pending Orders', style: TextStyle(color: Colors.black)),
-        backgroundColor: Colors.white,
+        backgroundColor: Color.fromARGB(255, 252, 248, 221),
         elevation: 0,
         centerTitle: true,
         automaticallyImplyLeading: false,
@@ -239,6 +239,7 @@ void _navigateToChatScreen(String chatRoomId, String customerId, String customer
                       return const Text('Loading order items...', style: TextStyle(fontSize: 20));
                     }
                     if(snapshot.hasError){
+                      print(snapshot.error);
                       return const Text('Error loading items.', style: TextStyle(fontSize: 20));
                     }
                     final items = snapshot.data ?? [];

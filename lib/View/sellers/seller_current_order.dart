@@ -32,13 +32,13 @@ class _OrderDetailPageState extends State<SellerCurrentOrder> {
       _selectedIndex = index;
     });
     handler.navigate(index);
-    _isPreparingOrder = (widget.order.orderStatus == "Preparing") ? true : false;
   }
 
   @override
   void initState() {
     super.initState();
     _detailedItemsFuture = _orderService.getDetailedOrderItems(widget.order.items);
+    _isPreparingOrder = (widget.order.orderStatus == "Preparing") ? true : false;
   }
   
   // --- Actions ---
@@ -179,7 +179,7 @@ void _navigateToChatScreen(String chatRoomId, String customerId, String customer
           .collection('orders')
           .doc(widget.order.orderId)
           .update({
-            'orderStatus': 'Completed',
+            'orderStatus': 'Ready for pickup',
             'completedAt': FieldValue.serverTimestamp(),
           });
       

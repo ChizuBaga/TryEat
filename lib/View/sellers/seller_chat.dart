@@ -82,11 +82,11 @@ class _SellerChatState extends State<SellerChat> {
         Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => ChatScreen(
             chatRoomId: chatRoom.chatRoomId,
-            otherParticipantName: chatRoom.otherParticipantName,
+            otherParticipantName: chatRoom.otherParticipantUserName,
             otherParticipantId: chatRoom.otherParticipantId,
           ),
         ));
-        print('Tapped on chat with ${chatRoom.otherParticipantName}');
+        print('Tapped on chat with ${chatRoom.otherParticipantUserName}');
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
@@ -111,7 +111,7 @@ class _SellerChatState extends State<SellerChat> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    chatRoom.otherParticipantName,
+                    chatRoom.otherParticipantUserName,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

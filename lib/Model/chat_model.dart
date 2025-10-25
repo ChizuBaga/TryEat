@@ -5,20 +5,17 @@ class ChatRoom {
   final String lastMessage;
   final DateTime lastMessageTime;
   final String otherParticipantId;
-  final String otherParticipantName;
   final String? lastMessageSenderId;
   final int unreadCount;
-
-  // Fields to be populated by secondary lookup
-  String otherParticipantUserName = 'Loading...';
+  String otherParticipantUserName;
   String? otherParticipantProfileImageUrl;
 
   ChatRoom({
     required this.chatRoomId,
     required this.lastMessage,
     required this.lastMessageTime,
-    required this.otherParticipantId,
-    required this.otherParticipantName,    
+    required this.otherParticipantId,  
+    required this.otherParticipantUserName,
     this.lastMessageSenderId,
     this.unreadCount = 0, // Default to 0 unread
   });
@@ -38,7 +35,7 @@ class ChatRoom {
       lastMessage: data['lastMessage'] ?? 'No messages yet.',
       lastMessageTime: (data['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now(),
       otherParticipantId: otherParticipantId,
-      otherParticipantName: 'Loading...',
+      otherParticipantUserName: 'Loading...',
       lastMessageSenderId: data['lastMessageSenderId'],
       unreadCount: (data['unreadCount'] is num) ? (data['unreadCount'] as num).toInt() : 0,
     );
