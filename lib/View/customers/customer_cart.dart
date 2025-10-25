@@ -6,6 +6,7 @@ class CartItem {
   final String name;
   final double price;
   final String imageUrl;
+  final String deliverMethod;
   final int quantity;
   // bool isSelected; //multiple item
 
@@ -15,6 +16,7 @@ class CartItem {
     required this.price,
     required this.imageUrl,
     required this.quantity,
+    required this.deliverMethod,
     // this.isSelected = false,
   });
 }
@@ -35,6 +37,8 @@ class _CustomerCartState extends State<CustomerCart> {
       price: 4.50,
       imageUrl: 'placeholder',
       quantity: 2,
+      deliverMethod: 'Self-delivery',
+
     ),
     CartItem(
       id: '2',
@@ -42,6 +46,7 @@ class _CustomerCartState extends State<CustomerCart> {
       price: 5.00,
       imageUrl: 'placeholder',
       quantity: 1,
+      deliverMethod: 'Self-delivery',
     ),
     CartItem(
       id: '3',
@@ -49,6 +54,7 @@ class _CustomerCartState extends State<CustomerCart> {
       price: 3.20,
       imageUrl: 'placeholder',
       quantity: 3,
+      deliverMethod: 'Self-collection',
     ),
     CartItem(
       id: '4',
@@ -56,6 +62,7 @@ class _CustomerCartState extends State<CustomerCart> {
       price: 4.50,
       imageUrl: 'placeholder',
       quantity: 1,
+      deliverMethod: 'Meet-up',
     ),
     CartItem(
       id: '5',
@@ -63,6 +70,7 @@ class _CustomerCartState extends State<CustomerCart> {
       price: 5.00,
       imageUrl: 'placeholder',
       quantity: 1,
+      deliverMethod: '3rd Party',
     ),
     CartItem(
       id: '6',
@@ -70,6 +78,7 @@ class _CustomerCartState extends State<CustomerCart> {
       price: 3.20,
       imageUrl: 'placeholder',
       quantity: 1,
+      deliverMethod: 'Self-collection',
     ),
   ];
 

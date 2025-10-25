@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-// Updated import to reflect the location of CartItem if it's in customer_cart.dart
 import 'customer_cart.dart';
 
 class CheckoutPage extends StatefulWidget {
-  // Although we receive a list, we know it will only contain one item
   final List<CartItem> items;
-  final double total; // This is already the price of the single item
+  final double total;
 
   const CheckoutPage({super.key, required this.items, required this.total});
 
@@ -14,7 +12,6 @@ class CheckoutPage extends StatefulWidget {
 }
 
 class _CheckoutPageState extends State<CheckoutPage> {
-  String? _selectedMethod;
   String _address = "Enter your address";
   double _deliveryFee = 0.0;
   String? _selectedPayment;
@@ -24,7 +21,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
     'Online Transfer',
   ];
   final _addressController = TextEditingController();
-  final List<String> _receivingMethods = ['Delivery', 'Meetup', 'Pickup'];
+
+  bool _isAddressRequired(String? deliverMethod) {
+    if (deliverMethod == null) return false;
+    // Check if the method (case-insensitive) requires an address
+    final methodLower = deliverMethod.toLowerCase();
+    return methodLower.contains('delivery') ||
+        methodLower.contains('3rd party');
+  }
 
   @override
   void dispose() {
@@ -108,16 +112,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Container(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(10),
           height: 70,
           child: const Center(
             child: Text(
               '✅ Order placed successfully!\nYou can view the order status in the Orders tab.',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 14,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
-                height: 1.4,
+                height: 1.3,
               ),
               textAlign: TextAlign.center,
             ),
@@ -125,10 +129,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
         ),
         backgroundColor: Colors.green.shade700,
         behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 8,
-        duration: const Duration(seconds: 3), // Match duration if needed
+        duration: const Duration(seconds: 3),
       ),
     );
 
@@ -158,18 +162,22 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   // Function to validate all fields before placing order
   void _validateAndPlaceOrder() {
-    if (_selectedMethod == null) {
-      _showErrorSnackbar('Please select a receiving method.');
-      return;
-    }
-    if (_selectedMethod == 'Delivery' && _address == "Enter your address") {
+    final String? deliverMethod = widget.items.isNotEmpty
+        ? widget.items.first.deliverMethod
+        : null;
+
+    if (_isAddressRequired(deliverMethod) && _address == "Enter your address") {
       _showErrorSnackbar('Please enter your address for delivery.');
       return;
     }
+
+    // Check payment method
     if (_selectedPayment == null) {
       _showErrorSnackbar('Please select a payment method.');
       return;
     }
+
+    // If all checks pass:
     _placeOrder();
   }
 
@@ -178,22 +186,29 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final CartItem? singleItem = widget.items.isNotEmpty
         ? widget.items.first
         : null;
-    double subtotal = widget.total;
-    double finalTotal = (_selectedMethod == 'Delivery') ? subtotal + _deliveryFee : subtotal;
+    final String itemDeliverMethod =
+        singleItem?.deliverMethod ?? 'N/A'; 
 
-    String deliveryFeeText;
-    if (_selectedMethod == null) {
-      deliveryFeeText = "N/A"; // Show N/A if no method selected yet
-    } else if (_selectedMethod == 'Delivery') {
-      deliveryFeeText = _deliveryFee == 0.0 ? 'Free' : 'RM${_deliveryFee.toStringAsFixed(2)}';
-    } else {
-      deliveryFeeText = "N/A"; // Show N/A for Meetup/Pickup
-    }
+    _deliveryFee = _isAddressRequired(itemDeliverMethod)
+        ? 5.00
+        : 0.0; 
+
+    double subtotal = widget.total;
+    double finalTotal = subtotal + _deliveryFee;
+
+    String deliveryFeeText = _isAddressRequired(itemDeliverMethod)
+        ? (_deliveryFee == 0.0
+              ? 'Free'
+              : 'RM${_deliveryFee.toStringAsFixed(2)}')
+        : "N/A";
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 252, 248, 221),
       appBar: AppBar(
-        title: const Text('Checkout', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
+        title: const Text(
+          'Checkout',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 255, 229, 143), // Your color
         elevation: 1,
@@ -208,8 +223,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
             child: ListView(
               padding: const EdgeInsets.all(16.0),
               children: [
-                _buildMethodSelector(),
-                if (_selectedMethod == 'Delivery') _buildAddressSelector(),
+                _buildStaticInfoRow('Receive Method', itemDeliverMethod), 
+                if (_isAddressRequired(itemDeliverMethod)) _buildAddressSelector(),
                 _buildPaymentSelector(),
                 const SizedBox(height: 24),
 
@@ -231,7 +246,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
                 const SizedBox(height: 8),
 
-                _buildPriceRow('Delivery Fee', deliveryFeeText),      
+                _buildPriceRow('Delivery Fee', deliveryFeeText),
 
                 const SizedBox(height: 8),
                 const Divider(),
@@ -250,38 +265,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
-  // Receiving Method Dropdown
-  Widget _buildMethodSelector() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            'Receiving Method',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-          ),
-          DropdownButton<String>(
-            value: _selectedMethod,
-            hint: Text(
-              'Select a method',
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-            ),
-            underline: const SizedBox(),
-            items: _receivingMethods.map((String value) {
-              return DropdownMenuItem<String>(value: value, child: Text(value));
-            }).toList(),
-            onChanged: (String? newValue) {
-              setState(() {
-                _selectedMethod = newValue;
-                _deliveryFee = (newValue == 'Delivery') ? 5.00 : 0.0;
-              });
-            },
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildStaticInfoRow(String title, String value) {
+     return Padding(
+       padding: const EdgeInsets.symmetric(vertical: 12.0),
+       child: Row(
+         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+         children: [
+           Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+           Text(value, style: TextStyle(fontSize: 16, color: Colors.grey[800])), // Display value
+         ],
+       ),
+     );
+   }
 
   // Address row
   Widget _buildAddressSelector() {
@@ -486,4 +481,4 @@ class _CheckoutPageState extends State<CheckoutPage> {
       ),
     );
   }
-} 
+}
