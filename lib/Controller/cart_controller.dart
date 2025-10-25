@@ -32,6 +32,7 @@ class CartService{
       // Use a transaction for safe quantity updates
       await _firestore.runTransaction((transaction) async {
         final docSnapshot = await transaction.get(docRef);
+
         if (docSnapshot.exists) {
           // Item exists, update quantity
           final existingData = docSnapshot.data() as Map<String, dynamic>?;

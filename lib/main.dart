@@ -37,9 +37,7 @@ void main() async {
   
   //Initialize Huawei Location Service
   await locator<FusedLocationProviderClient>().initFusedLocationService();
-  
-  //print("API key: " + dotenv.env['HUAWEI_API_KEY']!);
-  //await Site.initialize(apiKey: dotenv.env['HUAWEI_API_KEY']!);
+
   runApp(const MainApp());
 }
 
@@ -130,7 +128,6 @@ class MainApp extends StatelessWidget {
         '/seller_verification': (context) => const SellerVerification(),
         '/seller_register': (context) => const SellerRegisterPage(),
         '/seller_main': (context) => const SellerMain(),
-
         '/customer_login': (context) => const CustomerLoginPage(),
         '/customer_signup': (context) => const CustomerSignUpPage(),
         '/customer_tab': (context) => const CustomerTab(),
