@@ -104,7 +104,6 @@ class MainApp extends StatelessWidget {
         } 
         
         // --- User Role NOT Found in Firestore (Error Case) ---
-        // This means user exists in Auth, but no record in 'customers' or 'sellers'
         print("User role not found in Firestore for UID: ${user.uid}. Logging out.");
         // Log the user out to prevent being stuck
         authService.signOut(); 
