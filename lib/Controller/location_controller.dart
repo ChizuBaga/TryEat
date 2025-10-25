@@ -12,7 +12,7 @@ class LocationController {
   LocationController(){
     _locationService = locator<FusedLocationProviderClient>();
   }
-
+  
   Future<Location> getLocation() async {
   LocationSettingsStates lState = await checkLocationSettings();
   try {

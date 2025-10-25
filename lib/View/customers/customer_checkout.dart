@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'customer_cart.dart';
+import 'package:chikankan/Model/cart_model.dart';
+import 'package:chikankan/Controller/cart_controller.dart';
+import 'package:chikankan/locator.dart';
 
 class CheckoutPage extends StatefulWidget {
   final List<CartItem> items;
@@ -29,13 +31,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
     return methodLower.contains('delivery') ||
         methodLower.contains('3rd party');
   }
-
+  final CartService _cartService = locator<CartService>();
   @override
   void dispose() {
     _addressController.dispose();
     super.dispose();
   }
-
+  
   // Function to show the address input modal
   void _showAddressModal() {
     if (_address != "Enter your address") {
@@ -137,7 +139,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
 
     // Navigate after the SnackBar duration + a small buffer
-    Future.delayed(const Duration(seconds: 3, milliseconds: 200), () {
+    Future.delayed(const Duration(seconds: 1, milliseconds: 200), () {
       if (mounted) {
         // Assuming '/customer_tab' is the route name for your main page with tabs
         Navigator.pushNamedAndRemoveUntil(
@@ -159,11 +161,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
       ),
     );
   }
-
+  
   // Function to validate all fields before placing order
-  void _validateAndPlaceOrder() {
+  void _validateAndPlaceOrder() async {
     final String? deliverMethod = widget.items.isNotEmpty
-        ? widget.items.first.deliverMethod
+        ? widget.items.first.deliveryMode
         : null;
 
     if (_isAddressRequired(deliverMethod) && _address == "Enter your address") {
@@ -179,6 +181,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
     // If all checks pass:
     _placeOrder();
+    String itemIdToRemove = widget.items.first.id; // Assuming items list has the one item
+    await _cartService.removeItem(itemIdToRemove);
   }
 
   @override
@@ -187,7 +191,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         ? widget.items.first
         : null;
     final String itemDeliverMethod =
-        singleItem?.deliverMethod ?? 'N/A'; 
+        singleItem?.deliveryMode ?? 'N/A'; 
 
     _deliveryFee = _isAddressRequired(itemDeliverMethod)
         ? 5.00
@@ -227,7 +231,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 if (_isAddressRequired(itemDeliverMethod)) _buildAddressSelector(),
                 _buildPaymentSelector(),
                 const SizedBox(height: 24),
-
                 const Text(
                   'ITEM',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),

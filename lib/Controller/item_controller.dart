@@ -1,11 +1,11 @@
 // File: item_service.dart
-
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:chikankan/locator.dart';
 
 class ItemController {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore = locator<FirebaseFirestore>();
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
   //add_item.dart

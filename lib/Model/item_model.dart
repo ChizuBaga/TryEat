@@ -2,48 +2,71 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Item {
   String id;
-  String name;
-  double price;
   String category;
+  String deliveryMode;
   String description;
+  String sellerId;
+  String name;
+  String orderType;
+  double price;
+  int reservedDays;
+  Timestamp createdAt;
   String imageUrl;
   bool isAvailable;
-  String orderType;
-  String deliveryMode;
-  int? reservedDays; 
-  final List<String>? comments; 
 
-  Item({
-    required this.id,
-    required this.name,
-    required this.price,
-    required this.category,
-    required this.description,
-    required this.imageUrl,
-    this.isAvailable = true,
-    required this.orderType,
-    required this.deliveryMode,
+  //Item constructor
+  Item(
+    this.description, 
+    this.category, 
+    this.imageUrl, 
     this.reservedDays,
-    this.comments,
+    {
+      required this.id,
+      required this.name, 
+      required this.price, 
+      required this.sellerId, 
+      required this.isAvailable, 
+      required this.createdAt,
+      required this.orderType,
+      required this.deliveryMode
   });
 
+  // Create Item object from Firestore Document
   factory Item.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-
+    
     return Item(
       id: doc.id,
-      name: data['Name'] ?? 'No Name',
-      category: data['Category'] ?? 'General',
-      description: data['Description'] ?? 'No description',
-      price: (data['Price'] is num) ? data['Price'].toDouble() : 0.00,
-      imageUrl: data['imageUrl'] ?? 'Unknown',
-      isAvailable: data['isAvailable'] ?? false,
-      comments: data['Comments'] != null
-          ? List<String>.from(data['Comments'])
-          : null,
-      orderType: data['OrderType'] ?? 'Instant',
-      deliveryMode: data['DeliveryMode'] ?? 'Seller-Delivery',
-      reservedDays: data['ReservedDays'] ?? 0,
+      data['Description'] ?? '',
+      data['Category'] ?? '',
+      data['imageUrl'] ?? '',
+      data['ReservedDays'] ?? 0,
+      name: data['Name'],
+      price: (data['Price']),
+      sellerId: data['sellerId'],
+      isAvailable: data['isAvailable'],
+      createdAt: data['createdAt'],
+      orderType: data['OrderType'],
+      deliveryMode: data['DeliveryMode']
     );
   }
+
+  // Convert Item to Map for Firestore
+  Map<String, dynamic> toMap() {
+    return {
+      'Name': name,
+      'Price': price,
+      'Category': category,
+      'Description': description,
+      'imageUrl': imageUrl,
+      'isAvailable': isAvailable,
+      'sellerId': sellerId,
+      'createdAt': createdAt,
+      'OrderType': orderType,
+      'DeliveryMode': deliveryMode,
+      'ReservedDays': reservedDays,
+    };
+  }
+
+
 }
