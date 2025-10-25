@@ -176,7 +176,7 @@ class _SellerRegisterPageState extends State<SellerRegisterPage> {
     // 3. Attempt to register with Firebase
     try {
       String? fullAddr = _sellerData.address! + _sellerData.postcode! + _sellerData.state!;
-      GeoPoint? location = await getCoordinateFromAddress(fullAddr);      
+      GeoPoint? location = await getCoordinatesFromAddress(fullAddr);      
       User? user = await _authService.signUp(
         email: _sellerData.email!,
         password: _sellerData.password!,
@@ -215,9 +215,11 @@ class _SellerRegisterPageState extends State<SellerRegisterPage> {
       setState(() {
         _errorMessage = message;
       });
-    } catch (e) {
+    } catch (e, stackTrace) {
       setState(() {
         print('An unexpected error occurred: $e');
+        print('--- FULL STACK TRACE ---');
+        print(stackTrace); // Print the stack trace object
         _errorMessage = 'An unexpected error occurred. Please try again.';
       });
     } finally {

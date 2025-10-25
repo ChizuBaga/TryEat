@@ -7,9 +7,16 @@ import 'package:huawei_site/huawei_site.dart';
 
 Future<GeoPoint?> getCoordinatesFromAddress(String address) async {
   final apiKey = dotenv.env['HUAWEI_API_KEY'];
-  const String rootUrl = 'https://siteapi.cloud.huawei.com/mapApi/v1/siteService/geocode';
-  final String requestUrl = '$rootUrl?key=${Uri.encodeComponent(apiKey!)}';
+  if (apiKey == null) {
+    print("Error: HUAWEI_API_KEY not found in .env file");
+    return null;
+  }
+  String authorizationHeaderValue = 'Bearer $apiKey';
+  String apiURL = 'https://siteapi.cloud.huawei.com/mapApi/v1/siteService/geocode?key=${Uri.encodeComponent(apiKey)}';
 
+  //const String rootUrl = 'https://siteapi.cloud.huawei.com/mapApi/v1/siteService/geocode';
+  //final String requestUrl = '$rootUrl?key=${Uri.encodeComponent(apiKey)}';
+  
   final Map<String, dynamic> requestBody = {
     'address': address,
     'countryCode': 'MY',
@@ -17,8 +24,11 @@ Future<GeoPoint?> getCoordinatesFromAddress(String address) async {
 
   try {
     final response = await http.post(
-      Uri.parse(requestUrl),
-      headers: {'Content-Type': 'application/json; charset=UTF-8'},
+      Uri.parse(apiURL),
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8', 
+        'Authorization': authorizationHeaderValue
+        },
       body: jsonEncode(requestBody),
     );
 
@@ -33,6 +43,7 @@ Future<GeoPoint?> getCoordinatesFromAddress(String address) async {
         return GeoPoint(lat, lng);
       } else {
         print('No results found for "$address"');
+        
       }
     } else {
       print('Request failed: ${response.statusCode}');
