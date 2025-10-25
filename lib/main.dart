@@ -22,14 +22,16 @@ import 'View/customers/customer_order.dart';
 import 'View/customers/customer_profile.dart';
 import 'View/customers/customer_tab.dart';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  
   setupLocator();
-
+  await dotenv.load(fileName: ".env");
   //Initialize Naive Bayes Classifier
   await locator<NaiveBayesClassifier>().loadModel();
   
