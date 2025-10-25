@@ -7,6 +7,7 @@ class CartItem {
   final String imageUrl;
   final int quantity;
   final String deliveryMode;
+  final String sellerId;
   // bool isSelected; //multiple item
 
   CartItem({
@@ -16,6 +17,7 @@ class CartItem {
     required this.imageUrl,
     required this.quantity,
     required this.deliveryMode,
+    required this.sellerId,
     // this.isSelected = false,
   });
 
@@ -29,6 +31,7 @@ class CartItem {
       imageUrl: data['itemImageUrl'] ?? '',
       quantity: data['quantity'] ?? 1,
       deliveryMode: data['deliveryMode'],
+      sellerId: data['sellerId'],
     );
   }
 
@@ -41,6 +44,7 @@ class CartItem {
       'itemImageUrl': imageUrl,
       'quantity': quantity,
       'deliveryMode': deliveryMode,
+      'sellerId': sellerId,
       // You might add a timestamp here if needed
       // 'addedAt': FieldValue.serverTimestamp(),
     };

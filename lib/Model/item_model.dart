@@ -2,14 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Item {
   String id;
-  String category;
+  String? category;
   String deliveryMode;
-  String description;
+  String? description;
   String sellerId;
   String name;
   String orderType;
   double price;
-  int reservedDays;
+  int? reservedDays;
   Timestamp createdAt;
   String imageUrl;
   bool isAvailable;

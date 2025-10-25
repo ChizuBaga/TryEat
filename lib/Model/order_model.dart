@@ -18,6 +18,7 @@ class Orders {
     required this.items, 
   });
 
+
   factory Orders.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     final rawItems = data['items'] as List<dynamic>? ?? [];
@@ -34,4 +35,5 @@ class Orders {
       items: parsedItems,
     );
   }
+
 }

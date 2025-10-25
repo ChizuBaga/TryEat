@@ -154,7 +154,7 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
           IconData? orderTypeIcon;
           final String? fetchedOrderType = item.orderType;
           if (fetchedOrderType != null && fetchedOrderType.toLowerCase() == 'pre-order') {
-            final int reservedDays = item.reservedDays;
+            final int reservedDays = item.reservedDays ?? 0;
             orderTypeText = 'Pre-order: ${reservedDays}d';
             orderTypeIcon = Icons.calendar_today_outlined; // Calendar icon
           } else if (fetchedOrderType != null && fetchedOrderType.toLowerCase() == 'instant') {

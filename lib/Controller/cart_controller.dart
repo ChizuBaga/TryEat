@@ -10,7 +10,7 @@ class CartService{
   final FirebaseFirestore _firestore = locator<FirebaseFirestore>();
   final AuthService _authService = locator<AuthService>();
 
-  // Helper to get the current user's cart collection reference
+  
   CollectionReference? _getCartCollectionRef() {
     
     final User? user = _authService.getCurrentUser(); // Use the service method
@@ -21,11 +21,10 @@ class CartService{
     return _firestore.collection('customers').doc(user.uid).collection('cart');
   }
 
-  // --- addItem ---
+  
   Future<void> addItem(Item item, int quantity) async {
     final cartRef = _getCartCollectionRef(); // Uses the updated helper
     if (cartRef == null) return;
-    // The document ID in the cart subcollection IS the item's ID
     final docRef = cartRef.doc(item.id);
     
     try {
@@ -42,12 +41,13 @@ class CartService{
           // Item doesn't exist, create it using CartItem's toMap
           // Create a temporary CartItem object to leverage its toMap method
           final newCartItem = CartItem(
-            id: item.id, // Corresponds to Firestore doc ID
+            id: item.id, 
             name: item.name,
             price: item.price,
             imageUrl: item.imageUrl,
             quantity: quantity,
-            deliveryMode: item.deliveryMode
+            deliveryMode: item.deliveryMode,
+            sellerId: item.sellerId,
           );
           transaction.set(docRef, newCartItem.toMap());
         }
@@ -55,7 +55,6 @@ class CartService{
       print("Item ${item.id} added/updated in cart.");
     } catch (e) {
       print("Error adding item to cart: $e");
-      // Optionally rethrow or handle error
     }
   }
 

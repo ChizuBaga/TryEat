@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'customer_edit_profile.dart'; 
+import 'customer_edit_profile.dart';
+import 'package:chikankan/View/select_user_type_page.dart';
 
 class CustomerProfile extends StatelessWidget {
   const CustomerProfile({super.key});
@@ -14,6 +15,8 @@ class CustomerProfile extends StatelessWidget {
 
     final User? currentUser = FirebaseAuth.instance.currentUser;
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     // Handle user not logged in
     /*
     if (currentUser == null) {
@@ -47,7 +50,6 @@ class CustomerProfile extends StatelessWidget {
             body: const Center(child: CircularProgressIndicator()),
           );
         }
-
         // Handle error state
         if (snapshot.hasError) {
           return Scaffold(
@@ -70,90 +72,116 @@ class CustomerProfile extends StatelessWidget {
           appBar: AppBar(
             title: const Text(
               'Profile',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: textColor,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
             ),
             backgroundColor: backgroundColor, // Match scaffold background
             elevation: 0, // Remove shadow
             automaticallyImplyLeading: false,
             centerTitle: true,
-            actions: [
-              IconButton(
-                icon: const Icon(
-                  Icons.edit_outlined, // Show 'edit' icon
-                  color: iconColor,
-                  size: 28,
-                ),
-                onPressed: () {
-                  // Navigate to the new EditCustomerProfile page
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => EditCustomerProfile(
-                        // Pass the current data to pre-fill the fields
-                        currentData: data,
-                      ),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(width: 8), // Add a little padding to the right
-            ],
           ),
           body: SingleChildScrollView(
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 20.0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 40),
-                  // Profile picture avatar
+                  // --- Profile picture avatar (Keep As Is) ---
                   CircleAvatar(
                     radius: 64,
                     backgroundColor: Colors.black.withOpacity(0.05),
-                    // Use NetworkImage if profileImageUrl exists, else show icon
                     backgroundImage: profileImageUrl != null
                         ? NetworkImage(profileImageUrl)
                         : null,
                     child: (profileImageUrl == null)
-                        ? const Icon(
-                            Icons.person_outline,
-                            size: 80,
-                            color: iconColor,
-                          )
+                        ? Icon(Icons.person_outline, size: 80, color: iconColor)
                         : null,
                   ),
                   const SizedBox(height: 24),
-                  // Username
                   Text(
-                    username, // Display username from Firebase
-                    style: const TextStyle(
+                    username,
+                    style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: textColor,
                     ),
                   ),
-
                   const SizedBox(height: 60),
-                  // Info Row for Phone
-                  _InfoRow(
-                    icon: Icons.phone_outlined,
-                    text: phone, // Display phone from Firebase
-                    iconColor: iconColor,
-                    textColor: textColor,
+                  // --- First Card with Fixed Size ---
+                  SizedBox(
+                    width: screenWidth * 1.0,
+                    height:
+                        screenHeight * 0.07,
+                    child: Card(
+                      margin: EdgeInsets.zero,
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  EditCustomerProfile(currentData: data),
+                            ),
+                          );
+                        },
+                        child: SizedBox.expand(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(Icons.switch_account, color: iconColor),
+                              Text(
+                                'Edit Profile',
+                                style: TextStyle(color: textColor),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 24),
-                  // Info Row for Email
-                  _InfoRow(
-                    icon: Icons.email_outlined,
-                    text: email, // Display email from Firebase
-                    iconColor: iconColor,
-                    textColor: textColor,
+                  const Divider(),
+                  const SizedBox(height: 16),
+                  // --- Second Card with Fixed Size ---
+                   SizedBox(
+                    width: screenWidth * 1.0,
+                    height:
+                        screenHeight * 0.07,
+                    child: Card(
+                      margin: EdgeInsets.zero,
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SelectUserTypePage(),
+                            ),
+                          );
+                        },
+                        child: SizedBox.expand(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(Icons.switch_account, color: iconColor),
+                              Text(
+                                'Log Out',
+                                style: TextStyle(color: textColor),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(
+                    height: 20,
+                  ), // Example extra space at the botto
                 ],
               ),
             ),
@@ -185,11 +213,7 @@ class _InfoRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center, // Center the row items
         children: [
-          Icon(
-            icon,
-            color: iconColor,
-            size: 28,
-          ),
+          Icon(icon, color: iconColor, size: 28),
           const SizedBox(width: 16),
           Text(
             text,
@@ -204,5 +228,3 @@ class _InfoRow extends StatelessWidget {
     );
   }
 }
-
-
