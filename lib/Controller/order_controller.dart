@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:chikankan/Model/order_model.dart';
 
-class OrderService {
+class OrderController {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final String? _currentSellerId = FirebaseAuth.instance.currentUser?.uid;
 
@@ -23,7 +23,7 @@ class OrderService {
       return snapshot.docs.map((doc) => Orders.fromFirestore(doc)).toList();
     });
   }
-
+  
   //seller_current_orders.dart
   // Fetches detailed information for a single item ID
   Future<Map<String, dynamic>?> getItemDetails(String itemId) async {
@@ -51,5 +51,22 @@ class OrderService {
     }).toList();
 
     return Future.wait(futures);
+  }
+
+  //Pending Order
+  Stream<List<Orders>> streamPendingOrders() {
+    if (_currentSellerId == null) {
+      return Stream.value([]); // Return empty stream if no user is logged in
+    }
+
+    return _db
+        .collection('orders')
+        .where('seller_ID', isEqualTo: _currentSellerId)
+        .where('orderStatus', isEqualTo: 'pending')
+        .snapshots()
+        .map((snapshot) {
+      // Map the Firestore documents to your Order model
+      return snapshot.docs.map((doc) => Orders.fromFirestore(doc)).toList();
+    });
   }
 }

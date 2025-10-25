@@ -21,7 +21,7 @@ class _SellerHomepageState extends State<SellerHomepage> {
   final String uid = FirebaseAuth.instance.currentUser!.uid; 
   late final Future<DocumentSnapshot> _sellerDataFuture;
 
-  final OrderService _orderService = OrderService();
+  final OrderController _orderService = OrderController();
   
   int _selectedIndex = 0; 
 
@@ -37,7 +37,6 @@ class _SellerHomepageState extends State<SellerHomepage> {
   void initState() {
     super.initState();
     if (uid != null) {
-      // Set up the future to fetch the document once
       _sellerDataFuture = FirebaseFirestore.instance.collection('sellers').doc(uid).get();
     }
   }

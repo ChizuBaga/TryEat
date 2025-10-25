@@ -20,9 +20,10 @@ class SellerCurrentOrder extends StatefulWidget {
 }
 
 class _OrderDetailPageState extends State<SellerCurrentOrder> {
-  final OrderService _orderService = OrderService();
+  final OrderController _orderService = OrderController();
   late Future<List<OrderItemDisplay>> _detailedItemsFuture;
   bool _isProcessing = false;
+  late bool _isPreparingOrder;
 
   int _selectedIndex = 0; 
   void _onNavTap(int index) {
@@ -31,6 +32,7 @@ class _OrderDetailPageState extends State<SellerCurrentOrder> {
       _selectedIndex = index;
     });
     handler.navigate(index);
+    _isPreparingOrder = (widget.order.orderStatus == "Preparing") ? true : false;
   }
 
   @override
@@ -268,8 +270,9 @@ void _navigateToChatScreen(String chatRoomId, String customerId, String customer
                      Expanded(child: _buildContactButton('Call Customer', Icons.call, _callCustomer),)
                     ],
                   ),
-                  const SizedBox(height: 30),
-                  _buildSwipeToCompleteButton(),
+                  if(_isPreparingOrder)
+                    ...[const SizedBox(height: 30),
+                    _buildSwipeToCompleteButton(),]
                 ],
               ),
             ),
@@ -296,7 +299,7 @@ void _navigateToChatScreen(String chatRoomId, String customerId, String customer
               borderRadius: BorderRadius.circular(8.0),
             ),
             child: ClipRRect(
-              child: (item.imageUrl != null && item.imageUrl!.isNotEmpty)
+              child: (item.imageUrl != null && item.imageUrl.isNotEmpty)
                 ? Image.network(
                     item.imageUrl!,
                     fit: BoxFit.cover,

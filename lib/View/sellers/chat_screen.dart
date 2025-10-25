@@ -150,7 +150,6 @@ class _ChatScreenState extends State<ChatScreen> {
     final bubbleColor = isMe ? Colors.black : Colors.grey[200];
     final textColor = isMe ? Colors.white : Colors.black;
     final alignment = isMe ? Alignment.centerRight : Alignment.centerLeft;
-    final borderRadius = BorderRadius.circular(15);
 
     return Align(
       alignment: alignment,
