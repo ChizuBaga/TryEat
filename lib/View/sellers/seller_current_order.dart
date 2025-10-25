@@ -1,8 +1,6 @@
 import 'package:chikankan/Controller/order_controller.dart';
-import 'package:chikankan/Controller/seller_navigation_controller.dart';
 import 'package:chikankan/Model/orderItem.dart';
 import 'package:chikankan/Model/order_model.dart';
-import 'package:chikankan/View/sellers/bottom_navigation_bar.dart';
 import 'package:chikankan/View/sellers/chat_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -24,15 +22,6 @@ class _OrderDetailPageState extends State<SellerCurrentOrder> {
   late Future<List<OrderItemDisplay>> _detailedItemsFuture;
   bool _isProcessing = false;
   late bool _isPreparingOrder;
-
-  int _selectedIndex = 0; 
-  void _onNavTap(int index) {
-    final handler = SellerNavigationHandler(context);
-    setState(() {
-      _selectedIndex = index;
-    });
-    handler.navigate(index);
-  }
 
   @override
   void initState() {
@@ -207,8 +196,8 @@ void _navigateToChatScreen(String chatRoomId, String customerId, String customer
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 252, 248, 221),
       appBar: AppBar(
-        title: Text('#${widget.order.orderId}', style: const TextStyle(color: Colors.black)),
-        backgroundColor: Colors.white,
+        title: Text(widget.order.orderId, style: const TextStyle(color: Colors.black)),
+        backgroundColor: Color.fromARGB(255, 252, 248, 221),
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
@@ -277,7 +266,6 @@ void _navigateToChatScreen(String chatRoomId, String customerId, String customer
               ),
             ),
           ),
-          SellerBottomNavBar(currentIndex: 2, onTap: _onNavTap) 
         ],
       ),
     );
@@ -301,7 +289,7 @@ void _navigateToChatScreen(String chatRoomId, String customerId, String customer
             child: ClipRRect(
               child: (item.imageUrl != null && item.imageUrl.isNotEmpty)
                 ? Image.network(
-                    item.imageUrl!,
+                    item.imageUrl,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => const Icon(Icons.person, size: 100, color: Colors.grey),
                   )

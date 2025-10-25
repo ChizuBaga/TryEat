@@ -1,7 +1,5 @@
 import 'dart:io';
 import 'package:chikankan/Controller/item_controller.dart';
-import 'package:chikankan/Controller/seller_navigation_controller.dart';
-import 'package:chikankan/View/sellers/bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -18,7 +16,7 @@ class EditItem extends StatefulWidget {
 }
 
 class _EditItemState extends State<EditItem> {
-  ItemController _itemController = ItemController();
+  final ItemController _itemController = ItemController();
   final _formKey = GlobalKey<FormState>();
 
   // Text editing controllers
@@ -29,15 +27,6 @@ class _EditItemState extends State<EditItem> {
   File? _newSelectedImage; // To store a newly picked image file
   String? _currentImageUrl; // The URL of the currently displayed image
   bool _isLoading = false; // For showing loading indicators
-  int _selectedIndex = 0; //Default Homepage since not appear in btm bar
-
-  void _onNavTap(int index) {
-    final handler = SellerNavigationHandler(context);
-    setState(() {
-      _selectedIndex = index;
-    });
-    handler.navigate(index);
-  }
 
   @override
   void initState() {
@@ -176,6 +165,7 @@ class _EditItemState extends State<EditItem> {
       backgroundColor: const Color.fromARGB(255, 252, 248, 221),
       appBar: AppBar(
         elevation: 0,
+        backgroundColor: Color.fromARGB(255, 252, 248, 221),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
@@ -354,10 +344,6 @@ class _EditItemState extends State<EditItem> {
               ],
             ),
           ),
-      bottomNavigationBar: SellerBottomNavBar(
-        currentIndex: _selectedIndex,
-        onTap: _onNavTap,
-      ),
     );
   }
 }

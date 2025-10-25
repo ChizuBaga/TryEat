@@ -1,7 +1,5 @@
 import 'dart:io'; 
 import 'package:chikankan/Controller/item_controller.dart';
-import 'package:chikankan/Controller/seller_navigation_controller.dart';
-import 'package:chikankan/View/sellers/bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -36,15 +34,6 @@ class _AddItemState extends State<AddItem> {
 
   //Item Controller
   final ItemController _itemController = ItemController();
-
-  int _selectedIndex = 2;
-  void _onNavTap(int index) {
-    final handler = SellerNavigationHandler(context);
-    setState(() {
-      _selectedIndex = index;
-    });
-    handler.navigate(index);
-  }
 
   // Function to pick an image from the gallery
   Future<void> _pickImage() async {
@@ -366,10 +355,6 @@ class _AddItemState extends State<AddItem> {
                 ),
               ),
             ),
-      bottomNavigationBar: SellerBottomNavBar(
-        currentIndex: _selectedIndex,
-        onTap: _onNavTap,
-      ), // Reusing existing bottom nav bar
     );
   }
 

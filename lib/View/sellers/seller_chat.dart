@@ -1,10 +1,8 @@
-import 'package:chikankan/Controller/seller_navigation_controller.dart';
 import 'package:chikankan/View/sellers/chat_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // For formatting dates
-import 'package:chikankan/Controller/chat_controller.dart'; // Your ChatService
-import 'package:chikankan/Model/chat_model.dart'; // Your ChatRoom model
-import 'package:chikankan/View/sellers/bottom_navigation_bar.dart';
+import 'package:intl/intl.dart'; 
+import 'package:chikankan/Controller/chat_controller.dart'; 
+import 'package:chikankan/Model/chat_model.dart'; 
 
 
 class SellerChat extends StatefulWidget {
@@ -17,21 +15,12 @@ class SellerChat extends StatefulWidget {
 class _SellerChatState extends State<SellerChat> {
   final ChatController _chatService = ChatController();
 
-  int _selectedIndex = 1; 
-  void _onNavTap(int index) {
-    final handler = SellerNavigationHandler(context);
-    setState(() {
-      _selectedIndex = index;
-    });
-    handler.navigate(index);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 252, 248, 221),
       appBar: AppBar(
-        title: const Text('Chats', style: TextStyle(fontSize: 30, color: Colors.black)),
+        title: const Text('Chats', style: TextStyle(color: Colors.black)),
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 252, 248, 221),
         elevation: 0,
@@ -61,21 +50,16 @@ class _SellerChatState extends State<SellerChat> {
           );
         },
       ),
-      bottomNavigationBar: SellerBottomNavBar(
-        currentIndex: _selectedIndex,
-        onTap: _onNavTap,
-      ),
     );
   }
 
   // Helper widget to build each chat list item
   Widget _buildChatListItem(BuildContext context, ChatRoom chatRoom) {
     // Determine if the red dot (unread indicator) should be shown
-    // if last message sender is NOT current user AND it's unread
+    // if last message sender != current user
     //debug
     // final bool showUnreadIndicator = chatRoom.unreadCount > 0;
-    print(_chatService.currentUserId);
-    final bool showUnreadIndicator = chatRoom.lastMessageSenderId != _chatService.currentUserId && chatRoom.unreadCount > 0;
+    final bool showUnreadIndicator = chatRoom.lastMessageSenderId != _chatService.currentUserId;
 
     return InkWell(
       onTap: () {
@@ -86,7 +70,6 @@ class _SellerChatState extends State<SellerChat> {
             otherParticipantId: chatRoom.otherParticipantId,
           ),
         ));
-        print('Tapped on chat with ${chatRoom.otherParticipantUserName}');
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),

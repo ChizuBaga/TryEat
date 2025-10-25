@@ -6,7 +6,6 @@ class ChatRoom {
   final DateTime lastMessageTime;
   final String otherParticipantId;
   final String? lastMessageSenderId;
-  final int unreadCount;
   String otherParticipantUserName;
   String? otherParticipantProfileImageUrl;
 
@@ -17,7 +16,6 @@ class ChatRoom {
     required this.otherParticipantId,  
     required this.otherParticipantUserName,
     this.lastMessageSenderId,
-    this.unreadCount = 0, // Default to 0 unread
   });
 
   factory ChatRoom.fromFirestore(DocumentSnapshot doc, String currentUserId) {
@@ -37,7 +35,6 @@ class ChatRoom {
       otherParticipantId: otherParticipantId,
       otherParticipantUserName: 'Loading...',
       lastMessageSenderId: data['lastMessageSenderId'],
-      unreadCount: (data['unreadCount'] is num) ? (data['unreadCount'] as num).toInt() : 0,
     );
   }
 }

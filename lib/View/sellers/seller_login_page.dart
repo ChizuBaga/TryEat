@@ -57,7 +57,7 @@ class _SellerLoginPageState extends State<SellerLoginPage> {
           const SnackBar(content: Text('Login Successful!')),
         );
         // Navigate to the seller homepage and remove the login page from the stack
-        Navigator.pushReplacementNamed(context, '/seller_homepage');
+        Navigator.pushReplacementNamed(context, '/seller_main');
       }
       
       //For deployment

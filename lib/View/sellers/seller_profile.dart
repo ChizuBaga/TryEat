@@ -1,12 +1,10 @@
 import 'package:chikankan/Controller/profile_controller.dart';
-import 'package:chikankan/Controller/seller_navigation_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:chikankan/Model/seller_data.dart';
 import 'package:chikankan/View/sellers/edit_profile.dart'; 
-import 'package:chikankan/View/sellers/bottom_navigation_bar.dart'; 
 
 class SellerProfile extends StatefulWidget {
   const SellerProfile({super.key});
@@ -17,17 +15,8 @@ class SellerProfile extends StatefulWidget {
 
 class _SellerProfileState extends State<SellerProfile> {
   final User? currentUser = FirebaseAuth.instance.currentUser;
-  int _selectedIndex = 3; // Profile tab index
   final ProfileController _profileController = ProfileController();
 
-  void _onNavTap(int index) {
-    final handler = SellerNavigationHandler(context);
-    setState(() {
-      _selectedIndex = index;
-    });
-    handler.navigate(index);
-  }
-  
   @override
   Widget build(BuildContext context) {
     if (currentUser == null) {
@@ -118,11 +107,6 @@ class _SellerProfileState extends State<SellerProfile> {
                     ],
                   ),
                 ),
-              ),
-              // Bottom Navigation Bar
-              SellerBottomNavBar(
-                currentIndex: _selectedIndex,
-                onTap: _onNavTap,
               ),
             ],
           );

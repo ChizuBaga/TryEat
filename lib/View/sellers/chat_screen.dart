@@ -21,7 +21,8 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
-  final currentUserId = FirebaseAuth.instance.currentUser?.uid; // Get sender ID
+  final currentUserId = FirebaseAuth.instance.currentUser?.uid; 
+
   void _sendMessage() async {
     final text = _messageController.text.trim();
 
@@ -33,17 +34,15 @@ class _ChatScreenState extends State<ChatScreen> {
       time: DateTime.now(), 
     );
 
-    _messageController.clear(); // Clear input immediately for better UX
+    _messageController.clear(); 
 
     try {
-      // 2. Add the message to the subcollection
       await FirebaseFirestore.instance
           .collection('chats')
           .doc(widget.chatRoomId)
           .collection('messages')
-          .add(newMessage.toFirestore()); // Use the toFirestore map method
+          .add(newMessage.toFirestore());
 
-      // 3. Update the main chat document (for lastMessage summary in the list view)
       await FirebaseFirestore.instance
           .collection('chats')
           .doc(widget.chatRoomId)
@@ -51,13 +50,10 @@ class _ChatScreenState extends State<ChatScreen> {
             'lastMessage': text,
             'timestamp': FieldValue.serverTimestamp(),
             'lastMessageSenderId': currentUserId,
-            'unreadCount': FieldValue.increment(1), // Increment counter for the receiver
-            // You would need a Cloud Function or complex rules to increment only for the *other* user
           });
 
     } catch (e) {
       print("Error sending message: $e");
-      // Handle error feedback
     }
   }
 
@@ -75,9 +71,10 @@ class _ChatScreenState extends State<ChatScreen> {
       });
       
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 252, 248, 221),
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1, // Add shadow for sation
+        backgroundColor: Color.fromARGB(255, 252, 248, 221),
+        elevation: 1, 
         automaticallyImplyLeading: false,
         titleSpacing: 0,
         title: _buildAppBarTitle(),
@@ -196,7 +193,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color.fromARGB(255, 252, 248, 221),
         border: Border(top: BorderSide(color: Colors.grey[300]!)),
       ),
       child: Row(

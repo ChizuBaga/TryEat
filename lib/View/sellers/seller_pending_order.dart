@@ -1,4 +1,3 @@
-import 'package:chikankan/Controller/item_controller.dart';
 import 'package:chikankan/Model/orderItem.dart';
 import 'package:chikankan/View/sellers/chat_screen.dart';
 import 'package:chikankan/View/sellers/seller_current_order.dart';
@@ -7,8 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:chikankan/Model/order_model.dart'; 
 import 'package:chikankan/Controller/order_controller.dart'; 
-import 'package:chikankan/View/sellers/bottom_navigation_bar.dart'; 
-import 'package:chikankan/Controller/seller_navigation_controller.dart'; 
 
 
 
@@ -21,17 +18,7 @@ class SellerPendingOrder extends StatefulWidget {
 
 class _SellerPendingOrderState extends State<SellerPendingOrder> {
   final OrderController _orderController = OrderController();
-  final ItemController _itemController = ItemController();
-  int _selectedIndex = 2; // Orders tab index
-  void _onNavTap(int index) {
-    final handler = SellerNavigationHandler(context);
-    setState(() {
-      _selectedIndex = index;
-    });
-    handler.navigate(index);
-  }
-  
-  // Dummy data map to simulate customer username lookup (In real app, this is async)
+
   Future<String> fetchCustomerUsername(String customerId) async {
   if (customerId.isEmpty) {
     return 'Customer ID Missing';
@@ -113,8 +100,6 @@ class _SellerPendingOrderState extends State<SellerPendingOrder> {
       customerName = data['username'] ?? 'Customer'; 
 
     }
-    // Create New Chat Room
-    print('Creating new chat room: $chatRoomId');
     try {
       await chatDocRef.set({
         'chatRoomId': chatRoomId,
@@ -184,7 +169,6 @@ void _navigateToChatScreen(String chatRoomId, String customerId, String customer
           );
         },
       ),
-      bottomNavigationBar: SellerBottomNavBar(currentIndex: _selectedIndex, onTap: _onNavTap)
     );
   }
 

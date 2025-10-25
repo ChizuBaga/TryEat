@@ -1,6 +1,4 @@
-import 'package:chikankan/Controller/seller_navigation_controller.dart';
 import 'package:chikankan/View/sellers/add_item.dart';
-import 'package:chikankan/View/sellers/bottom_navigation_bar.dart';
 import 'package:chikankan/View/sellers/custom_toggle_button.dart';
 import 'package:chikankan/View/sellers/edit_item.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -36,16 +34,6 @@ class _SellerCataloguePageState extends State<SellerCataloguePage> {
       _itemsStream = Stream.value([]);
     }
   }
- 
-  int _selectedIndex = 0; //Default Homepage since not appear in btm bar
-
-  void _onNavTap(int index) {
-    final handler = SellerNavigationHandler(context);
-    setState(() {
-      _selectedIndex = index;
-    });
-    handler.navigate(index);
-  }
 
   void _toggleAvailability(Item item, bool newValue) {
     setState(() {
@@ -65,21 +53,17 @@ class _SellerCataloguePageState extends State<SellerCataloguePage> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 252, 248, 221),
       appBar: AppBar(
-        toolbarHeight: 0,
-        backgroundColor: Colors.white,
-        elevation: 0,
+        centerTitle: true,
+        backgroundColor: Color.fromARGB(255, 252, 248, 221),
+        elevation: 1, 
+        title: Text(
+              'Catalogue',
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+            ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 16.0),
-            child: Text(
-              'Catalogue',
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-            ),
-          ),
-          
           // --- Add Item Button ---
           GestureDetector(
             onTap: _addItem,
@@ -142,11 +126,6 @@ class _SellerCataloguePageState extends State<SellerCataloguePage> {
             ),
           ),
         ],
-      ),
-      // --- Bottom Navigation Bar ---
-      bottomNavigationBar: SellerBottomNavBar(
-        currentIndex: _selectedIndex,
-        onTap: _onNavTap,
       ),
     );
   }

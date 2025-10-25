@@ -1,13 +1,10 @@
 import 'dart:io';
 import 'package:chikankan/Controller/profile_controller.dart';
-import 'package:chikankan/Controller/seller_navigation_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:chikankan/Model/seller_data.dart';
-import 'package:chikankan/View/sellers/bottom_navigation_bar.dart'; 
 
 class EditProfile extends StatefulWidget {
   final SellerData seller; 
@@ -34,15 +31,6 @@ class _EditProfileState extends State<EditProfile> {
 
   File? _newProfileImage; 
   bool _isLoading = false;
-  int _selectedIndex = 3;
-
-  void _onNavTap(int index) {
-    final handler = SellerNavigationHandler(context);
-    setState(() {
-      _selectedIndex = index;
-    });
-    handler.navigate(index);
-  }
 
   @override
   void initState() {
@@ -142,9 +130,8 @@ class _EditProfileState extends State<EditProfile> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 252, 248, 221),
       appBar: AppBar(
-        toolbarHeight: 0,
-        backgroundColor: Colors.white,
-        elevation: 0,
+        backgroundColor: Color.fromARGB(255, 252, 248, 221),
+        elevation: 1, 
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -230,9 +217,7 @@ class _EditProfileState extends State<EditProfile> {
                 ),
               ),
             ),
-      // Bottom Navigation Bar
-      bottomNavigationBar: SellerBottomNavBar(currentIndex: _selectedIndex, onTap: _onNavTap),
-    );
+          );
   }
 
   Widget _buildIconInputField(

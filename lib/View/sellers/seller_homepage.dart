@@ -1,4 +1,3 @@
-import 'package:chikankan/Controller/seller_navigation_controller.dart';
 import 'package:chikankan/View/sellers/seller_current_order.dart';
 import 'package:chikankan/View/sellers/seller_dashboard.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:chikankan/Model/order_model.dart';
 import 'package:chikankan/View/sellers/seller_view_catalogue.dart';
 import 'package:chikankan/Controller/order_controller.dart';
-import 'package:chikankan/View/sellers/bottom_navigation_bar.dart';
 
 class SellerHomepage extends StatefulWidget {
   const SellerHomepage({super.key});
@@ -22,17 +20,7 @@ class _SellerHomepageState extends State<SellerHomepage> {
   late final Future<DocumentSnapshot> _sellerDataFuture;
 
   final OrderController _orderService = OrderController();
-  
-  int _selectedIndex = 0; 
-
-  void _onNavTap(int index) {
-    final handler = SellerNavigationHandler(context);
-    setState(() {
-      _selectedIndex = index;
-    });
-    handler.navigate(index);
-  }
-  
+   
   @override
   void initState() {
     super.initState();
@@ -86,11 +74,6 @@ class _SellerHomepageState extends State<SellerHomepage> {
           ],
         ),
       ),
-      // --- Bottom Navigation Bar with Notification Dots ---
-      bottomNavigationBar: SellerBottomNavBar(
-        currentIndex: _selectedIndex,
-        onTap: _onNavTap,
-      ), 
     );
   }
 

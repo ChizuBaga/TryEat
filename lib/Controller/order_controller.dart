@@ -69,4 +69,21 @@ class OrderController {
       return snapshot.docs.map((doc) => Orders.fromFirestore(doc)).toList();
     });
   }
+
+  Stream<int> streamPendingOrderCount() {
+    final currentSellerId = FirebaseAuth.instance.currentUser?.uid;
+    
+    if (currentSellerId == null) {
+      return Stream.value(0);
+    }
+
+    return _db
+        .collection('orders')
+        .where('seller_ID', isEqualTo: currentSellerId) 
+        .where('orderStatus', isEqualTo: 'Pending') 
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs.length;
+        });
+  }
 }
