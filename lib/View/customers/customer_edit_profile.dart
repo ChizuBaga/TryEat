@@ -127,7 +127,7 @@ class _EditCustomerProfileState extends State<EditCustomerProfile> {
 
   @override
   Widget build(BuildContext context) {
-    const Color backgroundColor = Color.fromARGB(255, 252, 248, 221);
+    const Color backgroundColor = Color.fromARGB(255, 255, 254, 246);
     const Color textColor = Color.fromARGB(255, 50, 50, 50);
 
     return Scaffold(
@@ -135,7 +135,7 @@ class _EditCustomerProfileState extends State<EditCustomerProfile> {
       appBar: AppBar(
         title: const Text('Edit Profile',
             style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
-        backgroundColor: backgroundColor,
+        backgroundColor: const Color.fromARGB(255, 255, 229, 143),
         elevation: 0,
         iconTheme: const IconThemeData(color: textColor), // Back button color
       ),
@@ -151,7 +151,7 @@ class _EditCustomerProfileState extends State<EditCustomerProfile> {
               children: [
                 CircleAvatar(
                   radius: 64,
-                  backgroundColor: Colors.black.withOpacity(0.05),
+                  backgroundColor: Colors.black,
                   // Show new image if picked, else existing, else default icon
                   backgroundImage: _newImageFile != null
                       ? FileImage(_newImageFile!)
@@ -160,7 +160,7 @@ class _EditCustomerProfileState extends State<EditCustomerProfile> {
                           : null) as ImageProvider?,
                   child: (_newImageFile == null && _existingImageUrl == null)
                       ? Icon(Icons.person_outline,
-                          size: 80, color: textColor.withOpacity(0.7))
+                          size: 80, color: textColor)
                       : null,
                 ),
                 // Edit button on avatar
@@ -193,7 +193,7 @@ class _EditCustomerProfileState extends State<EditCustomerProfile> {
             else
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
+                  backgroundColor: Color.fromARGB(255, 255, 153, 0),
                   foregroundColor: Colors.white,
                   minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
@@ -224,9 +224,9 @@ class _EditCustomerProfileState extends State<EditCustomerProfile> {
       style: TextStyle(color: textColor, fontSize: 16),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: textColor.withOpacity(0.7)),
+        labelStyle: TextStyle(color: textColor),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: textColor.withOpacity(0.4)),
+          borderSide: BorderSide(color: textColor),
           borderRadius: BorderRadius.circular(10),
         ),
         focusedBorder: OutlineInputBorder(

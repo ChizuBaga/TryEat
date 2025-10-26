@@ -9,7 +9,7 @@ class CustomerProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color backgroundColor = Color.fromARGB(255, 252, 248, 221);
+    const Color backgroundColor = Color.fromARGB(255, 255, 254, 246);
     const Color iconColor = Color.fromARGB(255, 50, 50, 50);
     const Color textColor = Color.fromARGB(255, 50, 50, 50);
 
@@ -74,8 +74,8 @@ class CustomerProfile extends StatelessWidget {
               'Profile',
               style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
             ),
-            backgroundColor: backgroundColor, // Match scaffold background
-            elevation: 0, // Remove shadow
+            backgroundColor: backgroundColor, 
+            elevation: 0, 
             automaticallyImplyLeading: false,
             centerTitle: true,
           ),
@@ -92,7 +92,7 @@ class CustomerProfile extends StatelessWidget {
                   // --- Profile picture avatar (Keep As Is) ---
                   CircleAvatar(
                     radius: 64,
-                    backgroundColor: Colors.black.withOpacity(0.05),
+                    backgroundColor: Colors.black,
                     backgroundImage: profileImageUrl != null
                         ? NetworkImage(profileImageUrl)
                         : null,
@@ -110,12 +110,37 @@ class CustomerProfile extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 60),
+
+                  Column(
+                    mainAxisSize: MainAxisSize.min, // Shrink-wrap the column
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start, // Left-align children
+                    children: [
+                      _InfoRow(
+                        icon: Icons.phone_outlined,
+                        text: phone,
+                        iconColor: iconColor,
+                        textColor: textColor,
+                      ),
+                      const SizedBox(height: 24), // Adjusted space
+                      _InfoRow(
+                        icon: Icons.email_outlined,
+                        text: email,
+                        iconColor: iconColor,
+                        textColor: textColor,
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 60),
+
                   // --- First Card with Fixed Size ---
                   SizedBox(
                     width: screenWidth * 1.0,
                     height:
                         screenHeight * 0.07,
                     child: Card(
+                      color: Color.fromARGB(255, 255, 153, 0),
                       margin: EdgeInsets.zero,
                       clipBehavior: Clip.antiAlias,
                       child: InkWell(
@@ -133,10 +158,10 @@ class CustomerProfile extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Icon(Icons.switch_account, color: iconColor),
+                              Icon(Icons.edit_outlined, color: Colors.black),
                               Text(
                                 'Edit Profile',
-                                style: TextStyle(color: textColor),
+                                style: TextStyle(color: Colors.black, fontSize: 16),
                               ),
                             ],
                           ),
@@ -211,16 +236,20 @@ class _InfoRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center, // Center the row items
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Icon(icon, color: iconColor, size: 28),
-          const SizedBox(width: 16),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 18,
-              color: textColor,
-              fontWeight: FontWeight.w500,
+          const SizedBox(width: 50),
+          Flexible(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 18,
+                color: textColor,
+                fontWeight: FontWeight.w500,
+              ),
+              overflow: TextOverflow.ellipsis, 
             ),
           ),
         ],

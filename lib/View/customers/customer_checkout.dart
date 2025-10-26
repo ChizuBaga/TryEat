@@ -257,7 +257,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         : "N/A";
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 252, 248, 221),
+      backgroundColor: const Color.fromARGB(255, 255, 254, 246),
       appBar: AppBar(
         title: const Text(
           'Checkout',

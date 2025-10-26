@@ -52,12 +52,13 @@ class CustomerOrderController {
       item.name,
       Timestamp(0, 0),
       Timestamp(0, 0), 
-      'Order placed', 
+      'Placed', 
       createdAt: Timestamp.now(), // Use current time for creation
       customerId: customerId,
       sellerId: sellerId,
       itemId: itemId,
       total: total,
+      quantity: quantity,
     );
 
     try {

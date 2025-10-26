@@ -5,18 +5,15 @@ import 'package:chikankan/Model/order_model_temp.dart'; // Import Orders model
 import 'package:chikankan/Controller/user_auth.dart'; // Import AuthService to get user
 import 'package:firebase_auth/firebase_auth.dart'; // Import User type
 import 'package:intl/intl.dart'; // Import for date formatting
-import 'customer_history.dart';
 
-class CustomerOrder extends StatefulWidget {
-  // <-- Changed to StatefulWidget
-  const CustomerOrder({super.key});
+class OrderHistoryPage extends StatefulWidget {
+  const OrderHistoryPage({super.key});
 
   @override
-  State<CustomerOrder> createState() => _CustomerOrderState(); // <-- Create state
+  State<OrderHistoryPage> createState() => _OrderHistoryPageState();
 }
 
-class _CustomerOrderState extends State<CustomerOrder> {
-  // <-- State class
+class _OrderHistoryPageState extends State<OrderHistoryPage> {
   // Get controller and auth service instances
   final CustomerOrderController _orderController =
       locator<CustomerOrderController>();
@@ -41,9 +38,9 @@ class _CustomerOrderState extends State<CustomerOrder> {
         _ordersFuture = _orderController.fetchCustomerOrders(currentUser.uid);
       });
     } else {
-      // Handle case where user is not logged in (though ideally shouldn't reach here if auth is checked earlier)
+      // Handle case where user is not logged in
       setState(() {
-        _ordersFuture = Future.value([]); // Set to empty list or handle error
+        _ordersFuture = Future.value([]); // Set to empty list
       });
       print("Error: Cannot fetch orders, user not logged in.");
     }
@@ -55,28 +52,11 @@ class _CustomerOrderState extends State<CustomerOrder> {
       backgroundColor: const Color.fromARGB(255, 255, 254, 246),
       appBar: AppBar(
         title: const Text(
-          'My Orders',
+          'Order History',
           style: TextStyle(fontWeight: FontWeight.bold),
-        ), // Changed title
-        backgroundColor: Colors.transparent,
-        automaticallyImplyLeading: false,
+        ),
+        backgroundColor: const Color.fromARGB(255, 255, 229, 143), // Kept this color
         centerTitle: true,
-
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.history, size: 28),
-            onPressed: () {
-              // Navigate to the Order History page
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const OrderHistoryPage(),
-                ),
-              );
-            },
-          ),
-          const SizedBox(width: 8),
-        ],
       ),
       // --- Use FutureBuilder to handle async fetching ---
       body: FutureBuilder<List<Orders>>(
@@ -90,49 +70,64 @@ class _CustomerOrderState extends State<CustomerOrder> {
           // --- Handle Error State ---
           if (snapshot.hasError) {
             return Center(
-              child: Text("Error loading orders: ${snapshot.error}"),
-            );
+                child: Text("Error loading order history: ${snapshot.error}"));
           }
 
-          // --- Handle No Data / Empty List State ---
-          // Check if data is null OR empty
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          // --- Handle No Data ---
+          if (!snapshot.hasData || snapshot.data == null) {
             return const Center(
               child: Text(
-                'You have no orders yet.',
+                'Your order history is empty.',
                 style: TextStyle(fontSize: 18, color: Colors.grey),
               ),
             );
           }
 
           // --- Data Loaded Successfully ---
-          final List<Orders> orders = snapshot.data!;
+          // --- MODIFIED: FILTER FOR COMPLETED ORDERS ONLY ---
+          final List<Orders> historyOrders = snapshot.data!
+              .where((order) =>
+                  order.orderStatus.toLowerCase() == 'completed')
+              .toList();
+
+          // --- Handle Empty History List State ---
+          if (historyOrders.isEmpty) {
+            return const Center(
+              child: Text(
+                'Your past orders will appear here.',
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+            );
+          }
 
           // --- Display Orders using ListView.builder and ListTile ---
           return ListView.builder(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0,
-            ),
-            itemCount: orders.length,
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            itemCount: historyOrders.length,
             itemBuilder: (context, index) {
-              final order = orders[index];
-              // Format the date nicely
-              final String formattedDate = DateFormat(
-                'dd MMM yyyy, hh:mm a',
-              ).format(order.createdAt.toDate());
+              final order = historyOrders[index];
+
+              // --- FORMAT DATE ---
+              // Use completedAt if it exists, otherwise fall back to createdAt
+              final timestamp = order.completedAt ?? order.createdAt;
+              final String formattedDate =
+                  DateFormat('dd MMM yyyy, hh:mm a').format(timestamp.toDate());
+
+              // Set the label based on status
+              const String dateLabel = 'Completed'; // Only show completed
 
               return Card(
                 color: const Color.fromARGB(255, 252, 248, 221),
                 margin: const EdgeInsets.symmetric(vertical: 8.0),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
+                    borderRadius: BorderRadius.circular(12.0)),
                 elevation: 2,
+                // --- MODIFIED LISTTILE ---
                 child: ListTile(
-                  // --- Leading: Status Icon (Example) ---
                   leading: _getStatusIcon(order.orderStatus),
-                  // --- Title: Item ID (or Item Name if you fetch it) ---
+                  
+                  // --- Title: Item Name, Quantity, and Status Chip ---
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,22 +136,22 @@ class _CustomerOrderState extends State<CustomerOrder> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // 1. The original item name Text
+                            // 1. Item name
                             Text(
                               order.itemName,
                               style: const TextStyle(
                                   fontSize: 16, fontWeight: FontWeight.bold),
                               overflow: TextOverflow.ellipsis,
                             ),
-                            // 2. The new quantity Text
+                            // 2. Quantity
                             Padding(
-                              padding: const EdgeInsets.only(top: 2.0), // Adds a small space
+                              padding: const EdgeInsets.only(top: 2.0),
                               child: Text(
                                 'Quantity: ${order.quantity}', // Use the quantity field
                                 style: const TextStyle(
                                   fontSize: 14,
-                                  fontWeight: FontWeight.normal, // Not bold
-                                  color: Colors.black54, // A bit lighter
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.black54,
                                 ),
                               ),
                             ),
@@ -168,7 +163,7 @@ class _CustomerOrderState extends State<CustomerOrder> {
                         label: Text(
                           order.orderStatus,
                           style: const TextStyle(
-                            fontSize: 15,
+                            fontSize: 14, // Matched customer_order.dart
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -179,36 +174,26 @@ class _CustomerOrderState extends State<CustomerOrder> {
                       ),
                     ],
                   ),
+                  // --- END OF TITLE CHANGE ---
+
                   // --- Subtitle: Date and Total ---
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 4.0), // Space from title row
-                      Text('Placed: $formattedDate'),
+                      Text('$dateLabel: $formattedDate'), // Use the new date label
                       const SizedBox(height: 4.0), // <-- This adds the space
                       Text('Total: RM${order.total.toStringAsFixed(2)}'),
                     ],
                   ),
-                  // --- Trailing: Order Status ---
-                  // trailing: Chip(
-                  //   label: Text(
-                  //     order.orderStatus,
-                  //     style: const TextStyle(
-                  //       fontSize: 14,
-                  //       fontWeight: FontWeight.w500,
-                  //     ),
-                  //   ),
-                  //   backgroundColor: _getStatusColor(order.orderStatus),
-                  //   labelPadding: const EdgeInsets.symmetric(horizontal: 8),
-                  //   padding: EdgeInsets.zero,
-                  //   visualDensity: VisualDensity.compact,
-                  // ),
-                  isThreeLine: true, // Allows subtitle to have two lines
+
+                  isThreeLine: true,
                   onTap: () {
-                    // Implement navigation to a detailed order view if needed
-                    print('Tapped on order for item: ${order.itemId}');
+                    // Optional: navigation to a detailed view
+                    print('Tapped on history item: ${order.itemId}');
                   },
                 ),
+                // --- END OF MODIFIED LISTTILE ---
               );
             },
           );
@@ -217,40 +202,25 @@ class _CustomerOrderState extends State<CustomerOrder> {
     );
   }
 
-  // --- Helper Functions for Status Icon and Color ---
+  // --- MODIFIED Helper Functions for Status Icon and Color ---
   Icon _getStatusIcon(String status) {
     switch (status.toLowerCase()) {
-      case 'placed':
-        return const Icon(Icons.shopping_bag_outlined, size: 32, color: Colors.blue);
-      case 'accepted':
-        return const Icon(Icons.assignment_turned_in_outlined, size: 32, color: Colors.orange,
-        );
-      case 'processing': // Example status
-        return const Icon(Icons.hourglass_top_rounded, size: 32, color: Colors.purple);
       case 'completed':
+        // Added size to match customer_order.dart
         return const Icon(Icons.check_circle_outline, size: 32, color: Colors.green);
-      case 'cancelled': // Example status
-        return const Icon(Icons.cancel_outlined, size: 32, color: Colors.red);
       default:
+        // Added size to match customer_order.dart
         return const Icon(Icons.help_outline, size: 32, color: Colors.grey);
     }
   }
 
   Color _getStatusColor(String status) {
-     switch (status.toLowerCase()) {
-      case 'placed':
-        return Colors.blue.shade100;
-      case 'accepted':
-        return Colors.orange.shade100;
-      case 'processing':
-        return Colors.purple.shade100;
+    switch (status.toLowerCase()) {
       case 'completed':
         return Colors.green.shade100;
-      case 'cancelled':
-        return Colors.red.shade100;
       default:
         return Colors.grey.shade200;
     }
   }
+}
 
-} // End _CustomerOrderState
