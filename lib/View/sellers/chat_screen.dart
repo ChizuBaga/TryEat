@@ -20,8 +20,10 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+
   final TextEditingController _messageController = TextEditingController();
   final currentUserId = FirebaseAuth.instance.currentUser?.uid; 
+
 
   void _sendMessage() async {
     final text = _messageController.text.trim();
@@ -61,7 +63,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     final messagesStream = FirebaseFirestore.instance
       .collection('chats')
-      .doc(widget.chatRoomId) // Use the ID passed from the previous screen
+      .doc(widget.chatRoomId)
       .collection('messages')
       .orderBy('timestamp', descending: true) // Get latest messages first
       .snapshots()
