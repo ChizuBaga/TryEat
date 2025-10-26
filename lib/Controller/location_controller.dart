@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:huawei_location/huawei_location.dart';
 import 'package:chikankan/locator.dart';
 import 'package:chikankan/Model/seller_temp.dart';
+import 'package:chikankan/Model/seller_data.dart';
 import 'package:chikankan/utils/harversine.dart';
 
 class LocationController {
@@ -12,7 +13,7 @@ class LocationController {
   LocationController(){
     _locationService = locator<FusedLocationProviderClient>();
   }
-
+  
   Future<Location> getLocation() async {
   LocationSettingsStates lState = await checkLocationSettings();
   try {

@@ -4,6 +4,7 @@ import 'package:chikankan/Model/item_model.dart';
 import 'package:chikankan/Controller/mnb_classifier.dart'; 
 import 'package:chikankan/locator.dart';
 import 'package:chikankan/Controller/gemini.dart';
+import 'package:chikankan/Controller/cart_controller.dart';
 import 'dart:math' as math;
 
 class ItemDetailsPage extends StatefulWidget {
@@ -21,6 +22,7 @@ class ItemDetailsPage extends StatefulWidget {
 
 class _ItemDetailsPageState extends State<ItemDetailsPage> {
   int _quantity = 1;
+  final CartService _cartService = locator<CartService>();
 
   void _incrementQuantity() {
     setState(() {
@@ -36,7 +38,7 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
     });
   }
 
-   Widget _buildChip(String label, {IconData? icon}) { 
+  Widget _buildChip(String label, {IconData? icon}) { 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: icon != null ? 8.0 : 12.0, vertical: 6.0),
       decoration: BoxDecoration(
@@ -75,8 +77,9 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
   }
 
   void _addToCart(Item item) {
-    print(
-        'Adding ${item.name} (x$_quantity) to cart. Total: ${item.price * _quantity}');
+    _cartService.addItem(item, _quantity);
+    
+    print('Adding ${item.name} (x$_quantity) to cart. Total: ${item.price * _quantity}');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Container(
@@ -116,6 +119,7 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
     final DocumentReference docRef = FirebaseFirestore.instance
         .collection('items')
         .doc(widget.itemId);
+    final CollectionReference commentsColRef = docRef.collection('comments');
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 254, 246),
@@ -146,30 +150,6 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
 
           final Item item = Item.fromFirestore(snapshot.data!);
 
-          // Perform sentiment analysis
-          final classifier = locator<NaiveBayesClassifier>();
-          int positiveCount = 0;
-          double positivePercentage = 0.0;
-          double negativePercentage = 0.0;
-
-          if (item.comments != null && item.comments!.isNotEmpty) {
-            for (final comment in item.comments!) {
-              if (classifier.predict(comment) == 1) {
-                positiveCount++;
-              }
-            }
-            positivePercentage = (positiveCount / item.comments!.length) * 100;
-            negativePercentage = 100 - positivePercentage;
-          }
-
-          // Prepare latest 10 comments for Gemini
-          final latest10Comments = item.comments != null
-              ? item.comments!.sublist(
-                  math.max(0, item.comments!.length - 10),
-                )
-              : <String>[]; // Empty list if comments are null
-          final String commentsText = latest10Comments.join("\n- ");
-
           String orderTypeText;
           IconData? orderTypeIcon;
           final String? fetchedOrderType = item.orderType;
@@ -185,7 +165,7 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
             orderTypeIcon = null; // No specific icon
           }
 
-          String deliveryModeText = item.deliveryMode ?? 'N/A';
+          String deliveryModeText = item.deliveryMode;
           IconData? deliveryModeIcon;
           final String deliveryModeLower = deliveryModeText.toLowerCase();
           if (deliveryModeLower.contains('delivery')) {
@@ -290,110 +270,143 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                     ),
 
                     const SizedBox(height: 20),
+                  StreamBuilder<QuerySnapshot>(
+                    stream: commentsColRef.snapshots(), // Stream the subcollection
+                    builder: (context, commentsSnapshot) {
+                      if (commentsSnapshot.connectionState == ConnectionState.waiting) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20.0),
+                          child: Center(child: Text("Loading comments...")),
+                        );
+                      }
+                      if (commentsSnapshot.hasError) {
+                        return Center(child: Text("Error loading comments: ${commentsSnapshot.error}"));
+                      }
 
-                    // --- Comments Analysis ---
-                    Card(
-                      elevation: 2,
-                      color: const Color.fromARGB(255, 252, 248, 221),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                        side: BorderSide(color: Colors.grey[300]!),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                             Text(
-                              "Comment Analysis",
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                             const SizedBox(height: 12),
-                             Container( // Inner container for results
-                               padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-                               decoration: BoxDecoration(
-                                 color: const Color.fromARGB(255, 255, 254, 246),
-                                 borderRadius: BorderRadius.circular(8.0),
-                               ),
-                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      // --- Process Comments ---
+                      final List<DocumentSnapshot> commentDocs = commentsSnapshot.data?.docs ?? []; // Handle null data
+                      final List<String> commentDescriptions = commentDocs
+                          .map((doc) => (doc.data() as Map<String, dynamic>)['description'] as String? ?? '')
+                          .where((desc) => desc.isNotEmpty)
+                          .toList();
+
+                      // --- Perform Sentiment Analysis (moved inside) ---
+                      final classifier = locator<NaiveBayesClassifier>();
+                      int positiveCount = 0;
+                      double positivePercentage = 0.0;
+                      double negativePercentage = 0.0;
+
+                      if (commentDescriptions.isNotEmpty) {
+                        for (final comment in commentDescriptions) {
+                          if (classifier.predict(comment) == 1) {
+                            positiveCount++;
+                          }
+                        }
+                        positivePercentage = (positiveCount / commentDescriptions.length) * 100;
+                        negativePercentage = 100 - positivePercentage;
+                      }
+
+                      // --- Prepare comments for Gemini (moved inside) ---
+                      final latest10Comments = commentDescriptions.sublist(
+                        math.max(0, commentDescriptions.length - 10),
+                      );
+                      final String commentsText = latest10Comments.join("\n- ");
+
+                      // --- Return the Widgets for Analysis and Comments List ---
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // --- Comments Analysis Card ---
+                          Card(
+                            elevation: 2,
+                            color: const Color.fromARGB(255, 252, 248, 221),
+                            shape: RoundedRectangleBorder( /* ... */ ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Good Reviews
-                                  Column(
-                                    children: [
-                                      Text(
-                                        '${positivePercentage.toStringAsFixed(0)}%',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headlineSmall
-                                            ?.copyWith(
-                                              color: Colors.green.shade700,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      const Text("👍 Good", style: TextStyle(fontSize: 12)),
-                                    ],
-                                  ),
-                                  // Divider
-                                  Container(height: 40, width: 1, color: Colors.grey[300]),
-                                  // Bad Reviews
-                                  Column(
-                                    children: [
-                                      Text(
-                                        '${negativePercentage.toStringAsFixed(0)}%',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headlineSmall
-                                            ?.copyWith(
-                                              color: Colors.red.shade700,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      const Text("👎 Bad", style: TextStyle(fontSize: 12)),
-                                    ],
+                                  Text("Comment Analysis", /* ... style ... */),
+                                  const SizedBox(height: 12),
+                                  Container( // Inner container
+                                    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
+                                    decoration: BoxDecoration( /* ... */ ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        // Good Reviews Column
+                                        Column(
+                                          children: [
+                                            Text('${positivePercentage.toStringAsFixed(0)}%', /* ... style ... */),
+                                            const SizedBox(height: 4),
+                                            const Text("👍 Good", style: TextStyle(fontSize: 12)),
+                                          ],
+                                        ),
+                                        Container(height: 40, width: 1, color: Colors.grey[300]), // Divider
+                                        // Bad Reviews Column
+                                        Column(
+                                          children: [
+                                            Text('${negativePercentage.toStringAsFixed(0)}%', /* ... style ... */),
+                                            const SizedBox(height: 4),
+                                            const Text("👎 Bad", style: TextStyle(fontSize: 12)),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
-                             ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
 
-                    // --- Comments with AI Summary ---
-                    Card(
-                       elevation: 2,
-                       color: const Color.fromARGB(255, 252, 248, 221),
-                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                        side: BorderSide(color: Colors.grey[300]!), // Border
-                      ),
-                       child: Padding(
-                         padding: const EdgeInsets.all(16.0),
-                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                           children: [
-                              Text(
-                                "Comments",
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                          // --- Comments with AI Summary Card ---
+                          Card(
+                            elevation: 1,
+                            color: const Color.fromARGB(255, 252, 248, 221),
+                            shape: RoundedRectangleBorder( /* ... */ ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text("Comments (${commentDocs.length})", /* ... style ... */), // Display count
+                                  const SizedBox(height: 12),
+                                  Text("✨ AI Summary", /* ... style ... */),
+                                  const SizedBox(height: 8),
+                                  _GeminiSummaryWidget(commentsText: commentsText), // Assumes this widget exists
+                                  const SizedBox(height: 16), // Spacing before list
+
+                                  // --- Display Comments List ---
+                                  if (commentDocs.isEmpty)
+                                    const Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 16.0),
+                                      child: Center(child: Text("No comments yet.")),
+                                    )
+                                  else
+                                    ListView.builder(
+                                      shrinkWrap: true, // Crucial for nested lists
+                                      physics: const NeverScrollableScrollPhysics(), // Crucial
+                                      itemCount: commentDocs.length,
+                                      itemBuilder: (context, index) {
+                                        final commentData = commentDocs[index].data() as Map<String, dynamic>;
+                                        final description = commentData['description'] ?? 'No comment';
+                                        return ListTile( // Simpler display within the card
+                                          leading: const Icon(Icons.person_outline, size: 20),
+                                          title: Text(description),
+                                          dense: true,
+                                        );
+                                      },
+                                    ),
+                                ],
                               ),
-                              const SizedBox(height: 12),
-                              Text(
-                                "✨ AI Summary",
-                                style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 8),
-                              // AI Summary Widget (Handles its own loading/error)
-                              _GeminiSummaryWidget(commentsText: commentsText),
-                              
-                           ],
-                         ),
-                       ),
-                    ),
-                    const SizedBox(height: 20), 
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          ],
+                        );
+                      },
+                    ),    
                   ],
                 ),
               ), 

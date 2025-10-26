@@ -1,25 +1,9 @@
 import 'package:flutter/material.dart';
 import 'customer_checkout.dart';
-
-class CartItem {
-  final String id;
-  final String name;
-  final double price;
-  final String imageUrl;
-  final String deliverMethod;
-  final int quantity;
-  // bool isSelected; //multiple item
-
-  CartItem({
-    required this.id,
-    required this.name,
-    required this.price,
-    required this.imageUrl,
-    required this.quantity,
-    required this.deliverMethod,
-    // this.isSelected = false,
-  });
-}
+import 'package:chikankan/Model/cart_model.dart';
+import 'package:chikankan/locator.dart';
+import 'package:chikankan/Controller/cart_controller.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CustomerCart extends StatefulWidget {
   const CustomerCart({super.key});
@@ -29,177 +13,156 @@ class CustomerCart extends StatefulWidget {
 }
 
 class _CustomerCartState extends State<CustomerCart> {
-  // Mock data
-  final List<CartItem> _cartItems = [
-    CartItem(
-      id: '1',
-      name: 'Red Bean Bun',
-      price: 4.50,
-      imageUrl: 'placeholder',
-      quantity: 2,
-      deliverMethod: 'Self-delivery',
+  final CartService _cartService = locator<CartService>();
+  
+  final ValueNotifier<String?> _selectedItemIdNotifier = ValueNotifier<String?>(null);
 
-    ),
-    CartItem(
-      id: '2',
-      name: 'Chocolate Bun',
-      price: 5.00,
-      imageUrl: 'placeholder',
-      quantity: 1,
-      deliverMethod: 'Self-delivery',
-    ),
-    CartItem(
-      id: '3',
-      name: 'Kaya Puff',
-      price: 3.20,
-      imageUrl: 'placeholder',
-      quantity: 3,
-      deliverMethod: 'Self-collection',
-    ),
-    CartItem(
-      id: '4',
-      name: 'Red Bean Bun',
-      price: 4.50,
-      imageUrl: 'placeholder',
-      quantity: 1,
-      deliverMethod: 'Meet-up',
-    ),
-    CartItem(
-      id: '5',
-      name: 'Chocolate Bun',
-      price: 5.00,
-      imageUrl: 'placeholder',
-      quantity: 1,
-      deliverMethod: '3rd Party',
-    ),
-    CartItem(
-      id: '6',
-      name: 'Kaya Puff',
-      price: 3.20,
-      imageUrl: 'placeholder',
-      quantity: 1,
-      deliverMethod: 'Self-collection',
-    ),
-  ];
-
-  String? _selectedItemId;
-
-  // --- Calculate total price of the SINGLE selected item ---
-  double get _totalPrice {
-    if (_selectedItemId == null) {
-      return 0.0;
+  // --- Helper to get the SINGLE selected CartItem object ---
+  CartItem? _getSelectedCartItem(List<CartItem> allItems, String? selectedItemIdValue) {
+    if (selectedItemIdValue == null) {
+      return null;
     }
-    CartItem selectedItem;
     try {
-      // Find the selected item using firstWhere
-      selectedItem = _cartItems.firstWhere(
-        (item) => item.id == _selectedItemId,
-      );
-
-      // Explicitly check if quantity is somehow null AFTER finding the item
-      // Although 'quantity' is required, this adds extra safety
-      final int quantity = selectedItem.quantity ?? 0;
-      return selectedItem.price * quantity;
+      return allItems.firstWhere((item) => item.id == selectedItemIdValue);
     } catch (e) {
-      // This catch block handles the case where firstWhere finds NO item
-      // (which shouldn't happen if _selectedItemId comes from the list, but it's safe)
-      print("Error finding selected item in _totalPrice: $e");
-      return 0.0; // Return 0 if item not found or error occurs
+      print("Selected item not found in current list: $e");
+      // Reset selection via notifier if item disappears
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        
+        if (mounted && _selectedItemIdNotifier.value == selectedItemIdValue) {
+           _selectedItemIdNotifier.value = null; // Reset selection safely
+        }
+      });
+      return null;
     }
   }
 
-  // --- Get the SINGLE selected CartItem object ---
-  CartItem? get _selectedCartItem {
-    if (_selectedItemId == null) {
-      return null;
+  // --- Helper to calculate total price of the SINGLE selected item ---
+  double _getSelectedTotalPrice(CartItem? selectedItem) {
+    if (selectedItem == null) {
+      return 0.0;
     }
-    try {
-      return _cartItems.firstWhere((item) => item.id == _selectedItemId);
-    } catch (e) {
-      return null;
-    }
+    return selectedItem.price * selectedItem.quantity;
+  }
+  @override
+  void dispose() {
+    _selectedItemIdNotifier.dispose(); // Clean up the notifier
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    // Use AnimatedBuilder to listen for changes in CartService
+    final Stream<QuerySnapshot>? cartStream = _cartService.getCartStream();
+  
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 254, 246),
       appBar: AppBar(
-        title: const Text(
-          'Cart',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Cart', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.transparent,
         automaticallyImplyLeading: false,
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 4.0),
-            child: Text(
-              '(Select one item to checkout at a time)',
-              style: TextStyle(
-                fontSize: 15,
-                color: Colors.black54,
-                fontStyle: FontStyle.italic,
+      // --- Use StreamBuilder ---
+      body: StreamBuilder<QuerySnapshot>(
+        stream: cartStream,
+        builder: (context, snapshot) {
+          // --- Handle Loading/Error States ---
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            print("Cart Stream Error: ${snapshot.error}");
+            return const Center(child: Text("Error loading cart."));
+          }
+          // Handle case where user isn't logged in (stream is null)
+          if (!snapshot.hasData && cartStream == null) {
+             return const Center(child: Text("Please log in to view your cart."));
+          }
+          // Handle empty cart
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(
+              child: Text(
+                'Your cart is empty.',
+                style: TextStyle(fontSize: 18, color: Colors.grey),
               ),
-              textAlign: TextAlign.center,
-            ),
-          ),
+            );
+          }
+          final List<DocumentSnapshot> cartDocs = snapshot.data!.docs;
+          final List<CartItem> cartItems = cartDocs
+              .map((doc) => CartItem.fromFirestore(doc))
+              .toList();
+          
+          return ValueListenableBuilder<String?>(
+            valueListenable: _selectedItemIdNotifier, // Listen to the notifier
+            builder: (context, selectedItemIdValue, child) {
+              // --- Calculate selected item/price based on the NOTIFIER's current value ---
+              final CartItem? selectedCartItem = _getSelectedCartItem(cartItems, selectedItemIdValue);
+              final double selectedTotalPrice = _getSelectedTotalPrice(selectedCartItem);
 
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
+              // --- Build UI based on fetched data ---
+              return Column(
+                children: [
+                  const Padding(
+                  padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 4.0),
+                  child: Text(
+                    '(Select one item to checkout at a time)',
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.black54,
+                      fontStyle: FontStyle.italic,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               ),
-              itemCount: _cartItems.length,
-              itemBuilder: (context, index) {
-                final item = _cartItems[index];
-                return CartItemCard(
-                  item: item,
-                  isSelected: _selectedItemId == item.id,
-                  onChanged: (String? selectedId) {
-                    setState(() {
-                      _selectedItemId = selectedId;
-                    });
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  itemCount: cartItems.length,
+                  itemBuilder: (context, index) {
+                    final item = cartItems[index];
+                    return CartItemCard(
+                      item: item,
+                      isSelected: selectedItemIdValue == item.id, // Correct: Use value from builder
+                      onChanged: (String? selectedId) {
+                       _selectedItemIdNotifier.value = (_selectedItemIdNotifier.value == selectedId)
+                      ? null // If yes, deselect
+                      : selectedId; // If no, select the tapped one
+                      
+                     },
+                    );
                   },
-                );
-              },
-            ),
-          ),
-          // Conditionally show Checkout Button if an item is selected
-          if (_selectedItemId != null) // Check if an item ID is selected
-            _buildCheckoutButton(context)
-          else
-            const SizedBox.shrink(),
-        ],
-      ),
-    );
-  }
+                ),
+              ),
+              // --- Show Checkout Button ONLY if an item is selected ---
+              if (selectedItemIdValue != null && selectedCartItem != null)
+                _buildCheckoutButton(context, selectedCartItem, selectedTotalPrice)
+              else
+                const SizedBox(height: 90), // Keep space
+                ],
+              );
+            }, 
+          ); 
+        }, 
+      ), 
+    ); // End Scaffold
+  } // End build
 
-  Widget _buildCheckoutButton(BuildContext context) {
-    final selectedItem = _selectedCartItem;
-    if (selectedItem == null) return const SizedBox.shrink();
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 24.0,
-        vertical: 16.0,
-      ).copyWith(bottom: 32.0),
+  // --- Modify Checkout Button to take a single item ---
+  Widget _buildCheckoutButton(BuildContext context, CartItem selectedItem, double total) {
+     return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0).copyWith(bottom: 32.0),
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton(
           onPressed: () {
-            // Navigate with the SINGLE selected item (which now includes quantity)
+            // --- Navigate with only the SINGLE selected item ---
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => CheckoutPage(
-                  items: [selectedItem], // Pass list with one item
-                  total:
-                      _totalPrice, // Pass the calculated total (price * quantity)
+                  items: [selectedItem], // Pass a list containing only the selected item
+                  total: total, // Pass the total for the selected item
                 ),
               ),
             );
@@ -213,9 +176,10 @@ class _CustomerCartState extends State<CustomerCart> {
             ),
             elevation: 5,
           ),
-          child: const Text(
-            'Checkout',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          // --- Update button text ---
+          child: Text(
+            'Checkout Selected (RM${total.toStringAsFixed(2)})',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
         ),
       ),
@@ -226,7 +190,7 @@ class _CustomerCartState extends State<CustomerCart> {
 class CartItemCard extends StatelessWidget {
   final CartItem item;
   final bool isSelected;
-  final Function(String?)? onChanged;
+  final Function(String?)? onChanged; // Callback signature is fine
 
   const CartItemCard({
     super.key,
@@ -237,79 +201,83 @@ class CartItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final CartService cartService = locator<CartService>();
+
     return Card(
       color: const Color.fromARGB(255, 252, 248, 221),
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Row(
-          children: [
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(8.0),
+      child: InkWell( // Make the whole card tappable for selection
+        onTap: () {
+           if (onChanged != null) {
+              onChanged!(isSelected ? null : item.id);
+           }
+        },
+        borderRadius: BorderRadius.circular(12.0),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: Icon(
+                  Icons.image_outlined,
+                  color: Colors.grey[400],
+                  size: 32,
+                ),
               ),
-              child: Icon(
-                Icons.image_outlined,
-                color: Colors.grey[400],
-                size: 32,
-              ),
-            ),
-            const SizedBox(width: 16.0),
+              const SizedBox(width: 16.0),
 
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'RM${item.price.toStringAsFixed(2)}',
-                    style: TextStyle(fontSize: 15, color: Colors.grey[800]),
-                  ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'RM${item.price.toStringAsFixed(2)}',
+                      style: TextStyle(fontSize: 15, color: Colors.grey[800]),
+                    ),
 
-                  const SizedBox(height: 4),
-
-                  // Text(
-                  //   'Qty: ${item.quantity}',
-                  //   style: TextStyle(fontSize: 15, color: Colors.grey[800]),
-                  // ),
-                ],
+                    const SizedBox(height: 4),
+                    Text('Qty: ${item.quantity}', style: TextStyle(fontSize: 15, color: Colors.grey[800])),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(width: 20.0),
-
-            Text(
-                    'Qty: ${item.quantity}',
-                    style: TextStyle(fontSize: 16, color: Colors.grey[800]),
-                  ),
-
-            const SizedBox(width: 16.0),
-
-            Radio<String>(
-              value: item.id,
-              groupValue: isSelected ? item.id : null,
-              onChanged: (String? value) {
-                // Call the callback with the item's ID when tapped
-                if (onChanged != null) {
-                  onChanged!(item.id);
+              Radio<String>(
+                value: item.id,
+                groupValue: isSelected ? item.id : null, // Set groupValue based on isSelected
+                onChanged: (String? value) {
+                  // Call the callback when the radio itself is tapped
+                  if (onChanged != null) {
+                    onChanged!(item.id);
+                  }
+                },
+                activeColor: const Color.fromARGB(255, 255, 166, 0),
+              ),
+              IconButton(
+                icon: Icon(Icons.remove_circle_outline, color: Colors.red.shade700),
+                tooltip: 'Remove Item',
+                onPressed: () {
+                  cartService.removeItem(item.id);
                 }
-              },
-              activeColor: const Color.fromARGB(255, 255, 166, 0),
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -315,7 +315,6 @@ class _EditItemState extends State<EditItem> {
                             },
                           ),
                           const SizedBox(height: 30),
-                
                           // --- Save Changes Button ---
                           SizedBox(
                             width: double.infinity,

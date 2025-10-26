@@ -1,5 +1,11 @@
+import 'package:chikankan/View/customers/customer_homepage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'customer_cart.dart';
+import 'package:chikankan/Model/cart_model.dart';
+import 'package:chikankan/Controller/cart_controller.dart';
+import 'package:chikankan/locator.dart';
+import 'package:chikankan/Controller/customer_order_controller.dart';
+import 'package:chikankan/Model/item_model.dart';
 
 class CheckoutPage extends StatefulWidget {
   final List<CartItem> items;
@@ -30,12 +36,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
         methodLower.contains('3rd party');
   }
 
+  final CartService _cartService = locator<CartService>();
+  final CustomerOrderController _orderController = locator<CustomerOrderController>();
+
   @override
   void dispose() {
     _addressController.dispose();
     super.dispose();
   }
-
+  
   // Function to show the address input modal
   void _showAddressModal() {
     if (_address != "Enter your address") {
@@ -111,23 +120,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
     // Show the SnackBar
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Container(
-          padding: const EdgeInsets.all(10),
-          height: 70,
-          child: const Center(
-            child: Text(
-              '✅ Order placed successfully!\nYou can view the order status in the Orders tab.',
+        content: Text(
+              '✅ Order placed successfully!',
               style: TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.bold,
                 color: Colors.white,
                 height: 1.3,
               ),
-              textAlign: TextAlign.center,
             ),
-          ),
-        ),
-        backgroundColor: Colors.green.shade700,
+        backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -137,7 +138,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
 
     // Navigate after the SnackBar duration + a small buffer
-    Future.delayed(const Duration(seconds: 3, milliseconds: 200), () {
+    Future.delayed(const Duration(seconds: 1, milliseconds: 200), () {
       if (mounted) {
         // Assuming '/customer_tab' is the route name for your main page with tabs
         Navigator.pushNamedAndRemoveUntil(
@@ -159,11 +160,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
       ),
     );
   }
-
+  
   // Function to validate all fields before placing order
-  void _validateAndPlaceOrder() {
+  void _validateAndPlaceOrder() async {
     final String? deliverMethod = widget.items.isNotEmpty
-        ? widget.items.first.deliverMethod
+        ? widget.items.first.deliveryMode
         : null;
 
     if (_isAddressRequired(deliverMethod) && _address == "Enter your address") {
@@ -179,7 +180,64 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
     // If all checks pass:
     _placeOrder();
+    String itemIdToRemove = widget.items.first.id; // Assuming items list has the one item
+    Timestamp now = Timestamp.now();
+    CartItem selectedItem = widget.items.first;
+
+    String itemDescription = ''; // Get description or use default
+    String itemCategory = '';     // Get category or use default
+    String? itemImageUrl = selectedItem.imageUrl;           // Get image URL (might be null)
+    int? itemReservedDays = 0; // Get reserved days (might be null)
+
+    Item itemBeingOrdered = Item(
+      itemDescription,  // 1. description
+      itemCategory,     // 2. category
+      itemImageUrl,     // 3. imageUrl (Pass null if it's nullable in constructor)
+      itemReservedDays,
+      id: itemIdToRemove,
+      name: selectedItem.name,
+      price: selectedItem.price,
+      sellerId: selectedItem.sellerId,
+      isAvailable: true,
+      createdAt: now,
+      orderType: selectedItem.deliveryMode,
+      deliveryMode: selectedItem.deliveryMode
+    );
+
+
+      String? newOrderId = await _orderController.placeOrder(
+        item: itemBeingOrdered,      // Pass the Item object
+        quantity: selectedItem.quantity, // Pass the quantity
+      );
+
+      if (newOrderId != null) {
+        //Remove Item from Cart ---
+        await _cartService.removeItem(itemIdToRemove);
+        
+        
+        if (mounted) {
+            duration: Duration(seconds: 2);// Duration SnackBar stays visible
+      }
+      // D. Navigate AFTER a delay
+      Future.delayed(const Duration(seconds: 1, milliseconds: 200), () { // Your desired delay
+        if (mounted) {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/customer_tab', // Your target route name
+            (Route<dynamic> route) => false, // Remove all previous routes
+          );
+        }
+      });
+      } else {
+         // Order placement failed
+         if (mounted) {
+             ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Failed to place order. Please try again.")),
+             );
+         }
+      }
   }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -187,7 +245,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         ? widget.items.first
         : null;
     final String itemDeliverMethod =
-        singleItem?.deliverMethod ?? 'N/A'; 
+        singleItem?.deliveryMode ?? 'N/A'; 
 
     _deliveryFee = _isAddressRequired(itemDeliverMethod)
         ? 5.00
@@ -227,7 +285,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 if (_isAddressRequired(itemDeliverMethod)) _buildAddressSelector(),
                 _buildPaymentSelector(),
                 const SizedBox(height: 24),
-
                 const Text(
                   'ITEM',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
