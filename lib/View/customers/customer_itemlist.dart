@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:chikankan/View/item_detail_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:chikankan/View/sellers/chat_screen.dart';
 
 class CustomerItemListPage extends StatelessWidget {
   final String sellerId;
@@ -12,6 +14,118 @@ class CustomerItemListPage extends StatelessWidget {
     required this.storeName,
   });
 
+  Future<void> _startChatWithSeller(BuildContext context, String sellerId) async {
+  // 1. Get current customer ID
+  final customerId = FirebaseAuth.instance.currentUser?.uid;
+
+  // Validate IDs
+  if (customerId == null || sellerId.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Error: User or Seller ID missing.')),
+    );
+    return;
+  }
+
+  // Prevent user from chatting with themselves (if applicable)
+  if (customerId == sellerId) {
+     ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Cannot start chat with yourself.')),
+    );
+    return;
+  }
+
+
+  // 2. Create Chat Room ID (same logic ensures uniqueness)
+  List<String> ids = [customerId, sellerId];
+  ids.sort(); // Sort to ensure consistency regardless of initiator
+  final chatRoomId = ids.join('_');
+
+  final chatDocRef = FirebaseFirestore.instance.collection('chats').doc(chatRoomId);
+
+  try {
+    // 3. Check if Chat Room Exists
+    final chatDoc = await chatDocRef.get();
+
+    String sellerName = 'Seller'; // Default seller name
+    String customerName = 'Customer'; // Default customer name (fetch if needed)
+
+    // 4. If chat exists, get names and navigate
+    if (chatDoc.exists) {
+      print('Chat room already exists: $chatRoomId');
+      final data = chatDoc.data() as Map<String, dynamic>;
+      sellerName = data['sellerName'] ?? 'Seller';
+      customerName = data['customerName'] ?? 'Customer'; // Keep customer name if stored
+
+      // Navigate to existing chat screen
+      _navigateToChatScreen(context, chatRoomId, sellerId, sellerName);
+
+    } else {
+      // 5. If chat doesn't exist, fetch participant names
+      print('Fetching participant names for new chat room...');
+
+      // Get Seller name from 'sellers' collection
+      DocumentSnapshot sellerDoc = await FirebaseFirestore.instance
+          .collection('sellers') // Use seller collection
+          .doc(sellerId)
+          .get();
+      if (sellerDoc.exists) {
+        final sellerData = sellerDoc.data() as Map<String, dynamic>;
+        // Assuming 'businessName' is the field for the seller's name
+        sellerName = sellerData['businessName'] ?? 'Seller';
+      }
+
+      // Get Customer name from 'customers' collection
+       DocumentSnapshot customerDoc = await FirebaseFirestore.instance
+          .collection('customers') // Use customer collection
+          .doc(customerId)
+          .get();
+       if (customerDoc.exists) {
+         final customerData = customerDoc.data() as Map<String, dynamic>;
+         // Assuming 'username' is the field for the customer's name
+         customerName = customerData['username'] ?? 'Customer';
+       }
+
+      // 6. Create New Chat Room document
+      print('Creating new chat room: $chatRoomId');
+      await chatDocRef.set({
+        'chatRoomId': chatRoomId,
+        'participants': [customerId, sellerId], // Store both IDs
+        'customerName': customerName, // Store customer name
+        'sellerName': sellerName,     // Store seller name
+        'timestamp': FieldValue.serverTimestamp(),
+        'lastMessage': '',
+        'lastMessageTime': FieldValue.serverTimestamp(),
+        'lastMessageSenderId': '',
+        // Consider participant-specific unread counts if needed later
+        'unreadCount_customer': 0, 
+        'unreadCount_seller': 0, 
+      });
+
+      // 7. Navigate to the newly created chat screen
+      _navigateToChatScreen(context, chatRoomId, sellerId, sellerName);
+    }
+  } catch (e) {
+    print("Error starting chat: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to start chat: $e')),
+    );
+  }
+}
+  
+  void _navigateToChatScreen(BuildContext context, String chatRoomId, String sellerId, String sellerName) {
+  // Use the passed context
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ChatScreen( // Assuming ChatScreen exists
+          chatRoomId: chatRoomId,
+          otherParticipantId: sellerId,
+          otherParticipantName: sellerName,
+        ),
+      ),
+    );
+    print("Navigating to chat screen with Seller ID: $sellerId");
+  }
+  
   @override
   Widget build(BuildContext context) {
     // --- Stream for ITEMS from this store ---
@@ -66,7 +180,11 @@ class CustomerItemListPage extends StatelessWidget {
 
               // --- Seller Info ---
               _buildSellerInfo(context, sellerData),
+              const Divider(thickness: 2, indent: 65, endIndent: 65),
               const SizedBox(height: 16),
+              _buildChatWithSeller((){
+                _startChatWithSeller(context, sellerId);
+              }),
 
               // --- Items List (StreamBuilder) ---
               StreamBuilder<QuerySnapshot>(
@@ -101,6 +219,7 @@ class CustomerItemListPage extends StatelessWidget {
                       bool isAvailable = data['isAvailable'] ?? false;
 
                       return _buildItemTile(
+                        sellerId: sellerId,
                         context: context,
                         name: data['Name'] ?? 'No Name',
                         price: (data['Price'] as num?)?.toDouble() ?? 0.0,
@@ -231,7 +350,50 @@ class CustomerItemListPage extends StatelessWidget {
     );
   }
 
+Widget _buildChatWithSeller(VoidCallback onPressed){
+  return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: InkWell(
+        onTap: onPressed,
+        child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(40.0),
+          border: Border.all(color: Colors.grey[300]!),
+          ),
+          child: Row(
+          children: [
+            Flexible(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.chat_bubble_outline, color: Colors.grey[700], size: 20),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      'Chat with Seller',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.grey[800],
+                        fontWeight: FontWeight.w500,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              )
+            )
+          ]
+        ),
+        )
+      )
+    ); 
+  }
+}
+
  Widget _buildItemTile({
+  required String sellerId,
    required BuildContext context,
    required String name,
    required double price,
@@ -326,5 +488,4 @@ class CustomerItemListPage extends StatelessWidget {
      ),
    );
  }
-}
 

@@ -214,12 +214,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
         //Remove Item from Cart ---
         await _cartService.removeItem(itemIdToRemove);
         
-        
-        if (mounted) {
-            duration: Duration(seconds: 2);// Duration SnackBar stays visible
-      }
       // D. Navigate AFTER a delay
-      Future.delayed(const Duration(seconds: 1, milliseconds: 200), () { // Your desired delay
+      Future.delayed(const Duration(seconds: 1, milliseconds: 200), () {
         if (mounted) {
           Navigator.pushNamedAndRemoveUntil(
             context,

@@ -4,7 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:chikankan/Model/seller_data.dart';
-import 'package:chikankan/View/sellers/edit_profile.dart'; 
+import 'package:chikankan/View/sellers/edit_profile.dart';
+import 'package:chikankan/View/select_user_type_page.dart';
 
 class SellerProfile extends StatefulWidget {
   const SellerProfile({super.key});
@@ -19,21 +20,33 @@ class _SellerProfileState extends State<SellerProfile> {
 
   @override
   Widget build(BuildContext context) {
+    const Color iconColor = Color.fromARGB(255, 50, 50, 50);
+    const Color textColor = Color.fromARGB(255, 50, 50, 50);
     if (currentUser == null) {
       return const Scaffold(body: Center(child: Text('Please log in.')));
     }
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 252, 248, 221),
-      appBar: AppBar(backgroundColor: Color.fromARGB(255, 252, 248, 221), elevation: 0, toolbarHeight: 0),
+      appBar: AppBar(
+        backgroundColor: Color.fromARGB(255, 252, 248, 221),
+        elevation: 0,
+        toolbarHeight: 0,
+      ),
       body: StreamBuilder<DocumentSnapshot>(
         stream: _profileController.streamSellerProfile(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (snapshot.hasError || !snapshot.hasData || !snapshot.data!.exists) {
-            return Center(child: Text('Error loading profile: ${snapshot.error ?? "Not found"}'));
+          if (snapshot.hasError ||
+              !snapshot.hasData ||
+              !snapshot.data!.exists) {
+            return Center(
+              child: Text(
+                'Error loading profile: ${snapshot.error ?? "Not found"}',
+              ),
+            );
           }
 
           final SellerData seller = SellerData.fromFirestore(snapshot.data!);
@@ -54,7 +67,8 @@ class _SellerProfileState extends State<SellerProfile> {
                               onTap: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (context) => EditProfile(seller: seller),
+                                    builder: (context) =>
+                                        EditProfile(seller: seller),
                                   ),
                                 );
                               },
@@ -63,7 +77,7 @@ class _SellerProfileState extends State<SellerProfile> {
                           ],
                         ),
                       ),
-                      
+
                       // 2. Profile Picture
                       Container(
                         width: 160,
@@ -74,36 +88,103 @@ class _SellerProfileState extends State<SellerProfile> {
                           border: Border.all(color: Colors.grey, width: 2.0),
                         ),
                         child: ClipOval(
-                          child: (seller.profileImageUrl != null && seller.profileImageUrl!.isNotEmpty)
+                          child:
+                              (seller.profileImageUrl != null &&
+                                  seller.profileImageUrl!.isNotEmpty)
                               ? Image.network(
                                   seller.profileImageUrl!,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.person, size: 100, color: Colors.grey),
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      const Icon(
+                                        Icons.person,
+                                        size: 100,
+                                        color: Colors.grey,
+                                      ),
                                 )
-                              : const Icon(Icons.person, size: 100, color: Colors.grey),
+                              : const Icon(
+                                  Icons.person,
+                                  size: 100,
+                                  color: Colors.grey,
+                                ),
                         ),
                       ),
                       const SizedBox(height: 20),
-                      
+
                       // 3. Business Name
                       Text(
                         seller.businessName ?? 'N/A',
-                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 20),
 
                       // 5. Profile Details
-                      _buildProfileDetailRow(Icons.person, seller.username ?? 'username'),
-                      _buildProfileDetailRow(Icons.phone, seller.phoneNumber ?? 'N/A'),
-                      _buildProfileDetailRow(Icons.email, seller.email ?? 'N/A'),
-                      _buildProfileDetailRow(Icons.location_on, '${seller.address ?? 'N/A'}, ${seller.state ?? ''}'),
-                      
+                      _buildProfileDetailRow(
+                        Icons.person,
+                        seller.username ?? 'username',
+                      ),
+                      _buildProfileDetailRow(
+                        Icons.phone,
+                        seller.phoneNumber ?? 'N/A',
+                      ),
+                      _buildProfileDetailRow(
+                        Icons.email,
+                        seller.email ?? 'N/A',
+                      ),
+                      _buildProfileDetailRow(
+                        Icons.location_on,
+                        '${seller.address ?? 'N/A'}, ${seller.state ?? ''}',
+                      ),
+
                       // Join Date
                       _buildProfileDetailRow(
                         Icons.add_circle_outline,
                         'Since ${seller.joinDate != null ? DateFormat('yyyy MMMM').format(seller.joinDate!) : 'N/A'}',
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 30), // Adjust spacing as needed
+                      // --- Wrap InkWell in a SizedBox for Height ---
+                      SizedBox(
+                        height:
+                            50, // <<< Give it a specific height (adjust as needed)
+                        child: Card(
+                          elevation: 2,
+                          margin: EdgeInsets.all(5.0),
+                          clipBehavior: Clip.antiAlias,
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                builder: (context) => SelectUserTypePage(),
+                                ),
+                              );
+                            },
+                            child: Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.center, // Center items
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.logout,
+                                  color: iconColor,
+                                ), // Use logout icon
+                                const SizedBox(
+                                  width: 8,
+                                ), // Add space between icon and text
+                                Text(
+                                  'Log Out',
+                                  style: TextStyle(
+                                    color: textColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
