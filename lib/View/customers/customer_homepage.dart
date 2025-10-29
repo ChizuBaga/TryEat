@@ -3,9 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:chikankan/Controller/new_recommendation_controller.dart'; // Import Location
 import 'package:chikankan/locator.dart'; // Import locator
 import 'package:chikankan/Controller/location_controller.dart'; // Import controller
-import 'package:chikankan/Model/seller_temp.dart'; // Import Seller model
 import 'package:chikankan/View/customers/customer_itemlist.dart'; // Assuming this is your item list page
 import 'package:chikankan/View/item_detail_page.dart'; // Import Item Details Page
+import 'package:chikankan/View/customers/nearby_seller_map.dart';
 
 class CustomerHomepage extends StatefulWidget {
   const CustomerHomepage({super.key});
@@ -34,8 +34,6 @@ class _CustomerHomepageState extends State<CustomerHomepage> {
   final Stream<QuerySnapshot> storesStream = FirebaseFirestore.instance
       .collection('sellers')
       .where('isVerified', isEqualTo: true)
-      // Add ordering if needed, e.g., by creation date for 'New'
-      // .orderBy('createdAt', descending: true) 
       .snapshots();
 
   @override
@@ -57,77 +55,124 @@ class _CustomerHomepageState extends State<CustomerHomepage> {
           // Use FutureBuilder specifically for 'Nearby'
           _buildNearbyStoreSection(context, title: 'In Your Neighborhood'), 
           // Keep using StreamBuilder for other sections
-          _buildNewStoreSection(context, title: 'Freshly Added'),
           _buildStoreSection(context, title: 'Last Order', stream: storesStream),
+          _buildNewStoreSection(context, title: 'Freshly Added'),
+          
         ],
       ),
     );
   }
 
-  // NEW: Widget builder specifically for the Nearby section using FutureBuilder
-  Widget _buildNearbyStoreSection(BuildContext context, {required String title}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text(
-            title,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 190,
-          child: FutureBuilder<List<DocumentSnapshot>>(
-            future: _nearbySellersFuture, // Use the future from initState
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (snapshot.hasError) {
-                // Display a more specific error
-                return Center(child: Text("Error finding nearby stores: ${snapshot.error}")); 
-              }
-              if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(child: Text("No nearby stores found."));
-              }
+Widget _buildNearbyStoreSection(BuildContext context, {required String title}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      ),
 
-              // Data loaded successfully - Use the filtered list
-              List<DocumentSnapshot> nearbyDocs = snapshot.data!; 
+      // --- Keep FutureBuilder for the list ---
+      FutureBuilder<List<DocumentSnapshot>>(
+        future: _nearbySellersFuture,
+        builder: (context, snapshot) {
+          // --- Handle Loading ---
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Show only loading indicator while fetching
+            return const SizedBox(
+              height: 190, // Keep consistent height during load
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
+          // --- Handle Error ---
+          if (snapshot.hasError) {
+            return SizedBox( // Keep consistent height on error
+              height: 190,
+              child: Center(child: Text("Error: ${snapshot.error}")),
+            );
+          }
+          // --- Handle Empty ---
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+             return const SizedBox( // Keep consistent height when empty
+               height: 190,
+               child: Center(child: Text("No nearby stores found.")),
+             );
+          }
 
-              return ListView.builder(
-                scrollDirection: Axis.horizontal,
+          // --- Data loaded successfully ---
+          List<DocumentSnapshot> nearbyDocs = snapshot.data!;
+
+          // --- Build UI: Title Row (with button) + Horizontal List ---
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // --- Rebuild the Title Row with the actual Button ---
+              Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                itemCount: nearbyDocs.length,
-                itemBuilder: (context, index) {
-                  DocumentSnapshot doc = nearbyDocs[index];
-                  Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-                  return StoreCard(
-                    name: data['businessName'] ?? 'Store Name',
-                    imageUrl: data['imageUrl'] ?? 'placeholder',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CustomerItemListPage(
-                            sellerId: doc.id,
-                            storeName: data['businessName'] ?? 'Store Name',
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text( // Title again (could be passed or styled differently)
+                      title,
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    // --- Map Icon Button ---
+                    IconButton(
+                      icon: const Icon(Icons.map_outlined, color: Colors.blueAccent, size: 28),
+                      tooltip: 'View Nearby on Map',
+                      onPressed: () {
+                        // --- Navigate to Map Page ---
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => FlutterMapNearbyPage(
+                              nearbySellers: nearbyDocs,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 24),
-      ],
-    );
-  }
-  // Builder for New (uses FutureBuilder and _newSellersFuture)
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12), // Spacing between title row and list
+
+              // --- Horizontal ListView ---
+              SizedBox(
+                height: 190, // Height for the horizontal list view
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  itemCount: nearbyDocs.length,
+                  itemBuilder: (context, index) {
+                    DocumentSnapshot doc = nearbyDocs[index];
+                    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+                    return StoreCard(
+                       name: data['businessName'] ?? 'Store Name',
+                       imageUrl: data['imageUrl'] ?? 'placeholder',
+                       onTap: () {
+                         Navigator.push(
+                           context,
+                           MaterialPageRoute(
+                             builder: (context) => CustomerItemListPage(
+                               sellerId: doc.id,
+                               storeName: data['businessName'] ?? 'Store Name',
+                             ),
+                           ),
+                         );
+                       },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ); // End Column returned by builder
+        }, // End FutureBuilder builder
+      ), // End FutureBuilder
+      const SizedBox(height: 24), // Space after the section
+    ], // End Outer Column children
+  ); // End Outer Column
+}
+
   Widget _buildNewStoreSection(BuildContext context, {required String title}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

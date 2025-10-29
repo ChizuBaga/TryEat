@@ -7,7 +7,7 @@ class SellerData {
   String? phoneNumber;
   String? email;
   String? password;
-  
+  GeoPoint? coordinates;
   String? icName;
   String? icNumber;
   String? icFrontImagePath; // Store file path or URL after upload
@@ -20,18 +20,19 @@ class SellerData {
 
   //Additional Data
   String? profileImageUrl;
-  double? averageRating;
   DateTime? joinDate;
   Timestamp? lastBusinessNamemodified;
 
-  SellerData({
+  SellerData(
+    
+    {
     this.id,
 
     this.username, 
     this.phoneNumber,
     this.email,
     this.password, 
-
+    this.coordinates,
     this.icName,
     this.icNumber,
     this.icFrontImagePath, 
@@ -42,15 +43,19 @@ class SellerData {
     this.state,
 
     this.profileImageUrl,
-    this.averageRating,
     this.joinDate,
     this.lastBusinessNamemodified
   });
 
   factory SellerData.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>?;
+    GeoPoint? coordinatesData;
+
     if (data == null) {
       throw StateError('Missing data for seller document ${doc.id}');
+    }
+    if (data['location'] is GeoPoint){
+      coordinatesData = data['location'] as GeoPoint?;
     }
 
     return SellerData(
@@ -63,10 +68,9 @@ class SellerData {
       postcode: data['postcode'],
       state: data['state'],
       lastBusinessNamemodified: data['modifyBusinessNameAt'],
-
       joinDate: (data['created_at'] is Timestamp) ? (data['created_at'] as Timestamp).toDate() : null,
       profileImageUrl: data['profileImageUrl'],
-
+      coordinates: coordinatesData,
     );
   }
   Map<String, dynamic> toFirestoreUpdate() {

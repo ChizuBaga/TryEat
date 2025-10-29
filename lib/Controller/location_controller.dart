@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:huawei_location/huawei_location.dart';
 import 'package:chikankan/locator.dart';
-import 'package:chikankan/Model/seller_temp.dart';
+
 import 'package:chikankan/Model/seller_data.dart';
 import 'package:chikankan/utils/harversine.dart';
 
@@ -42,10 +42,10 @@ class LocationController {
 
   //Check location settings
   Future<LocationSettingsStates> checkLocationSettings() async {
-    LocationRequest locationRequest = LocationRequest();
+    LocationRequest locationRequest = LocationRequest()..priority = LocationRequest.PRIORITY_HIGH_ACCURACY;
     LocationSettingsRequest locationSettingsRequest = LocationSettingsRequest(
     requests: <LocationRequest>[locationRequest],
-    needBle: true,
+    needBle: false,
     alwaysShow: true,
     );
 
@@ -59,14 +59,14 @@ class LocationController {
   }
 
   //getDistance of cus to seller
-  Future<double> getDistance(SellerTemp seller) async{
+  Future<double> getDistance(SellerData seller) async{
     Location customerLoc = await getLocation();
 
     if (customerLoc.latitude == null || customerLoc.longitude == null){
       throw Exception("Customer location is null!");
     }
-
-    GeoPoint sellerCoordinate = seller.coordinates;
+    
+    GeoPoint sellerCoordinate = seller.coordinates ?? GeoPoint(0,0);
 
     Harversine calculate = Harversine(
       customerLat: customerLoc.latitude!, 
@@ -97,17 +97,14 @@ class LocationController {
 
       for (var doc in sellerSnapshot.docs) {
         // Use your factory constructor to create a SellerTemp object
-        SellerTemp seller = SellerTemp.fromDocument(doc);
-
-        // Ensure seller coordinates are valid before calculating
-        // Check against 0.0 or specific invalid coordinates if needed
-        if (seller.coordinates.latitude != 0 || seller.coordinates.longitude != 0) { // Example check
+        SellerData seller = SellerData.fromFirestore(doc);
+        if (seller.coordinates != null && (seller.coordinates!.latitude != 0 || seller.coordinates!.longitude != 0)) { // Example check
           // Initialize Harversine with customer's location and seller's info
           Harversine calculator = Harversine(
             customerLat: customerLoc.latitude!,
             customerLon: customerLoc.longitude!,
-            sellerLat: seller.coordinates.latitude,
-            sellerLon: seller.coordinates.longitude,
+            sellerLat: seller.coordinates!.latitude,
+            sellerLon: seller.coordinates!.longitude,
           );
 
           // Calculate distance to this seller

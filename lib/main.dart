@@ -63,7 +63,7 @@ class MainApp extends StatelessWidget {
               body: Center(child: CircularProgressIndicator()),
             );
           }
-          // --- If user is logged IN (Auth state confirmed) ---
+          
           if (snapshot.hasData && snapshot.data != null) {
             final User user = snapshot.data!; // Get the logged-in user
             print("User logged in: ${user.uid}");
