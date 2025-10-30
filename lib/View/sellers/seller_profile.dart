@@ -7,6 +7,7 @@ import 'package:chikankan/Model/seller_data.dart';
 import 'package:chikankan/View/sellers/edit_profile.dart';
 import 'package:chikankan/View/select_user_type_page.dart';
 
+
 class SellerProfile extends StatefulWidget {
   const SellerProfile({super.key});
 

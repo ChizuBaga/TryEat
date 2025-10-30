@@ -62,6 +62,8 @@ android {
         // Use addAll() with listOf() and double quotes
         abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a"))
     }
+    //Add for push kit 
+    resConfigs("en", "zh-rCN")
 }
     signingConfigs {
         create("release") {

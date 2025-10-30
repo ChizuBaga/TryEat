@@ -1,5 +1,5 @@
 import 'package:chikankan/Controller/order_controller.dart';
-import 'package:chikankan/Model/orderItem.dart';
+import 'package:chikankan/Model/orderItem_model.dart';
 import 'package:chikankan/Model/order_model.dart';
 import 'package:chikankan/View/sellers/chat_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';

@@ -1,4 +1,4 @@
-import 'package:chikankan/Model/orderItem.dart';
+import 'package:chikankan/Model/orderItem_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Orders {
@@ -18,7 +18,6 @@ class Orders {
     required this.items, 
   });
 
-
   factory Orders.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     final rawItems = data['items'] as List<dynamic>? ?? [];
@@ -35,5 +34,4 @@ class Orders {
       items: parsedItems,
     );
   }
-
 }
