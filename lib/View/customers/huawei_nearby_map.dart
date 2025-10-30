@@ -1,33 +1,32 @@
-// lib/View/customers/flutter_map_nearby_page.dart
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_map/flutter_map.dart'; // Import flutter_map
-import 'package:latlong2/latlong.dart'; // Import latlong2
-import 'package:huawei_location/huawei_location.dart'; // <-- NEW: Import Location type
-import 'package:chikankan/locator.dart'; // <-- NEW: Import locator
+import 'package:huawei_map/huawei_map.dart' hide Location;
+import 'package:huawei_location/huawei_location.dart';
+import 'package:chikankan/locator.dart';
 import 'package:chikankan/Controller/location_controller.dart';
-import 'package:chikankan/Model/seller_data.dart';
 import 'package:chikankan/View/customers/customer_itemlist.dart';
 
-class FlutterMapNearbyPage extends StatefulWidget {
+// --- MODIFIED: Renamed widget ---
+class HuaweiMapNearbyPage extends StatefulWidget {
   final List<DocumentSnapshot> nearbySellers;
 
-  const FlutterMapNearbyPage({
-    super.key,
-    required this.nearbySellers,
-  });
+  const HuaweiMapNearbyPage({super.key, required this.nearbySellers});
 
   @override
-  State<FlutterMapNearbyPage> createState() => _FlutterMapNearbyPageState();
+  State<HuaweiMapNearbyPage> createState() => _HuaweiMapNearbyPageState();
 }
 
-class _FlutterMapNearbyPageState extends State<FlutterMapNearbyPage> {
-
+class _HuaweiMapNearbyPageState extends State<HuaweiMapNearbyPage> {
   final LocationController _locationController = locator<LocationController>();
-  List<Marker> _markers = [];
-  LatLng? _initialCenter; // To center the map
+
+  // --- MODIFIED: Use Set<Marker> (Huawei Map's type) ---
+  Set<Marker> _markers = {};
+  // --- MODIFIED: Use LatLng from Huawei Map Kit ---
+  LatLng? _initialCenter;
   bool _isLoading = true;
+
+  // --- NEW: Controller for the map ---
+  HuaweiMapController? _mapController;
 
   @override
   void initState() {
@@ -36,11 +35,13 @@ class _FlutterMapNearbyPageState extends State<FlutterMapNearbyPage> {
   }
 
   Future<void> _initializeMapData() async {
+    // --- MODIFIED: Use LatLng from Huawei Map Kit ---
     LatLng? userLatLng;
     try {
-      // 1. Fetch user's current location
+      // 1. Fetch user's current location (same logic)
       Location userLocation = await _locationController.getLocation();
       if (userLocation.latitude != null && userLocation.longitude != null) {
+        // Use Huawei's LatLng constructor
         userLatLng = LatLng(userLocation.latitude!, userLocation.longitude!);
         print("User location fetched: $userLatLng");
       } else {
@@ -48,71 +49,85 @@ class _FlutterMapNearbyPageState extends State<FlutterMapNearbyPage> {
       }
     } catch (e) {
       print("Error getting user location: $e. Using default.");
-      // Handle error (e.g., show SnackBar) or just use default
     }
 
-    // 2. Create markers (existing logic)
-    Set<Marker> tempMarkers = {}; // Use Set temporarily to avoid duplicates if needed
+    // 2. Create markers
+    // --- MODIFIED: Use Set<Marker> ---
+    Set<Marker> tempMarkers = {};
+    LatLng? firstSellerPosition; // To help center map if user location fails
+
     for (var doc in widget.nearbySellers) {
       final data = doc.data() as Map<String, dynamic>? ?? {};
-      final GeoPoint? geoPoint = data['location'] as GeoPoint?;
+      // --- CHECK THIS FIELD NAME ---
+      final GeoPoint? geoPoint =
+          data['location'] as GeoPoint?; // Ensure 'coordinates' is correct
       final String sellerName = data['businessName'] ?? 'Unknown Seller';
       final String sellerId = doc.id;
 
       if (geoPoint != null) {
+        // --- MODIFIED: Use Huawei's LatLng ---
         LatLng sellerPosition = LatLng(geoPoint.latitude, geoPoint.longitude);
+        firstSellerPosition ??=
+            sellerPosition; // Note the first seller's position
+
         Marker marker = Marker(
-          width: 80.0,
-          height: 80.0,
-          point: sellerPosition,
-          child: GestureDetector(
-            onTap: () {
+          // Use the seller ID as the unique markerId
+          markerId: MarkerId(sellerId),
+          position: sellerPosition,
+          clickable: true,
+          onClick: () {
               _showSellerDetailsSheet(context, doc);
-              
             },
-            child: Tooltip(
-              message: sellerName,
-              child: Icon(Icons.location_pin, color: Colors.red.shade700, size: 40.0),
-            ),
+          infoWindow: InfoWindow(
+            title: sellerName,
+            onClick: () {
+              _showSellerDetailsSheet(context, doc);
+            },
           ),
+
         );
+        // --- END MODIFIED MARKER ---
         tempMarkers.add(marker);
       }
     }
 
-    // 3. Update state with fetched location and markers
     setState(() {
-      _markers = tempMarkers.toList();
-      // Set initial center to user's location, or default if fetch failed
-      _initialCenter = userLatLng ?? const LatLng(1.557, 110.34); // Default to Kuching
+      _markers = tempMarkers;
+      // Set initial center to user's location, or first seller, or default
+      _initialCenter =
+          userLatLng ??
+          firstSellerPosition ??
+          const LatLng(1.557, 110.34); // Default to Kuching
       _isLoading = false; // Mark loading as complete
     });
   }
 
-  void _showSellerDetailsSheet(BuildContext context, DocumentSnapshot sellerDoc) {
+  void _showSellerDetailsSheet(
+    BuildContext context,
+    DocumentSnapshot sellerDoc,
+  ) {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // IMPORTANT: Allows sheet to be taller than 50%
-      backgroundColor: Colors.transparent, // Make background transparent
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (BuildContext bc) {
         return DraggableScrollableSheet(
-          initialChildSize: 0.5, // Start at 50% height
-          minChildSize: 0.3, // Minimum height when partially dragged down
-          maxChildSize: 0.75, // Max height (75%)
-          expand: false, // Prevent it from taking full screen height initially
+          initialChildSize: 0.5,
+          minChildSize: 0.3,
+          maxChildSize: 0.75,
+          expand: false,
           builder: (BuildContext context, ScrollController scrollController) {
-            // Use a container with rounded top corners
             return Container(
               decoration: const BoxDecoration(
-                color: Color.fromARGB(255, 255, 254, 246), // Your background color
+                color: Color.fromARGB(255, 255, 254, 246),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(20.0),
                   topRight: Radius.circular(20.0),
                 ),
               ),
-              child: _SellerDetailsContent( // Pass data to the content widget
+              child: _SellerDetailsContent(
                 sellerDoc: sellerDoc,
-                scrollController: scrollController, // Pass controller for scrolling
+                scrollController: scrollController,
               ),
             );
           },
@@ -120,42 +135,46 @@ class _FlutterMapNearbyPageState extends State<FlutterMapNearbyPage> {
       },
     );
   }
+  // --- END NO CHANGE ---
 
-  // --- END NEW FUNCTION ---
-@override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Nearby Stores Map'),
         backgroundColor: const Color.fromARGB(255, 255, 229, 143),
       ),
-      // --- MODIFIED: Use _isLoading flag ---
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.orange), // Example color
-            )) // Show loading while fetching location/processing markers
-          : FlutterMap(
-              options: MapOptions(
-                initialCenter: _initialCenter!, // Use fetched user location
-                initialZoom: 14.0, // Zoom in a bit closer by default
-                 interactionOptions: const InteractionOptions(
-                  flags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
-                ),
+          ? const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
               ),
-              children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.example.chikankan', // Use your package name
-                ),
-                MarkerLayer(markers: _markers), // Display markers
-              ],
+            )
+          // --- MODIFIED: Use HuaweiMap ---
+          : HuaweiMap(
+              // --- Set initial camera position ---
+              initialCameraPosition: CameraPosition(
+                target: _initialCenter!, // Use fetched user/seller location
+                zoom: 14.0,
+              ),
+              // --- Add markers to the map ---
+              markers: _markers,
+
+              // --- Other map settings ---
+              mapType: MapType.normal,
+              myLocationEnabled: true, // Show user's blue dot
+              myLocationButtonEnabled: true, // Button to center on user
+              // --- Get the map controller ---
+              onMapCreated: (HuaweiMapController controller) {
+                _mapController = controller;
+              },
             ),
       // --- END MODIFICATION ---
     );
   }
 }
 
-// --- NEW: Widget to display content inside the bottom sheet ---
+// --- NO CHANGE: This widget is map-agnostic ---
 class _SellerDetailsContent extends StatelessWidget {
   final DocumentSnapshot sellerDoc;
   final ScrollController scrollController;
@@ -168,83 +187,125 @@ class _SellerDetailsContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final data = sellerDoc.data() as Map<String, dynamic>? ?? {};
+
     final String sellerName = data['businessName'] ?? 'Store Details';
+
     final String sellerAddress = data['address'] ?? 'Address not available';
-    final String sellerPhone = data['phone_number'] ?? 'Phone not available'; // Adjust field name if needed
+
+    final String sellerPhone =
+        data['phone_number'] ??
+        'Phone not available'; // Adjust field name if needed
+
     final String sellerId = sellerDoc.id;
 
-    return ListView( // Use ListView for scrollability within the sheet
+    return ListView(
+      // Use ListView for scrollability within the sheet
       controller: scrollController, // Attach the controller
+
       padding: const EdgeInsets.all(20.0),
+
       children: [
         // Optional: Drag handle indicator
         Center(
           child: Container(
             width: 40,
+
             height: 5,
+
             margin: const EdgeInsets.only(bottom: 15),
+
             decoration: BoxDecoration(
               color: Colors.grey[300],
+
               borderRadius: BorderRadius.circular(12),
             ),
           ),
         ),
+
         // Seller Name
         Text(
           sellerName,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+
           textAlign: TextAlign.center,
         ),
+
         const SizedBox(height: 16),
+
         // Address
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
+
           children: [
             Icon(Icons.location_on_outlined, color: Colors.grey[700], size: 20),
+
             const SizedBox(width: 8),
-            Expanded(child: Text(sellerAddress, style: const TextStyle(fontSize: 15))),
+
+            Expanded(
+              child: Text(sellerAddress, style: const TextStyle(fontSize: 15)),
+            ),
           ],
         ),
+
         const SizedBox(height: 12),
+
         // Phone
         Row(
           children: [
             Icon(Icons.phone_outlined, color: Colors.grey[700], size: 20),
+
             const SizedBox(width: 8),
+
             Text(sellerPhone, style: const TextStyle(fontSize: 15)),
           ],
         ),
-        const SizedBox(height: 24),
-        // "View Items" Button
         ElevatedButton.icon(
           icon: const Icon(Icons.storefront_outlined),
+
           label: const Text('View Items'),
+
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color.fromARGB(255, 255, 153, 0), // Your button color
+            backgroundColor: const Color.fromARGB(
+              255,
+              255,
+              153,
+              0,
+            ), // Your button color
+
             foregroundColor: Colors.white,
+
             minimumSize: const Size(double.infinity, 45), // Make button wide
+
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12.0),
             ),
           ),
+
           onPressed: () {
             // Close the bottom sheet BEFORE navigating
+
             Navigator.pop(context);
+
             // Navigate to the item list page
+
             Navigator.push(
               context,
+
               MaterialPageRoute(
                 builder: (context) => CustomerItemListPage(
                   sellerId: sellerId,
+
                   storeName: sellerName,
                 ),
               ),
             );
           },
         ),
-        // Add more details here if needed
       ],
     );
   }
 }
-// --- END NEW WIDGET ---
+// --- END NO CHANGE ---

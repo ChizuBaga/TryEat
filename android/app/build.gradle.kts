@@ -40,14 +40,29 @@ android {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
-    defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "eatseesee.huawei"
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+   packagingOptions {
+    jniLibs {
+        useLegacyPackaging = true
+        // Use .addAll() with listOf() and double quotes
+        keepDebugSymbols.addAll(listOf("*/arm64-v8a/*.so", "*/armeabi-v7a/*.so"))
     }
+    // Use parentheses and double quotes
+    pickFirst("lib/arm64-v8a/libmap.so")
+    pickFirst("lib/armeabi-v7a/libmap.so")
+}
+
+    
+    defaultConfig {
+    applicationId = "eatseesee.huawei"
+    minSdk = flutter.minSdkVersion
+    targetSdk = flutter.targetSdkVersion
+    versionCode = flutter.versionCode
+    versionName = flutter.versionName
+    ndk {
+        // Use addAll() with listOf() and double quotes
+        abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a"))
+    }
+}
     signingConfigs {
         create("release") {
             if (keystoreProperties.containsKey("storeFile")) {

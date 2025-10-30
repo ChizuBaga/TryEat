@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:huawei_location/huawei_location.dart';
 import 'package:chikankan/locator.dart';
-
+import 'package:permission_handler/permission_handler.dart';
 import 'package:chikankan/Model/seller_data.dart';
 import 'package:chikankan/utils/harversine.dart';
 
@@ -15,17 +15,44 @@ class LocationController {
   }
   
   Future<Location> getLocation() async {
-  LocationSettingsStates lState = await checkLocationSettings();
-  try {
-    if(lState.locationUsable == true){
-      Location location = await _locationService.getLastLocation();
-      return location;
-    }else{
-      throw Exception("Location not usable");
+
+    // --- 1. NEW: Check and Request App-Level Permission ---
+    PermissionStatus status = await Permission.location.status;
+    
+    if (status.isDenied) {
+      // If permission is denied, request it from the user
+      status = await Permission.location.request();
     }
-  } catch (e) {
-    print(e.toString());
-    rethrow;
+
+    if (status.isPermanentlyDenied) {
+      // If user permanently denies, you must guide them to settings
+      // For now, throw an error. In production, show a dialog.
+      print("Location permission is permanently denied.");
+      // Consider calling openAppSettings();
+      throw Exception("Location permission is permanently denied. Please enable it in app settings.");
+    }
+    
+    if (!status.isGranted) {
+      // If permission is still not granted (e.g., user denied again)
+      throw Exception("Location permission not granted.");
+    }
+    // --- END OF NEW PERMISSION CHECK ---
+    
+    // --- 2. Check Device Settings (Your existing logic) ---
+    // This (like GPS being on) can now be checked
+    LocationSettingsStates lState = await checkLocationSettings();
+
+    try {
+      if(lState.locationUsable == true){
+        // --- 3. Get Location (Now you have permission) ---
+        Location location = await _locationService.getLastLocation();
+        return location;
+      }else{
+        throw Exception("Location not usable (e.g., GPS is off)");
+      }
+    } catch (e) {
+      print(e.toString());
+      rethrow;
     }
   }
 
