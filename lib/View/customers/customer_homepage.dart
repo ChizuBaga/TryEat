@@ -5,7 +5,7 @@ import 'package:chikankan/locator.dart'; // Import locator
 import 'package:chikankan/Controller/location_controller.dart'; // Import controller
 import 'package:chikankan/View/customers/customer_itemlist.dart'; // Assuming this is your item list page
 import 'package:chikankan/View/item_detail_page.dart'; // Import Item Details Page
-import 'package:chikankan/View/customers/nearby_seller_map.dart';
+import 'package:chikankan/View/customers/huawei_nearby_map.dart';
 
 class CustomerHomepage extends StatefulWidget {
   const CustomerHomepage({super.key});
@@ -124,8 +124,8 @@ Widget _buildNearbyStoreSection(BuildContext context, {required String title}) {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => FlutterMapNearbyPage(
-                              nearbySellers: nearbyDocs,
+                            builder: (context) => HuaweiMapNearbyPage(
+                              nearbySellers: nearbyDocs, // Pass the fetched list
                             ),
                           ),
                         );
@@ -361,7 +361,7 @@ class StoreCard extends StatelessWidget {
                 flex: 3,
                 child: Container(
                   color: Colors.grey[300],
-                  // TODO: Replace with actual image loading (Image.network)
+                  
                   child: imageUrl == 'placeholder' 
                     ? const Center(
                         child: Icon(Icons.image_outlined, color: Colors.black, size: 48),
