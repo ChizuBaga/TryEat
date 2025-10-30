@@ -1,4 +1,5 @@
-import 'package:chikankan/Model/orderItem.dart';
+import 'package:chikankan/Controller/push_notification.dart';
+import 'package:chikankan/Model/orderItem_model.dart';
 import 'package:chikankan/View/sellers/chat_screen.dart';
 import 'package:chikankan/View/sellers/seller_current_order.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ class SellerPendingOrder extends StatefulWidget {
 
 class _SellerPendingOrderState extends State<SellerPendingOrder> {
   final OrderController _orderController = OrderController();
+  final HmsPushKitService hmsPushKitService = HmsPushKitService();
 
   Future<String> fetchCustomerUsername(String customerId) async {
   if (customerId.isEmpty) {
@@ -55,6 +57,35 @@ class _SellerPendingOrderState extends State<SellerPendingOrder> {
     await FirebaseFirestore.instance.collection('orders').doc(order.orderId).update({
       'orderStatus': 'Rejected',
     });
+    String? customerPushToken;
+  try {
+    final customerSnapshot = await FirebaseFirestore.instance
+        .collection('customers')
+        .doc(order.customerId)
+        .get();
+
+    customerPushToken = customerSnapshot.data()?['hmsPushToken'] as String?;
+    
+  } catch (e) {
+    print('Error fetching customer token: $e');
+  }
+
+  if (customerPushToken != null) {
+    // The service handles getting the access token and posting the payload to Huawei Push API.
+    final success = await hmsPushKitService.sendRejectionNotification(
+      targetToken: customerPushToken,
+      orderId: order.orderId,
+    );
+    
+    if (success) {
+      print('Rejection notification sent to customer.');
+    } else {
+      print('Failed to send rejection notification.');
+    }
+    
+  } else {
+    print('Customer token not found. Notification skipped.');
+  }
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Order ${order.orderId} rejected.')));
     }

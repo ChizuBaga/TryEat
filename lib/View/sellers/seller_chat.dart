@@ -57,8 +57,6 @@ class _SellerChatState extends State<SellerChat> {
   Widget _buildChatListItem(BuildContext context, ChatRoom chatRoom) {
     // Determine if the red dot (unread indicator) should be shown
     // if last message sender != current user
-    //debug
-    // final bool showUnreadIndicator = chatRoom.unreadCount > 0;
     final bool showUnreadIndicator = chatRoom.lastMessageSenderId != _chatService.currentUserId;
 
     return InkWell(

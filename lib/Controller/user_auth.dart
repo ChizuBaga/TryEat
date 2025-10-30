@@ -1,6 +1,7 @@
 // lib/Controller/user_auth.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:huawei_push/huawei_push.dart';
 
 enum UserRole { customer, seller }
 
@@ -32,7 +33,6 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    // ... (Your existing signIn code)
      try {
        final userCredential = await _auth.signInWithEmailAndPassword(
          email: email.trim(),
@@ -55,7 +55,6 @@ class AuthService {
     required UserRole role,
     Map<String, dynamic>? additionalData,
   }) async {
-    // ... (Your existing _saveUserDetails code)
      final collectionName = _getCollectionName(role);
      // User's UID as the document ID.
      return _db.collection(collectionName).doc(uid).set({
@@ -77,15 +76,16 @@ class AuthService {
     required UserRole role,
     Map<String, dynamic>? additionalData,
   }) async {
-    // ... (Your existing signUp code)
      try {
        final userCredential = await _auth.createUserWithEmailAndPassword(
          email: email.trim(),
          password: password.trim(),
        );
        final user = userCredential.user;
+       final roleString = role.toString();
        if(user != null){
-         await _saveUserDetails(uid: user.uid, username: username, phoneNumber: phoneNumber, email: email, role: role, additionalData: additionalData);
+        await _saveUserDetails(uid: user.uid, username: username, phoneNumber: phoneNumber, email: email, role: role, additionalData: additionalData);
+        await _getCustomerDeviceToken(user.uid, roleString);
        }
        return user;
      } on FirebaseAuthException {
@@ -97,13 +97,11 @@ class AuthService {
 
   // Sign Out
   Future<void> signOut() async {
-    // ... (Your existing signOut code)
      await _auth.signOut();
   }
 
   // Get User Auth Status (Role and Verification)
   Future<AuthStatus?> getUserAuthStatus(String uid) async {
-    // ... (Your existing getUserAuthStatus code)
      try {
        //Check the 'customers' collection
        final customerDoc = await _db.collection('customers').doc(uid).get();
@@ -138,4 +136,25 @@ class AuthService {
   User? getCurrentUser() {
     return _auth.currentUser;
   }
+
+  //Store user device token for push notification
+  Future<void> _getCustomerDeviceToken(String userId, String role) async {
+  try {
+    print("🔥 Fetching HMS token...");
+    Push.getTokenStream.listen((String? token) {
+      if (token != null) {
+        //Update customer/seller with device token
+        FirebaseFirestore.instance
+            .collection(role)
+            .doc(userId)         
+            .set({'hmsPushToken': token}, SetOptions(merge: true));
+      }
+    });
+
+    Push.getToken("");
+
+  } catch (e) {
+    print("Failed to get device token: $e");
+  }
+}
 }

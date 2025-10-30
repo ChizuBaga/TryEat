@@ -1,4 +1,4 @@
-import 'package:chikankan/Model/orderItem.dart';
+import 'package:chikankan/Model/orderItem_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:chikankan/Model/order_model.dart';
@@ -19,7 +19,6 @@ class OrderController {
         .where('orderStatus', whereIn: ['Preparing', 'Ready for Pickup'])
         .snapshots()
         .map((snapshot) {
-      // Map the Firestore documents to your Order model
       return snapshot.docs.map((doc) => Orders.fromFirestore(doc)).toList();
     });
   }
@@ -40,13 +39,12 @@ class OrderController {
   Future<List<OrderItemDisplay>> getDetailedOrderItems(List<OrderItem> orderItems) async {
     final List<Future<OrderItemDisplay>> futures = orderItems.map((orderItem) async {
       final itemData = await getItemDetails(orderItem.itemId);
-      
-      // Combine order quantity data with product details
       return OrderItemDisplay(
         itemId: orderItem.itemId,
         quantity: orderItem.quantity,
         name: itemData?['Name'] ?? 'Unknown',
         imageUrl: itemData?['imageUrl'],
+        price: itemData?['Price'],
       );
     }).toList();
 
@@ -65,7 +63,6 @@ class OrderController {
         .where('orderStatus', isEqualTo: 'Pending')
         .snapshots()
         .map((snapshot) {
-      // Map the Firestore documents to your Order model
       return snapshot.docs.map((doc) => Orders.fromFirestore(doc)).toList();
     });
   }
@@ -85,5 +82,22 @@ class OrderController {
         .map((snapshot) {
           return snapshot.docs.length;
         });
+  }
+
+  // seller_dashboard.dart
+  Stream<List<Orders>> streamCompletedOrders() {
+    if (_currentSellerId == null) {
+      return Stream.value([]); // Return empty stream if no user is logged in
+    }
+
+    return _db
+        .collection('orders')
+        .where('seller_ID', isEqualTo: _currentSellerId)
+        .where('orderStatus', isEqualTo: 'Completed')
+        .orderBy('completedAt')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) => Orders.fromFirestore(doc)).toList();
+    });
   }
 }
