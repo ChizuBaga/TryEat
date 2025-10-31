@@ -2,12 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
-import 'package:huawei_push/huawei_push.dart';
 
 class HmsPushKitService {
 
     
-    Future<String?> getToken() async {
+  Future<String?> getToken() async {
   final clientId = dotenv.env['HW_CLIENT_ID'];
   final clientSecret = dotenv.env['HW_CLIENT_SECRET'];
 

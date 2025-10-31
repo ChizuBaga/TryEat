@@ -1,3 +1,4 @@
+import 'package:chikankan/Model/orderItem_model.dart';
 import 'package:chikankan/View/customers/customer_homepage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -188,7 +189,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     String itemCategory = '';     // Get category or use default
     String? itemImageUrl = selectedItem.imageUrl;           // Get image URL (might be null)
     int? itemReservedDays = 0; // Get reserved days (might be null)
-
+    
     Item itemBeingOrdered = Item(
       itemDescription,  // 1. description
       itemCategory,     // 2. category

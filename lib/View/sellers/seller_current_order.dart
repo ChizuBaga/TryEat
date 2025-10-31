@@ -168,7 +168,7 @@ void _navigateToChatScreen(String chatRoomId, String customerId, String customer
           .collection('orders')
           .doc(widget.order.orderId)
           .update({
-            'orderStatus': 'Ready for pickup',
+            'orderStatus': 'Completed',
             'completedAt': FieldValue.serverTimestamp(),
           });
       

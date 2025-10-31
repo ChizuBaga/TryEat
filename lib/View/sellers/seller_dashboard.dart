@@ -62,9 +62,9 @@ class _SellerDashboardState extends State<SellerDashboard> {
       return PieChartSectionData(
         color: data.color,
         value: data.sales,
-        title: '',
+        title: data.name,
         radius: 50,
-        showTitle: false,
+        showTitle: true,
       );
     }).toList();
 }
