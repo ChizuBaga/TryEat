@@ -150,8 +150,8 @@ class _EditCustomerProfileState extends State<EditCustomerProfile> {
               alignment: Alignment.bottomRight,
               children: [
                 CircleAvatar(
-                  radius: 64,
-                  backgroundColor: Colors.black,
+                  radius: 74,
+                  backgroundColor: Colors.grey[200],
                   // Show new image if picked, else existing, else default icon
                   backgroundImage: _newImageFile != null
                       ? FileImage(_newImageFile!)

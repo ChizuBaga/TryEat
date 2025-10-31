@@ -48,10 +48,9 @@ class ChatController {
         .collection('chats')
         .where('participants', arrayContains: currentUserId)
         .where('lastMessageSenderId', isNotEqualTo: currentUserId) 
-        .where('unreadCount', isGreaterThan: 0)
         .snapshots()
         .map((snapshot) {
-          return snapshot.docs.isNotEmpty ? 1 : 0;
+          return snapshot.docs.length > 0 ? 1 : 0;
         });
-  }
+}
 }

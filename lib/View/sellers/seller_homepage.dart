@@ -1,3 +1,4 @@
+import 'package:chikankan/Controller/dashboard_controller.dart';
 import 'package:chikankan/View/sellers/seller_current_order.dart';
 import 'package:chikankan/View/sellers/seller_dashboard.dart';
 import 'package:flutter/material.dart';
@@ -18,15 +19,16 @@ class _SellerHomepageState extends State<SellerHomepage> {
 
   final String uid = FirebaseAuth.instance.currentUser!.uid; 
   late final Future<DocumentSnapshot> _sellerDataFuture;
+  late Future<Map<String, dynamic>> _dailySalesFuture;
 
   final OrderController _orderService = OrderController();
+  final DashboardController _dashboardService = DashboardController();
    
   @override
   void initState() {
     super.initState();
-    if (uid != null) {
-      _sellerDataFuture = FirebaseFirestore.instance.collection('sellers').doc(uid).get();
-    }
+    _sellerDataFuture = FirebaseFirestore.instance.collection('sellers').doc(uid).get();
+    _dailySalesFuture = _dashboardService.getDailySalesData();
   }
 
   @override
@@ -141,38 +143,67 @@ class _SellerHomepageState extends State<SellerHomepage> {
   }
 
   Widget _buildSalesCard() {
-    return Container(
-      padding: const EdgeInsets.all(20.0),
-      decoration: BoxDecoration(
-        color: Color.fromRGBO(255, 255, 255, 1),
-        borderRadius: BorderRadius.circular(12.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey,
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
+    return FutureBuilder<Map<String, dynamic>>(
+      future: _dailySalesFuture,
+      builder: (context, snapshot){
+        String salesDisplay;
+      bool isLoading = snapshot.connectionState == ConnectionState.waiting;
+      
+      if (isLoading) {
+        salesDisplay = 'Loading...';
+      } else if (snapshot.hasError) {
+        // Handle error state gracefully
+        salesDisplay = 'Error'; 
+        print('Sales data error: ${snapshot.error}'); // Debugging output
+      } else if (!snapshot.hasData || snapshot.data == null) {
+        // Handle no data case
+        salesDisplay = 'RM0.00';
+      } else {
+        // --- Data Available State ---
+        final data = snapshot.data!;
+        // Safely access totalSales with a null-aware operator, though the outer check should cover it.
+        final totalSales = data['totalSales'] ?? 0.0; 
+        salesDisplay = 'RM ${totalSales.toStringAsFixed(2)}';
+      }
+        return Container(
+          padding: const EdgeInsets.all(20.0),
+          decoration: BoxDecoration(
+            color: Color.fromARGB(255, 255, 153, 0),
+            borderRadius: BorderRadius.circular(12.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey,
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Container(
-        width: double.infinity,
-        alignment: Alignment.centerLeft,
-        child: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Today's Sales",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color.fromRGBO(251, 192, 45, 1)),
+          child: Container(
+            width: double.infinity,
+            alignment: Alignment.centerLeft,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Today's Sales",
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  salesDisplay,
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                if (isLoading)
+                const SizedBox(
+                  height: 10,
+                  child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                ),
+              ],
             ),
-            SizedBox(height: 8),
-            Text(
-              'RM0.00',
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color.fromRGBO(251, 192, 45, 1)),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      }
     );
   }
 

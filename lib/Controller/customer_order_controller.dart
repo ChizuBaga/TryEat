@@ -62,10 +62,21 @@ class CustomerOrderController {
     );
 
     try {
-      // 5. Add the order to the 'orders' collection
-      DocumentReference docRef =
-          await _firestore.collection('orders').add(newOrder.toMap());
+      final Map<String, dynamic> orderMap = newOrder.toMap();
 
+      final List<Map<String, dynamic>> itemsArray = [
+        {
+          'itemID': itemId,
+          'quantity': quantity,
+        },
+      ];
+
+      orderMap['items'] = itemsArray;
+
+      // 5. Add the order to the 'orders' collection      
+      DocumentReference docRef =
+                await _firestore.collection('orders').add(orderMap);
+                
       print("Order placed successfully with ID: ${docRef.id}");
       return docRef.id; // Return the new order ID on success
     } catch (e) {
