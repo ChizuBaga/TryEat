@@ -36,7 +36,9 @@ class _CustomerTabState extends State<CustomerTab> {
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Color.fromARGB(255, 255, 235, 180),
+        backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+        showSelectedLabels: true,         // Hides label for the active item
+        showUnselectedLabels: false,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -60,11 +62,10 @@ class _CustomerTabState extends State<CustomerTab> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Color.fromARGB(255, 255, 153, 0),
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: Color.fromRGBO(251, 192, 45, 1),
+        unselectedItemColor: const Color.fromARGB(255, 94, 94, 94),
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
-        showUnselectedLabels: true,
       ),
     );
   }

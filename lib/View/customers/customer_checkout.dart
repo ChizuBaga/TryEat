@@ -263,7 +263,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 255, 229, 143), // Your color
+        backgroundColor: const Color.fromRGBO(251, 192, 45, 1), // Your color
         elevation: 1,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),

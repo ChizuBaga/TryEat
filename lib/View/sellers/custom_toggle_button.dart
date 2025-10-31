@@ -30,52 +30,63 @@ class _CustomAvailabilityToggleState extends State<CustomAvailabilityToggle> {
     widget.onChanged(newValue);
   }
 
+  // lib/path/to/custom_availability_toggle.dart
+
   @override
   Widget build(BuildContext context) {
-    // Determine track width to ensure text fits
-    const double trackWidth = 160.0;
-    const double trackHeight = 50.0;
+    // --- 1. REDUCE THESE VALUES ---
+    const double trackWidth = 110.0; // Was 160.0
+    const double trackHeight = 45.0; // Was 50.0
+    // --- END MODIFICATION ---
     
-    // Calculate the horizontal position of the text label
-    double textPosition = _isAvailable ? 35.0 : (trackWidth - 110);
+    const double internalPadding = 1.0; 
+    
+    final double thumbSize = trackHeight - (internalPadding * 2); // This will now be 37
+    final double textWidth = trackWidth - thumbSize - (internalPadding * 3); // This will now be 91
 
     return GestureDetector(
       onTap: () => _handleToggle(!_isAvailable),
       child: Container(
-        width: trackWidth,
-        height: trackHeight,
-        padding: const EdgeInsets.all(2.0),
+        width: trackWidth,   // Use the smaller width
+        height: trackHeight, // Use the smaller height
+        padding: const EdgeInsets.all(internalPadding), 
         decoration: BoxDecoration(
-          // 1. Grey Track Background
-          color: _isAvailable ? Color.fromARGB(255, 144, 238, 144) : Colors.grey[400], 
+          color: _isAvailable ? Color.fromARGB(255, 144, 238, 144) : Colors.grey[400],
           borderRadius: BorderRadius.circular(trackHeight / 2),
         ),
         child: Stack(
           children: [
-            // 3. Text Label (positioned dynamically)
-            AnimatedPositioned(
+            // --- 1. TEXT LABEL ---
+            AnimatedAlign(
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeOut,
-              left: textPosition, // Move the text opposite the thumb
-              top: 10,
-              child: Text(
-                _isAvailable ? 'Available' : 'Not Available',
-                style: TextStyle(
-                  color: Colors.black, 
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14,
+              alignment: _isAvailable ? Alignment.centerLeft : Alignment.centerRight,
+              child: Container(
+                width: textWidth, 
+                alignment: Alignment.center,
+                child: Text(
+                  _isAvailable ? 'Available' : 'Not Available',
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500,
+                    // --- 2. CONSIDER REDUCING FONT SIZE ---
+                    fontSize: 11, // Was 14
+                    // --- END MODIFICATION ---
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
 
-            // 4. White Circular Thumb
+            // --- 2. WHITE CIRCULAR THUMB ---
             AnimatedAlign(
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeOut,
               alignment: _isAvailable ? Alignment.centerRight : Alignment.centerLeft,
               child: Container(
-                width: trackHeight - 6, // 36
-                height: trackHeight - 6, // 36
+                width: thumbSize,
+                height: thumbSize,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white,

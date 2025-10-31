@@ -162,10 +162,11 @@ class _EditItemState extends State<EditItem> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 252, 248, 221),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Color.fromARGB(255, 252, 248, 221),
+        title: const Text('Edit Item', style: TextStyle(color: Colors.black)),
+        elevation: 1,
+        backgroundColor: Color.fromRGBO(251, 192, 45, 1),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
@@ -191,7 +192,6 @@ class _EditItemState extends State<EditItem> {
           : SingleChildScrollView(
             child: Column(
               children: [
-                Text('Edit Catalogue Item', style: TextStyle(fontSize: 24, color: Colors.black)),
                 Form(
                     key: _formKey,
                     child: SingleChildScrollView(

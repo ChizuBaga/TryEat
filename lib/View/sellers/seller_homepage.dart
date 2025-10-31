@@ -142,70 +142,138 @@ class _SellerHomepageState extends State<SellerHomepage> {
     );
   }
 
-  Widget _buildSalesCard() {
-    return FutureBuilder<Map<String, dynamic>>(
-      future: _dailySalesFuture,
-      builder: (context, snapshot){
-        String salesDisplay;
+ Widget _buildSalesCard() {
+  return FutureBuilder<Map<String, dynamic>>(
+    future: _dailySalesFuture,
+    builder: (context, snapshot) {
+      String salesDisplay;
       bool isLoading = snapshot.connectionState == ConnectionState.waiting;
-      
+
       if (isLoading) {
         salesDisplay = 'Loading...';
       } else if (snapshot.hasError) {
-        // Handle error state gracefully
-        salesDisplay = 'Error'; 
-        print('Sales data error: ${snapshot.error}'); // Debugging output
+        salesDisplay = 'Error';
       } else if (!snapshot.hasData || snapshot.data == null) {
-        // Handle no data case
         salesDisplay = 'RM0.00';
       } else {
-        // --- Data Available State ---
         final data = snapshot.data!;
-        // Safely access totalSales with a null-aware operator, though the outer check should cover it.
-        final totalSales = data['totalSales'] ?? 0.0; 
+        final totalSales = data['totalSales'] ?? 0.0;
         salesDisplay = 'RM ${totalSales.toStringAsFixed(2)}';
       }
-        return Container(
-          padding: const EdgeInsets.all(20.0),
-          decoration: BoxDecoration(
-            color: Color.fromARGB(255, 255, 153, 0),
-            borderRadius: BorderRadius.circular(12.0),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey,
-                spreadRadius: 2,
-                blurRadius: 5,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Container(
-            width: double.infinity,
-            alignment: Alignment.centerLeft,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Today's Sales",
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  salesDisplay,
-                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-                if (isLoading)
-                const SizedBox(
-                  height: 10,
-                  child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
-                ),
-              ],
+
+      // This is the main card Container
+      return Container(
+        // padding: const EdgeInsets.all(20.0), // <-- REMOVE padding from here
+        clipBehavior: Clip.antiAlias, // <-- ADD this to clip the circles
+        decoration: BoxDecoration(
+          color: Color.fromRGBO(246, 235, 213, 1),
+          borderRadius: BorderRadius.circular(12.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5), // Softer shadow
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: const Offset(0, 3),
             ),
-          ),
-        );
-      }
-    );
-  }
+          ],
+        ),
+        // --- MODIFICATION: Replace child with a Stack ---
+        child: Stack(
+          children: [
+            // --- 1. BACKGROUND: Overlapping Colors ---
+            // These are positioned relative to the Stack (the card)
+            // They are placed first, so they appear in the back.
+            Positioned(
+              right: -40,
+              top: 30,
+              child: Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  color: Color.fromRGBO(251, 192, 45, 0.6), // Light yellow
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+            Positioned(
+              right: -10,
+              top: -20,
+              child: Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  color: Color.fromRGBO(251, 192, 45, 0.4), // Medium yellow
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+            Positioned(
+              right: 20,
+              top: 70,
+              child: Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: Color.fromRGBO(251, 192, 45, 0.4), // Darker yellow
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+            // --- END BACKGROUND ---
+
+            // --- 2. FOREGROUND: Your Original Content ---
+            // This is the original Container, now as the top layer
+            // We apply the padding here instead of on the outer container.
+            Container(
+              width: double.infinity,
+              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.all(20.0), // <-- ADD padding here
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Today's Sales",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Color.fromRGBO(0, 0, 0, 1),
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    salesDisplay,
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromRGBO(0, 0, 0, 1),
+                    ),
+                  ),
+                  if (isLoading)
+                    Padding( // Add padding for the loading indicator
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: SizedBox(
+                        height: 16, // Adjust size
+                        width: 16, // Adjust size
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          // FIX: Changed color to match theme
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Color.fromRGBO(251, 192, 45, 1),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            // --- END FOREGROUND ---
+          ],
+        ),
+        // --- END MODIFICATION ---
+      );
+    },
+  );
+}
 
   Widget _buildOrdersList() {
     return StreamBuilder<List<Orders>>(

@@ -55,7 +55,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
           'Order History',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: const Color.fromARGB(255, 255, 229, 143), // Kept this color
+        backgroundColor: const Color.fromRGBO(251, 192, 45, 1), // Kept this color
         centerTitle: true,
       ),
       // --- Use FutureBuilder to handle async fetching ---

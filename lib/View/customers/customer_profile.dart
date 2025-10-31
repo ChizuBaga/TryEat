@@ -74,7 +74,7 @@ class CustomerProfile extends StatelessWidget {
               'Profile',
               style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
             ),
-            backgroundColor: backgroundColor, 
+            backgroundColor: Color.fromRGBO(251, 192, 45, 1), 
             elevation: 0, 
             automaticallyImplyLeading: false,
             centerTitle: true,

@@ -110,7 +110,7 @@ class _CustomerSignUpPageState extends State<CustomerSignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 252, 248, 221),
+      backgroundColor: const Color.fromRGBO(255, 238, 172, 1),
       appBar: AppBar(
         toolbarHeight: 0,
         backgroundColor: Colors.white,
@@ -320,7 +320,7 @@ class _PasswordCriteriaView extends StatelessWidget {
         const SizedBox(height: 4),
         _CriteriaItem(text: 'Contains a number (0-9)', isMet: hasNumber),
         const SizedBox(height: 4),
-        _CriteriaItem(text: 'Contains a special character (!@#\$...)', isMet: hasSymbol),
+        _CriteriaItem(text: 'Contains a special character (!@#\$)', isMet: hasSymbol),
       ],
     );
   }

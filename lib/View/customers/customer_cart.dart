@@ -59,7 +59,7 @@ class _CustomerCartState extends State<CustomerCart> {
       backgroundColor: const Color.fromARGB(255, 255, 254, 246),
       appBar: AppBar(
         title: const Text('Cart', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.transparent,
+        backgroundColor: Color.fromRGBO(251, 192, 45, 1),
         automaticallyImplyLeading: false,
         centerTitle: true,
       ),

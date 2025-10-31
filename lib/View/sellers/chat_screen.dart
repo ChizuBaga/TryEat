@@ -53,9 +53,8 @@ class _ChatScreenState extends State<ChatScreen> {
             'timestamp': FieldValue.serverTimestamp(),
             'lastMessageSenderId': currentUserId,
           });
-
     } catch (e) {
-      print("Error sending message: $e");
+      //
     }
   }
 
@@ -73,7 +72,7 @@ class _ChatScreenState extends State<ChatScreen> {
       });
       
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 252, 248, 221),
+      backgroundColor: Color.fromARGB(255, 255, 255, 255),
       appBar: AppBar(
         backgroundColor: Color.fromARGB(255, 252, 248, 221),
         elevation: 1, 
@@ -146,7 +145,7 @@ class _ChatScreenState extends State<ChatScreen> {
   // Individual Message Bubble
   Widget _buildMessageBubble(ChatMessage message) {
     final bool isMe = message.senderId == currentUserId;
-    final bubbleColor = isMe ? Colors.black : Colors.grey[200];
+    final bubbleColor = isMe ? Colors.black : Colors.transparent;
     final textColor = isMe ? Colors.white : Colors.black;
     final alignment = isMe ? Alignment.centerRight : Alignment.centerLeft;
 
@@ -159,11 +158,19 @@ class _ChatScreenState extends State<ChatScreen> {
           Container(
             margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+            
             decoration: BoxDecoration(
               color: bubbleColor,
+             border: !isMe 
+                  ? Border.all(
+                      color: Colors.amber, // Your yellow color
+                      width: 2.0,            // Border width
+                    )
+                  : null, 
               borderRadius: BorderRadius.circular(15).copyWith(
               bottomRight: isMe ? Radius.zero : const Radius.circular(15),
               bottomLeft: isMe ? const Radius.circular(15) : Radius.zero,
+
             ),
             ),
             constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
@@ -195,7 +202,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: Color.fromARGB(255, 252, 248, 221),
+        color: Color.fromARGB(255, 255, 255, 255),
         border: Border(top: BorderSide(color: Colors.grey[300]!)),
       ),
       child: Row(

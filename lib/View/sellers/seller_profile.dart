@@ -28,9 +28,10 @@ class _SellerProfileState extends State<SellerProfile> {
     }
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 252, 248, 221),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 252, 248, 221),
+        //title: const Text('Dashboard', style: TextStyle(color: Colors.black)),
+        backgroundColor: Color.fromRGBO(251, 192, 45, 1),
         elevation: 0,
         toolbarHeight: 0,
       ),
@@ -151,7 +152,8 @@ class _SellerProfileState extends State<SellerProfile> {
                             50, // <<< Give it a specific height (adjust as needed)
                         child: Card(
                           elevation: 2,
-                          margin: EdgeInsets.all(5.0),
+                          color: Colors.red,
+                          margin: EdgeInsets.all(3.0),
                           clipBehavior: Clip.antiAlias,
                           child: InkWell(
                             onTap: () {

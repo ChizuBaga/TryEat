@@ -6,7 +6,7 @@ class SelectUserTypePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 252, 248, 221),
+      backgroundColor: const Color.fromRGBO(255, 238, 172, 1),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
@@ -16,17 +16,9 @@ class SelectUserTypePage extends StatelessWidget {
             children: <Widget>[
               const SizedBox(height: 80),
 
-              Image.asset('assets/applogo.png', height: 100),
+              Image.asset('assets/applogo.png', height: 300),
 
-              const SizedBox(height: 16),
-
-              const Text(
-                'ChiKanKan',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 38, fontWeight: FontWeight.bold),
-              ),
-
-              const SizedBox(height: 90),
+              const SizedBox(height: 10),
 
               const Text(
                 'Cooking or craving?',
