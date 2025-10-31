@@ -88,7 +88,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 252, 248, 221),
+      backgroundColor: const Color.fromRGBO(255, 238, 172, 1),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
@@ -98,9 +98,9 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                const SizedBox(height: 100),
+                const SizedBox(height: 20),
 
-                Image.asset('assets/applogo.png', height: 100),
+                Image.asset('assets/applogo.png', height: 200),
 
                 const SizedBox(height: 15),
 
@@ -110,7 +110,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                   style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 ),
 
-                const SizedBox(height: 85),
+                const SizedBox(height: 75),
 
                 // --- Email Text Form Field ---
                 TextFormField(
@@ -199,7 +199,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                   ),
                 ),
 
-                const SizedBox(height: 65),
+                const SizedBox(height: 25),
 
                 //new seller
                 Row(

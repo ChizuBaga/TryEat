@@ -168,10 +168,10 @@ void _navigateToChatScreen(String chatRoomId, String customerId, String customer
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 252, 248, 221),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       appBar: AppBar(
         title: const Text('Pending Orders', style: TextStyle(color: Colors.black)),
-        backgroundColor: Color.fromARGB(255, 252, 248, 221),
+        backgroundColor: Color.fromRGBO(251, 192, 45, 1),
         elevation: 0,
         centerTitle: true,
         automaticallyImplyLeading: false,

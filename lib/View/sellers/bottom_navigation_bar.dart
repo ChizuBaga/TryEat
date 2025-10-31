@@ -55,14 +55,26 @@ class SellerBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
+  return Container( // 1. Wrap with a Container
+    decoration: BoxDecoration(
+      // 2. Add a Border to the container
+      border: Border(
+        top: BorderSide(
+          color: Colors.grey.shade400,
+          width: 0.8,                 
+        ),
+      ),
+    ),
+    child: BottomNavigationBar( // 3. Your original widget is now the child
       type: BottomNavigationBarType.fixed,
-      backgroundColor: Color.fromARGB(255, 255, 235, 180),
-      selectedItemColor: Color.fromARGB(255, 255, 153, 0),
+      backgroundColor: Colors.white,
+      selectedItemColor: Color.fromRGBO(251, 192, 45, 1),
       unselectedItemColor: Colors.grey,
       showSelectedLabels: false,
       showUnselectedLabels: false,
       currentIndex: currentIndex,
+      // --- Remove default border shadow ---
+      elevation: 0, // 4. Set elevation to 0 to remove the default shadow
       items: [
         const BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Home'),
         _buildNavItemWithIndicator(
@@ -78,6 +90,7 @@ class SellerBottomNavBar extends StatelessWidget {
         const BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
       ],
       onTap: onTap,
-    );
-  }
+    ),
+  );
+}
 }

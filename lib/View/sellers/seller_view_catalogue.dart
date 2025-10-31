@@ -51,14 +51,14 @@ class _SellerCataloguePageState extends State<SellerCataloguePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 252, 248, 221),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Color.fromARGB(255, 252, 248, 221),
+        backgroundColor: Color.fromRGBO(251, 192, 45, 1),
         elevation: 1, 
         title: Text(
               'Catalogue',
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
       ),
       body: Column(
@@ -68,15 +68,15 @@ class _SellerCataloguePageState extends State<SellerCataloguePage> {
           GestureDetector(
             onTap: _addItem,
             child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              margin: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 13.0),
+              padding: const EdgeInsets.symmetric(vertical: 5.0),
               width: double.infinity,
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 255, 153, 0),
                 borderRadius: BorderRadius.circular(12.0),
               ),
               child: SizedBox(
-                width: 300,
+                width: 150,
                 height: 40,
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -92,7 +92,7 @@ class _SellerCataloguePageState extends State<SellerCataloguePage> {
               ),
             ),
           ),
-          
+          const Divider(),
           // --- Item List ---
           Expanded(
             child: StreamBuilder<List<Item>>(
@@ -188,7 +188,7 @@ class _SellerCataloguePageState extends State<SellerCataloguePage> {
                   
                       // Availability Switch and Text
                       Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 3.0),
+                        margin: const EdgeInsets.symmetric(horizontal: 1.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [

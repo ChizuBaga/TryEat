@@ -72,15 +72,12 @@ class _SellerDashboardState extends State<SellerDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 252, 248, 221),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       appBar: AppBar(
-        title: const Text(
-          'Dashboard',
-          style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black),
-        ),
+        backgroundColor: Color.fromRGBO(251, 192, 45, 1),
+        title: const Text('Dashboard', style: TextStyle(color: Colors.black)),
         centerTitle: true,
         elevation: 1,
-        backgroundColor: const Color.fromARGB(255, 252, 248, 221),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -92,7 +89,6 @@ class _SellerDashboardState extends State<SellerDashboard> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-            
             // Daily Sales Report 
             FutureBuilder<Map<String, dynamic>>(
               future: _dailySalesFuture,
@@ -111,7 +107,8 @@ class _SellerDashboardState extends State<SellerDashboard> {
                 final List<PieChartSectionData> pieChartData = _createPieChartData(data['pieChartData'] ?? []);
 
                 return Card(
-                  elevation: 1,
+                  elevation: 2,
+                  color: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   child: Padding(
                     padding: const EdgeInsets.all(15.0),
@@ -184,7 +181,8 @@ class _SellerDashboardState extends State<SellerDashboard> {
                 final orders = snapshot.data!;
 
                 return Card(
-                  elevation: 1,
+                  elevation: 2,
+                  color: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   child: Column(
                     children: [
@@ -265,7 +263,8 @@ class _SellerDashboardState extends State<SellerDashboard> {
 
                 final salesData = snapshot.data!;
                 return Card(
-                  elevation: 1,
+                  elevation: 2,
+                  color: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   child: Padding(
                     padding: const EdgeInsets.all(15.0),

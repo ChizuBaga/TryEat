@@ -17,10 +17,6 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  // --- ADD THIS GETTER ---
-  /// Provides a stream that emits the current User? whenever the
-  /// authentication state changes (login, logout).
-  /// This is the core mechanism for "auto login".
   Stream<User?> get authStateChanges => _auth.authStateChanges();
   // --- END OF ADDED GETTER ---
 
@@ -83,18 +79,17 @@ class AuthService {
        );
        final user = userCredential.user;
        final userrole = role == UserRole.customer ? "customers" : "sellers";
-       print("Role is $userrole");
        if(user != null){
         await _saveUserDetails(uid: user.uid, username: username, phoneNumber: phoneNumber, email: email, role: role, additionalData: additionalData);
-        await _getCustomerDeviceToken(user.uid, userrole);
+        //await _getCustomerDeviceToken(user.uid, userrole);
        }
        return user;
-     } on FirebaseAuthException {
-       rethrow;
+     } on FirebaseAuthException catch (e) { // <-- Catch the exception object 'e'
+       return null; 
      } catch (e) {
-       throw Exception('An unexpected error occurred during sign-up.');
+       return null;
      }
-  }
+   }
 
   // Sign Out
   Future<void> signOut() async {
@@ -150,6 +145,8 @@ class AuthService {
             .collection(role)
             .doc(userId)         
             .set({'hmsPushToken': token}, SetOptions(merge: true));
+      }else{
+        print("Fail_token");
       }
     });
 

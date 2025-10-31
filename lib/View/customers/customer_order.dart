@@ -58,7 +58,7 @@ class _CustomerOrderState extends State<CustomerOrder> {
           'My Orders',
           style: TextStyle(fontWeight: FontWeight.bold),
         ), // Changed title
-        backgroundColor: Colors.transparent,
+        backgroundColor: Color.fromRGBO(251, 192, 45, 1),
         automaticallyImplyLeading: false,
         centerTitle: true,
 

@@ -19,11 +19,11 @@ class _CustomerChatState extends State<CustomerChat> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 252, 248, 221),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       appBar: AppBar(
         title: const Text('Chats', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 252, 248, 221),
+        backgroundColor: const Color.fromRGBO(251, 192, 45, 1),
         elevation: 0,
         automaticallyImplyLeading: false, // No back button on this main page
       ),
