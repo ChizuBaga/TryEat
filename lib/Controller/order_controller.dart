@@ -77,7 +77,7 @@ class OrderController {
     return _db
         .collection('orders')
         .where('seller_ID', isEqualTo: currentSellerId) 
-        .where('orderStatus', isEqualTo: 'Pending') 
+        .where('orderStatus', isEqualTo: 'Placed') 
         .snapshots()
         .map((snapshot) {
           return snapshot.docs.length;

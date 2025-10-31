@@ -171,8 +171,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
       _showErrorSnackbar('Please enter your address for delivery.');
       return;
     }
-
-    // Check payment method
     if (_selectedPayment == null) {
       _showErrorSnackbar('Please select a payment method.');
       return;

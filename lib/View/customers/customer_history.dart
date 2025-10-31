@@ -107,7 +107,6 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
             itemCount: historyOrders.length,
             itemBuilder: (context, index) {
               final order = historyOrders[index];
-
               // --- FORMAT DATE ---
               // Use completedAt if it exists, otherwise fall back to createdAt
               final timestamp = order.completedAt ?? order.createdAt;

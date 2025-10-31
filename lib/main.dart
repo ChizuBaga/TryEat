@@ -50,7 +50,6 @@ class MainApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'ChiKanKan',
 
       // --- Use StreamBuilder to determine the initial screen ---
       home: StreamBuilder<User?>(
@@ -79,7 +78,6 @@ class MainApp extends StatelessWidget {
           // Show an error page or redirect to login (safer)
           return const SelectUserTypePage(); // Or a dedicated error screen
         }
-
         // --- Role check complete ---
         final AuthStatus? authStatus = authStatusSnapshot.data;
 
@@ -110,17 +108,15 @@ class MainApp extends StatelessWidget {
       },
     ); // End FutureBuilder for AuthStatus
   } 
-  // --- If user is logged OUT (Auth state confirmed) ---
   else {
     print("User is logged out.");
-    return const SelectUserTypePage(); // Show initial selection/login page
+    return const SelectUserTypePage();
   }
         },
       ),
 
       // Keep your routes for named navigation
       routes: {
-        // '/': (context) => const SelectUserTypePage(), // 'home' overrides initialRoute '/'
         '/select_user': (context) => const SelectUserTypePage(), // Add if needed
         '/seller_login': (context) => const SellerLoginPage(),
         '/seller_verification': (context) => const SellerVerification(),

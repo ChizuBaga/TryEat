@@ -32,11 +32,11 @@ class _SellerHomepageState extends State<SellerHomepage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 252, 248, 221),
+      backgroundColor: const Color.fromARGB(156, 255, 255, 255),
       appBar: AppBar(
-        toolbarHeight: 0,
-        backgroundColor: Colors.white,
-        elevation: 0,
+        toolbarHeight: 1,
+        backgroundColor: const Color.fromRGBO(255, 191, 0, 100),
+        elevation: 1,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -144,7 +144,7 @@ class _SellerHomepageState extends State<SellerHomepage> {
     return Container(
       padding: const EdgeInsets.all(20.0),
       decoration: BoxDecoration(
-        color: Color.fromARGB(255, 255, 153, 0),
+        color: Color.fromRGBO(255, 255, 255, 1),
         borderRadius: BorderRadius.circular(12.0),
         boxShadow: [
           BoxShadow(
@@ -163,12 +163,12 @@ class _SellerHomepageState extends State<SellerHomepage> {
           children: [
             Text(
               "Today's Sales",
-              style: TextStyle(fontSize: 16, color: Colors.white),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color.fromRGBO(251, 192, 45, 1)),
             ),
             SizedBox(height: 8),
             Text(
               'RM0.00',
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color.fromRGBO(251, 192, 45, 1)),
             ),
           ],
         ),
@@ -264,12 +264,12 @@ class _SellerHomepageState extends State<SellerHomepage> {
         _buildActionCard(
           title: 'Dashboard',
           icon: Icons.bar_chart,
-          color: const Color.fromARGB(255, 255, 153, 0)
+          color: const Color.fromARGB(255, 255, 255, 255)
         ),
         _buildActionCard(
           title: 'View Catalogue',
           icon: Icons.menu_book,
-          color: const Color.fromARGB(255, 255, 153, 0)
+          color: const Color.fromARGB(255, 255, 255, 255)
         ),
       ],
     );
@@ -277,9 +277,9 @@ class _SellerHomepageState extends State<SellerHomepage> {
 
   Widget _buildActionCard({required String title, required IconData icon, required Color color}) {
     return Card(
-      elevation: 0,
+      elevation: 4,
+      shadowColor: Color.fromRGBO(135, 99, 8, 1),
       color: color,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       child: InkWell(
         onTap: () {
         Widget destination;
@@ -292,7 +292,6 @@ class _SellerHomepageState extends State<SellerHomepage> {
         } else {
           return; 
         }
-
         Navigator.of(context).push(
           MaterialPageRoute(builder: (context) => destination),
         );
@@ -306,9 +305,9 @@ class _SellerHomepageState extends State<SellerHomepage> {
             children: [
               Text(
                 title,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color.fromRGBO(109, 109, 109, 1)),
               ),
-              Icon(icon, size: 80, color: Colors.white),
+              Icon(icon, color: Color.fromRGBO(108, 108, 108, 1)),
             ],
           ),
         ),

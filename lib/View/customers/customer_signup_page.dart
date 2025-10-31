@@ -75,7 +75,6 @@ class _CustomerSignUpPageState extends State<CustomerSignUpPage> {
         phoneNumber: _phoneController.text.trim(),
         role: UserRole.customer,
       );
-
       if (mounted && user != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Sign Up Successful! Please log in.')),

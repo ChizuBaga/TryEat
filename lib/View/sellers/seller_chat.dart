@@ -18,12 +18,12 @@ class _SellerChatState extends State<SellerChat> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 252, 248, 221),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       appBar: AppBar(
         title: const Text('Chats', style: TextStyle(color: Colors.black)),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 252, 248, 221),
-        elevation: 0,
+        backgroundColor: const Color.fromRGBO(251, 192, 45, 1),
+        elevation: 1,
         automaticallyImplyLeading: false, // No back button on this main page
       ),
       body: StreamBuilder<List<ChatRoom>>(
