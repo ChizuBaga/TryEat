@@ -57,8 +57,8 @@ class SellerBottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
-      backgroundColor: Colors.white,
-      selectedItemColor: Colors.black,
+      backgroundColor: Color.fromARGB(255, 255, 235, 180),
+      selectedItemColor: Color.fromARGB(255, 255, 153, 0),
       unselectedItemColor: Colors.grey,
       showSelectedLabels: false,
       showUnselectedLabels: false,

@@ -78,11 +78,27 @@ class CustomerProfile extends StatelessWidget {
             elevation: 0, 
             automaticallyImplyLeading: false,
             centerTitle: true,
+
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.edit_outlined, color: textColor),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          EditCustomerProfile(currentData: data),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(width: 8),
+            ],
           ),
           body: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: 24.0,
+                horizontal: 20.0,
                 vertical: 20.0,
               ),
               child: Column(
@@ -91,8 +107,8 @@ class CustomerProfile extends StatelessWidget {
                   const SizedBox(height: 40),
                   // --- Profile picture avatar (Keep As Is) ---
                   CircleAvatar(
-                    radius: 64,
-                    backgroundColor: Colors.black,
+                    radius: 74,
+                    backgroundColor: Colors.grey[200],
                     backgroundImage: profileImageUrl != null
                         ? NetworkImage(profileImageUrl)
                         : null,
@@ -109,74 +125,107 @@ class CustomerProfile extends StatelessWidget {
                       color: textColor,
                     ),
                   ),
-                  const SizedBox(height: 60),
+                  const SizedBox(height: 40),
 
-                  Column(
-                    mainAxisSize: MainAxisSize.min, // Shrink-wrap the column
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start, // Left-align children
-                    children: [
-                      _InfoRow(
-                        icon: Icons.phone_outlined,
-                        text: phone,
-                        iconColor: iconColor,
-                        textColor: textColor,
-                      ),
-                      const SizedBox(height: 24), // Adjusted space
-                      _InfoRow(
-                        icon: Icons.email_outlined,
-                        text: email,
-                        iconColor: iconColor,
-                        textColor: textColor,
-                      ),
-                    ],
+                  // Column(
+                  //   mainAxisSize: MainAxisSize.min, // Shrink-wrap the column
+                  //   crossAxisAlignment:
+                  //       CrossAxisAlignment.start, // Left-align children
+                  //   children: [
+                  //     _InfoRow(
+                  //       icon: Icons.phone,
+                  //       text: phone,
+                  //       iconColor: iconColor,
+                  //       textColor: textColor,
+                  //     ),
+                  //     const SizedBox(height: 24), // Adjusted space
+                  //     _InfoRow(
+                  //       icon: Icons.email,
+                  //       text: email,
+                  //       iconColor: iconColor,
+                  //       textColor: textColor,
+                  //     ),
+                  //   ],
+                  // ),
+
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 24),
+                    decoration: BoxDecoration(
+                      color: Colors.transparent, 
+                      borderRadius: BorderRadius.circular(12),
+                      // A subtle border to define the box
+                      border: Border.all(color: Colors.transparent, width: 1),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min, 
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start,
+                      children: [
+                        _InfoRow(
+                          icon: Icons.phone,
+                          text: phone,
+                          iconColor: iconColor,
+                          textColor: textColor,
+                        ),
+                        const SizedBox(height: 20),
+                        _InfoRow(
+                          icon: Icons.email,
+                          text: email,
+                          iconColor: iconColor,
+                          textColor: textColor,
+                        ),
+                      ],
+                    ),
                   ),
 
                   const SizedBox(height: 60),
 
                   // --- First Card with Fixed Size ---
-                  SizedBox(
-                    width: screenWidth * 1.0,
+                  // SizedBox(
+                  //   width: screenWidth * 1.0,
+                  //   height:
+                  //       screenHeight * 0.07,
+                  //   child: Card(
+                  //     color: Color.fromARGB(255, 255, 153, 0),
+                  //     margin: EdgeInsets.zero,
+                  //     clipBehavior: Clip.antiAlias,
+                  //     child: InkWell(
+                  //       onTap: () {
+                  //         Navigator.push(
+                  //           context,
+                  //           MaterialPageRoute(
+                  //             builder: (context) =>
+                  //                 EditCustomerProfile(currentData: data),
+                  //           ),
+                  //         );
+                  //       },
+                  //       child: SizedBox.expand(
+                  //         child: Row(
+                  //           mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  //           crossAxisAlignment: CrossAxisAlignment.center,
+                  //           children: [
+                  //             Icon(Icons.edit_outlined, color: Colors.black),
+                  //             Text(
+                  //               'Edit Profile',
+                  //               style: TextStyle(color: Colors.black, fontSize: 16),
+                  //             ),
+                  //           ],
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
+                  const Divider(),
+                  const SizedBox(height: 10),
+                  // --- Second Card with Fixed Size ---
+                  Center(
+                    child: SizedBox(
+                    width: screenWidth * 0.7,
                     height:
                         screenHeight * 0.07,
                     child: Card(
                       color: Color.fromARGB(255, 255, 153, 0),
-                      margin: EdgeInsets.zero,
-                      clipBehavior: Clip.antiAlias,
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  EditCustomerProfile(currentData: data),
-                            ),
-                          );
-                        },
-                        child: SizedBox.expand(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Icon(Icons.edit_outlined, color: Colors.black),
-                              Text(
-                                'Edit Profile',
-                                style: TextStyle(color: Colors.black, fontSize: 16),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const Divider(),
-                  const SizedBox(height: 16),
-                  // --- Second Card with Fixed Size ---
-                   SizedBox(
-                    width: screenWidth * 1.0,
-                    height:
-                        screenHeight * 0.07,
-                    child: Card(
                       margin: EdgeInsets.zero,
                       clipBehavior: Clip.antiAlias,
                       child: InkWell(
@@ -190,13 +239,14 @@ class CustomerProfile extends StatelessWidget {
                         },
                         child: SizedBox.expand(
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Icon(Icons.switch_account, color: iconColor),
+                              Icon(Icons.logout, color: iconColor),
+                              const SizedBox (width: 20),
                               Text(
                                 'Log Out',
-                                style: TextStyle(color: textColor),
+                                style: TextStyle(color: textColor, fontSize:18, fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
@@ -204,6 +254,9 @@ class CustomerProfile extends StatelessWidget {
                       ),
                     ),
                   ),
+
+                  ),
+                   
                   const SizedBox(
                     height: 20,
                   ), // Example extra space at the botto
@@ -240,14 +293,15 @@ class _InfoRow extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Icon(icon, color: iconColor, size: 28),
-          const SizedBox(width: 50),
+          const SizedBox(width: 40),
           Flexible(
             child: Text(
               text,
               style: TextStyle(
                 fontSize: 18,
                 color: textColor,
-                fontWeight: FontWeight.w500,
+                //fontWeight: FontWeight.w500,
+                //decoration: TextDecoration.underline
               ),
               overflow: TextOverflow.ellipsis, 
             ),

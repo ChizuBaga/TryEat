@@ -21,7 +21,7 @@ class _CustomerChatState extends State<CustomerChat> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 252, 248, 221),
       appBar: AppBar(
-        title: const Text('Chats', style: TextStyle(color: Colors.black)),
+        title: const Text('Chats', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 252, 248, 221),
         elevation: 0,
