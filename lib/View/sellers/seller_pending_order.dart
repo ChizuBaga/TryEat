@@ -71,7 +71,6 @@ class _SellerPendingOrderState extends State<SellerPendingOrder> {
   }
 
   if (customerPushToken != null) {
-    // The service handles getting the access token and posting the payload to Huawei Push API.
     final success = await hmsPushKitService.sendRejectionNotification(
       targetToken: customerPushToken,
       orderId: order.orderId,

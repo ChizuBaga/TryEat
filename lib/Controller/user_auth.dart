@@ -82,10 +82,11 @@ class AuthService {
          password: password.trim(),
        );
        final user = userCredential.user;
-       final roleString = role.toString();
+       final userrole = role == UserRole.customer ? "customers" : "sellers";
+       print("Role is $userrole");
        if(user != null){
         await _saveUserDetails(uid: user.uid, username: username, phoneNumber: phoneNumber, email: email, role: role, additionalData: additionalData);
-        await _getCustomerDeviceToken(user.uid, roleString);
+        await _getCustomerDeviceToken(user.uid, userrole);
        }
        return user;
      } on FirebaseAuthException {
@@ -143,6 +144,7 @@ class AuthService {
     print("🔥 Fetching HMS token...");
     Push.getTokenStream.listen((String? token) {
       if (token != null) {
+        print('Device token: $token');
         //Update customer/seller with device token
         FirebaseFirestore.instance
             .collection(role)

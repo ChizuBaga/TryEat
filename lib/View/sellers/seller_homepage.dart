@@ -288,8 +288,7 @@ class _SellerHomepageState extends State<SellerHomepage> {
           destination = const SellerDashboard(); 
           
         } else if (title == 'View Catalogue') {
-          // destination = const SellerCataloguePage(); 
-          return;
+          destination = const SellerCataloguePage(); 
         } else {
           return; 
         }
