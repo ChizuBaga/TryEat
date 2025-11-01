@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:chikankan/View/item_detail_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:chikankan/View/sellers/chat_screen.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class CustomerItemListPage extends StatelessWidget {
   final String sellerId;
@@ -151,8 +152,6 @@ class CustomerItemListPage extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      // --- WRAPPED IN FUTUREBUILDER ---
-      // This fetches the seller data (address, username, phone) once.
       body: FutureBuilder<DocumentSnapshot>(
         future: sellerDocFuture,
         builder: (context, snapshot) {
@@ -241,23 +240,34 @@ class CustomerItemListPage extends StatelessWidget {
 
   Widget _buildStoreHeader(Map<String, dynamic> sellerData) {
     String address = sellerData['address'] ?? 'No Address Provided';
-
+    String? profileImageUrl = sellerData['profileImageUrl'] as String?;
     return Column(
-      children: [
-        // Store Image
-        Container(
-          width: 100,
-          height: 100,
-          decoration: BoxDecoration(
-            color: Colors.grey[300],
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          child: const Icon(
-            Icons.image_outlined,
-            color: Colors.black,
-            size: 48,
+    children: [
+      // Store Image
+      SizedBox( // Use SizedBox for consistent sizing
+        width: 100,
+        height: 100,
+        // Use ClipRRect to enforce the rounded corners
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12.0),
+          child: CachedNetworkImage(
+            imageUrl: profileImageUrl ?? '', // Pass the URL (or empty string if null)
+            fit: BoxFit.cover, // Make the image fill the box
+            
+            // This is shown while the image is loading
+            placeholder: (context, url) => Container(
+              color: Colors.grey[300],
+              child: const Icon(Icons.image_outlined, color: Colors.grey, size: 48),
+            ),
+            
+            // This is shown if the URL is invalid or fails to load
+            errorWidget: (context, url, error) => Container(
+              color: Colors.grey[300],
+              child: const Icon(Icons.broken_image_outlined, color: Colors.grey, size: 48),
+            ),
           ),
         ),
+      ),
         const SizedBox(height: 16),
 
         // Business Name

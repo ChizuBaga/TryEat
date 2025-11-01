@@ -102,7 +102,6 @@ class AuthService {
   // Get User Auth Status (Role and Verification)
   Future<AuthStatus?> getUserAuthStatus(String uid) async {
      try {
-       //Check the 'customers' collection
        final customerDoc = await _db.collection('customers').doc(uid).get();
        if (customerDoc.exists) {
          return AuthStatus(UserRole.customer);
