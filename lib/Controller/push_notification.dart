@@ -31,10 +31,10 @@ class HmsPushKitService {
     print('Response: ${response.body}');
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      print('✅ Access Token: ${data['access_token']}');
+      print('Access Token: ${data['access_token']}');
       return data['access_token'];
     } else {
-      print('❌ Error getting token: ${response.body}');
+      print('Error getting token: ${response.body}');
       return null;
     }
   } catch (e) {

@@ -1,6 +1,9 @@
 // lib/Controller/user_auth.dart
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:huawei_push/huawei_push.dart';
 
 enum UserRole { customer, seller }
@@ -135,25 +138,47 @@ class AuthService {
 
   //Store user device token for push notification
   Future<void> _getCustomerDeviceToken(String userId, String role) async {
-  try {
-    print("🔥 Fetching HMS token...");
-    Push.getTokenStream.listen((String? token) {
-      if (token != null) {
-        print('Device token: $token');
-        //Update customer/seller with device token
-        FirebaseFirestore.instance
-            .collection(role)
-            .doc(userId)         
-            .set({'hmsPushToken': token}, SetOptions(merge: true));
-      }else{
-        print("Fail_token");
-      }
-    });
+    try {
+      print("🔥 Fetching HMS token...");
+      Push.getTokenStream.listen((String? token) {
+        if (token != null) {
+          print('Device token: $token');
+          //Update customer/seller with device token
+          FirebaseFirestore.instance
+              .collection(role)
+              .doc(userId)         
+              .set({'hmsPushToken': token}, SetOptions(merge: true));
+        }else{
+          print("Fail_token");
+        }
+      });
 
-    Push.getToken("");
+      Push.getToken("");
 
-  } catch (e) {
-    print("Failed to get device token: $e");
+    } catch (e) {
+      print("Failed to get device token: $e");
+    }
   }
-}
+  //For Bank Statement and IC verification
+  Future<String?> uploadVerificationFile(String localFilePath, String fileType, String userId) async {
+    if (localFilePath.isEmpty) return null;
+    
+    try {
+      File file = File(localFilePath);
+      
+      // Define the secure path in Storage: user_verification/{UID}/{fileType}_timestamp.pdf
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('user_verification')
+          .child(userId)
+          .child('${fileType}_${DateTime.now().millisecondsSinceEpoch}.pdf'); 
+
+      await storageRef.putFile(file);
+      
+      return await storageRef.getDownloadURL(); // Return the URL for Firestore
+    } catch (e) {
+      print('Error uploading verification file ($fileType): $e');
+      return null;
+    }
+  }
 }

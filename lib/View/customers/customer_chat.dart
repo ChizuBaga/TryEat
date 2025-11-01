@@ -1,3 +1,4 @@
+import 'package:chikankan/Controller/user_auth.dart';
 import 'package:chikankan/View/sellers/chat_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; 
@@ -28,7 +29,7 @@ class _CustomerChatState extends State<CustomerChat> {
         automaticallyImplyLeading: false, // No back button on this main page
       ),
       body: StreamBuilder<List<ChatRoom>>(
-        stream: _chatService.streamChatRoomsForUser(),
+        stream: _chatService.streamChatRoomsForUser(UserRole.customer),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

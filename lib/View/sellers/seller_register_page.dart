@@ -1,5 +1,5 @@
-//import 'dart:io';
-//import 'package:file_picker/file_picker.dart';
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:chikankan/Controller/geocoding.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -82,26 +82,36 @@ class _SellerRegisterPageState extends State<SellerRegisterPage> {
   }
 
   Future<void> _pickFile(
-    Function(String) onFilePicked,
-    String fieldName,
-  ) async {
-    //real pick file
-    /*
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-    if (result != null) {
+  Function(String) onFilePicked,
+  String fieldName,
+) async {
+  // Use FilePicker to allow the user to select one file (image or document)
+  FilePickerResult? result = await FilePicker.platform.pickFiles(
+    type: FileType.custom,
+    allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'], // Restrict file types
+  );
+
+  if (result != null) {
+    // Get the local file path
+    final filePath = result.files.single.path; 
+    final fileName = result.files.single.name;
+    
+    if (filePath != null) {
       setState(() {
-        onFilePicked(result.files.single.name);
+        onFilePicked(filePath); 
       });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('File selected: $fileName')),
+      );
     }
-    */
-    // Placeholder
-    setState(() {
-      onFilePicked('${fieldName.replaceAll(' ', '_')}_uploaded.pdf');
-    });
+  } else {
+    // User canceled the picker
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$fieldName uploaded successfully!')),
+      SnackBar(content: Text('File selection canceled for $fieldName.')),
     );
   }
+}
 
   void _nextStep() {
     // Validate the current step before proceeding
@@ -174,9 +184,18 @@ class _SellerRegisterPageState extends State<SellerRegisterPage> {
 
     // 3. Attempt to register with Firebase
     try {
+      final User? user = FirebaseAuth.instance.currentUser;
+      if (user == null) { throw Exception("User session expired. Please relogin."); }
+      final String userID = user!.uid;
+      final icFrontUrl = await _authService.uploadVerificationFile(_sellerData.icFrontImagePath!, 'IC_Front', userID);
+      final bankStatementUrl = await _authService.uploadVerificationFile(_sellerData.bankStatementImagePath!, 'Bank_Statement', userID);
+      //Delete when done
+      if (_sellerData.icFrontImagePath != null && icFrontUrl == null) {
+        throw Exception('Failed to upload IC image. Registration aborted.');
+      }
       String? fullAddr = _sellerData.address! + _sellerData.postcode! + _sellerData.state!;
       GeoPoint? location = await getCoordinatesFromAddress(fullAddr);      
-      User? user = await _authService.signUp(
+      User? registeredUser = await _authService.signUp(
         email: _sellerData.email!,
         password: _sellerData.password!,
         username: _sellerData.username!,
@@ -189,14 +208,14 @@ class _SellerRegisterPageState extends State<SellerRegisterPage> {
           'state': _sellerData.state!,
           'icName': _sellerData.icName!,
           'icNumber': _sellerData.icNumber!,
-          'icFrontImagePath': _sellerData.icFrontImagePath!,
-          'bankStatementImagePath': _sellerData.bankStatementImagePath!,
+          'icFrontImagePath': icFrontUrl!,
+          'bankStatementImagePath': bankStatementUrl!,
           'isVerified': false,
           'verificationPending': true,
           'location': location,
         },
       );
-      if (mounted && user != null) {
+      if (mounted && registeredUser != null) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const SellerVerification()),
           (route) => false,

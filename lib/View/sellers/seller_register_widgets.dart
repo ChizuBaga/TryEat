@@ -129,7 +129,10 @@ class DynamicUploadButton extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
+              border: Border.all(
+                color: isFileSelected ? Colors.green : Colors.grey,
+                width: isFileSelected ? 1.5 : 1.0,
+              ),
               borderRadius: BorderRadius.circular(8.0),
             ),
             child: Row(

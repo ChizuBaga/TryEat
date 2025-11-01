@@ -1,3 +1,4 @@
+import 'package:chikankan/Controller/user_auth.dart';
 import 'package:chikankan/View/sellers/chat_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; 
@@ -27,7 +28,7 @@ class _SellerChatState extends State<SellerChat> {
         automaticallyImplyLeading: false, // No back button on this main page
       ),
       body: StreamBuilder<List<ChatRoom>>(
-        stream: _chatService.streamChatRoomsForUser(),
+        stream: _chatService.streamChatRoomsForUser(UserRole.seller),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -80,9 +81,6 @@ class _SellerChatState extends State<SellerChat> {
               backgroundImage: chatRoom.otherParticipantProfileImageUrl != null && chatRoom.otherParticipantProfileImageUrl!.isNotEmpty
                   ? NetworkImage(chatRoom.otherParticipantProfileImageUrl!)
                   : null, // Fallback to child if no image
-              child: chatRoom.otherParticipantProfileImageUrl == null || chatRoom.otherParticipantProfileImageUrl!.isEmpty
-                  ? const Icon(Icons.person, color: Colors.white, size: 30)
-                  : null,
             ),
             const SizedBox(width: 15),
 
