@@ -188,6 +188,7 @@ class _SellerRegisterPageState extends State<SellerRegisterPage> {
     try {
       final icFrontUrl = await _authService.uploadVerificationFile(_sellerData.icFrontImagePath!, 'IC_Front');
       final bankStatementUrl = await _authService.uploadVerificationFile(_sellerData.bankStatementImagePath!, 'Bank_Statement');
+
       //Delete when done
       if (_sellerData.icFrontImagePath != null && icFrontUrl == null) {
         throw Exception('Failed to upload IC image. Registration aborted.');
