@@ -216,7 +216,7 @@ class _SellerRegisterPageState extends State<SellerRegisterPage> {
       );
       if (mounted && registeredUser != null) {
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const SellerVerification()),
+          MaterialPageRoute(builder: (context) => const SellerLoginPage()),
           (route) => false,
         );
       }
