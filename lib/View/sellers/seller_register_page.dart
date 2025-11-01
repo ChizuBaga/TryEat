@@ -184,11 +184,8 @@ class _SellerRegisterPageState extends State<SellerRegisterPage> {
 
     // 3. Attempt to register with Firebase
     try {
-      final User? user = FirebaseAuth.instance.currentUser;
-      if (user == null) { throw Exception("User session expired. Please relogin."); }
-      final String userID = user!.uid;
-      final icFrontUrl = await _authService.uploadVerificationFile(_sellerData.icFrontImagePath!, 'IC_Front', userID);
-      final bankStatementUrl = await _authService.uploadVerificationFile(_sellerData.bankStatementImagePath!, 'Bank_Statement', userID);
+      final icFrontUrl = await _authService.uploadVerificationFile(_sellerData.icFrontImagePath!, 'IC_Front');
+      final bankStatementUrl = await _authService.uploadVerificationFile(_sellerData.bankStatementImagePath!, 'Bank_Statement');
       //Delete when done
       if (_sellerData.icFrontImagePath != null && icFrontUrl == null) {
         throw Exception('Failed to upload IC image. Registration aborted.');

@@ -160,7 +160,7 @@ class AuthService {
     }
   }
   //For Bank Statement and IC verification
-  Future<String?> uploadVerificationFile(String localFilePath, String fileType, String userId) async {
+  Future<String?> uploadVerificationFile(String localFilePath, String fileType) async {
     if (localFilePath.isEmpty) return null;
     
     try {
@@ -170,7 +170,6 @@ class AuthService {
       final storageRef = FirebaseStorage.instance
           .ref()
           .child('user_verification')
-          .child(userId)
           .child('${fileType}_${DateTime.now().millisecondsSinceEpoch}.pdf'); 
 
       await storageRef.putFile(file);
