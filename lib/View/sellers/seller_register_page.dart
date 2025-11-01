@@ -210,8 +210,8 @@ class _SellerRegisterPageState extends State<SellerRegisterPage> {
           'icNumber': _sellerData.icNumber!,
           'icFrontImagePath': icFrontUrl!,
           'bankStatementImagePath': bankStatementUrl!,
-          'isVerified': false,
-          'verificationPending': true,
+          'isVerified': true, // Future improvement
+          'verificationPending': false, // Future improvement (to verify seller)
           'location': location,
         },
       );
