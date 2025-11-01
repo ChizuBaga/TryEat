@@ -36,12 +36,14 @@ dependencies:
   huawei_map:
     path: ./huawei_map
   permission_handler: ^12.0.1
+  flutter_native_splash: ^2.4.7
   
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
@@ -50,3 +52,11 @@ flutter:
     - assets/naive_bayes_model.json
     - .env
 
+flutter_launcher_icons:
+  android: true       # Generate for Android
+  ios: true           # Generate for iOS
+  image_path: "assets/applogo.png" # Path to your icon
+
+flutter_native_splash:
+  color: "#FFF4A4"
+  image: assets/applogo-removebg-preview.png
