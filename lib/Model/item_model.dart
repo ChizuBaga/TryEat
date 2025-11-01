@@ -45,7 +45,7 @@ class Item {
       price: (data['Price']),
       sellerId: data['sellerId'],
       isAvailable: data['isAvailable'],
-      createdAt: data['createdAt'],
+      createdAt: data['createdAt'] as Timestamp? ?? Timestamp.now(),
       orderType: data['OrderType'],
       deliveryMode: data['DeliveryMode']
     );

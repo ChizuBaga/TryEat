@@ -84,7 +84,7 @@ class AuthService {
        final userrole = role == UserRole.customer ? "customers" : "sellers";
        if(user != null){
         await _saveUserDetails(uid: user.uid, username: username, phoneNumber: phoneNumber, email: email, role: role, additionalData: additionalData);
-        await _getCustomerDeviceToken(user.uid, userrole);
+        //await _getCustomerDeviceToken(user.uid, userrole);
        }
        return user;
      } on FirebaseAuthException catch (e) { // <-- Catch the exception object 'e'

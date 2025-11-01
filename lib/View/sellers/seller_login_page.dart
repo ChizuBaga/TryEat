@@ -120,7 +120,7 @@ class _SellerLoginPageState extends State<SellerLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 252, 248, 221),
+      backgroundColor: const Color.fromRGBO(255, 244, 164, 1),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
@@ -130,9 +130,9 @@ class _SellerLoginPageState extends State<SellerLoginPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                const SizedBox(height: 100),
+                const SizedBox(height: 30),
 
-                Image.asset('assets/applogo.png', height: 100),
+                Image.asset('assets/applogo.png', height: 200),
 
                 const SizedBox(height: 15),
 
@@ -184,7 +184,7 @@ class _SellerLoginPageState extends State<SellerLoginPage> {
                   },
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 30),
 
                 // --- Error Message Display ---
                 if (_errorMessage != null)
@@ -231,7 +231,7 @@ class _SellerLoginPageState extends State<SellerLoginPage> {
                   ),
                 ),
 
-                const SizedBox(height: 65),
+                const SizedBox(height: 20),
 
                 //new seller
                 Row(
@@ -239,7 +239,7 @@ class _SellerLoginPageState extends State<SellerLoginPage> {
                   children: [
                     const Text(
                       'New seller? ',
-                      style: TextStyle(fontSize: 16, color: Colors.black54),
+                      style: TextStyle(fontSize: 15, color: Colors.black54),
                     ),
                     GestureDetector(
                       onTap: () => Navigator.pushNamed(context, '/seller_register'),
