@@ -6,7 +6,7 @@ class SelectUserTypePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromRGBO(255, 238, 172, 1),
+      backgroundColor: const Color.fromRGBO(255, 244, 164, 1),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(32.0),

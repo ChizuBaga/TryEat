@@ -21,7 +21,6 @@ import 'View/customers/customer_order.dart';
 import 'View/customers/customer_profile.dart';
 import 'View/customers/customer_tab.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
@@ -36,7 +35,7 @@ void main() async {
   
   //Initialize Huawei Location Service
   await locator<FusedLocationProviderClient>().initFusedLocationService();
-
+  
   runApp(const MainApp());
 }
 
@@ -51,11 +50,10 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
 
-      // --- Use StreamBuilder to determine the initial screen ---
       home: StreamBuilder<User?>(
         stream: authService.authStateChanges, // Listen to login state
         builder: (context, snapshot) {
-          // Show loading indicator while checking auth state
+          
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
@@ -64,7 +62,6 @@ class MainApp extends StatelessWidget {
           
           if (snapshot.hasData && snapshot.data != null) {
             final User user = snapshot.data!; // Get the logged-in user
-            print("User logged in: ${user.uid}");
             return FutureBuilder<AuthStatus?>(
               // Call the method from your AuthService to get role/status
               future: authService.getUserAuthStatus(user.uid), 
@@ -74,7 +71,6 @@ class MainApp extends StatelessWidget {
         }
 
         if (authStatusSnapshot.hasError) {
-          print("Error checking user role: ${authStatusSnapshot.error}");
           // Show an error page or redirect to login (safer)
           return const SelectUserTypePage(); // Or a dedicated error screen
         }
@@ -84,24 +80,18 @@ class MainApp extends StatelessWidget {
         if (authStatus != null) {
           // --- User Role Found ---
           if (authStatus.role == UserRole.customer) {
-            print("User is a Customer. Navigating to CustomerTab.");
             return const CustomerTab(); // Navigate Customer
           } 
           else if (authStatus.role == UserRole.seller) {
             // Check if seller is verified
             if (authStatus.isVerified == true) {
-              print("User is a Verified Seller. Navigating to SellerHomepage.");
               return const SellerMain(); // Navigate Verified Seller 
             } else {
-              print("User is an Unverified Seller. Navigating to SellerVerification.");
               // Seller exists but is not verified
               return const SellerVerification(); // Navigate Unverified Seller
             }
           }
         } 
-        
-        // --- User Role NOT Found in Firestore (Error Case) ---
-        print("User role not found in Firestore for UID: ${user.uid}. Logging out.");
         // Log the user out to prevent being stuck
         authService.signOut(); 
         return const SelectUserTypePage(); // Send back to login/selection
@@ -109,7 +99,6 @@ class MainApp extends StatelessWidget {
     ); // End FutureBuilder for AuthStatus
   } 
   else {
-    print("User is logged out.");
     return const SelectUserTypePage();
   }
         },

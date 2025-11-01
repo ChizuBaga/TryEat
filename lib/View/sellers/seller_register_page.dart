@@ -8,6 +8,8 @@ import 'seller_register_widgets.dart';
 import 'seller_verification.dart';
 import '../../Model/seller_data.dart';
 import '../../Controller/user_auth.dart';
+import 'package:chikankan/View/sellers/seller_login_page.dart';
+
 
 class SellerRegisterPage extends StatefulWidget {
   const SellerRegisterPage({super.key});
@@ -247,7 +249,7 @@ class _SellerRegisterPageState extends State<SellerRegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 252, 248, 221),
+      backgroundColor: const Color.fromRGBO(255, 244, 164, 1),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
@@ -574,7 +576,7 @@ class _PasswordCriteriaView extends StatelessWidget {
         _CriteriaItem(text: 'Contains a number (0-9)', isMet: hasNumber),
         const SizedBox(height: 4),
         _CriteriaItem(
-          text: 'Contains a special character (!@#\$...)',
+          text: 'Contains a special character (!@#\$)',
           isMet: hasSymbol,
         ),
       ],
@@ -729,7 +731,7 @@ class _Step2Verification extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                width: 150,
+                width: 140,
                 height: 52,
                 child: ElevatedButton(
                   onPressed: onNext,
@@ -897,7 +899,7 @@ class _Step3Business extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                width: 150,
+                width: 140,
                 height: 52,
                 child: ElevatedButton(
                   onPressed: isLoading ? null : onRegister,
