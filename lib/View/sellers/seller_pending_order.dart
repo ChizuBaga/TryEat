@@ -58,33 +58,34 @@ class _SellerPendingOrderState extends State<SellerPendingOrder> {
       'orderStatus': 'Rejected',
     });
     String? customerPushToken;
-  try {
-    final customerSnapshot = await FirebaseFirestore.instance
-        .collection('customers')
-        .doc(order.customerId)
-        .get();
+    try {
+      final customerSnapshot = await FirebaseFirestore.instance
+          .collection('customers')
+          .doc(order.customerId)
+          .get();
 
-    customerPushToken = customerSnapshot.data()?['hmsPushToken'] as String?;
-    
-  } catch (e) {
-    print('Error fetching customer token: $e');
-  }
-
-  if (customerPushToken != null) {
-    final success = await hmsPushKitService.sendRejectionNotification(
-      targetToken: customerPushToken,
-      orderId: order.orderId,
-    );
-    
-    if (success) {
-      print('Rejection notification sent to customer.');
-    } else {
-      print('Failed to send rejection notification.');
+      customerPushToken = customerSnapshot.data()?['hmsPushToken'] as String?;
+      print("Customer push token: $customerPushToken");
+      
+    } catch (e) {
+      print('Error fetching customer token: $e');
     }
-    
-  } else {
-    print('Customer token not found. Notification skipped.');
-  }
+
+    if (customerPushToken != null) {
+      final success = await hmsPushKitService.sendRejectionNotification(
+        targetToken: customerPushToken,
+        orderId: order.orderId,
+      );
+      
+      if (success) {
+        print('Rejection notification sent to customer.');
+      } else {
+        print('Failed to send rejection notification.');
+      }
+      
+    } else {
+      print('Customer token not found. Notification skipped.');
+    }
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Order ${order.orderId} rejected.')));
     }

@@ -61,8 +61,9 @@ class HmsPushKitService {
           "notification": {
             "title": "Order Rejected: #$orderId",
             "body": "Your order has been rejected by the seller.",
-            "clickAction": {"type": 3}, 
+            "click_action": {"type": 3}, 
             "badge": {"addNum": 1},
+            "priority": "HIGH",
           }
         }
       }
@@ -80,6 +81,7 @@ class HmsPushKitService {
 
       if (response.statusCode == 200) {
         print('Push notification sent successfully.');
+        print('Response: $response');
         return true;
       } else {
         print('Push API Error (${response.statusCode}): ${response.body}');
