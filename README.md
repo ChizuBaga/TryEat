@@ -1,7 +1,7 @@
 
 # TryEat -- "吃看看" ;>
 
-A mobile application project during the UMPSA Hackathon 2025.
+A mobile application project during the UMPSA Hackathon 2025. *(TryIt - TryEat, get it? hahaha...yea nvm)*
 
 *Code is a mess despite the attempt to follow MVC architecture, and few modules are shamlessly vibe-coded*🤡
 
