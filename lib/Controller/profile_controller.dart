@@ -8,7 +8,6 @@ class ProfileController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Stream<DocumentSnapshot> streamSellerProfile() {
-    //seller_profile.dart
     final uid = FirebaseAuth.instance.currentUser?.uid;
     
     if (uid == null) {
@@ -18,7 +17,6 @@ class ProfileController {
     return _firestore.collection('sellers').doc(uid).snapshots();
   }
 
-  //edit_profile.dart
   Future<String?> uploadProfileImage(File newImage, String userId) async {
     try {
       final storageRef = FirebaseStorage.instance
@@ -37,7 +35,6 @@ class ProfileController {
   }
 
   Future<void> deleteOldProfileImage(String? oldImageUrl) async {
-    //Image is not at firebase storage
     if (oldImageUrl == null || oldImageUrl.isEmpty || !oldImageUrl.contains('firebasestorage.googleapis.com')) {
       return;
     }

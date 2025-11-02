@@ -9,15 +9,15 @@ class NaiveBayesClassifier {
   bool _isModelLoaded = false;
   static final NaiveBayesClassifier _instance = NaiveBayesClassifier._internal();
   
-  // 2. Define a factory constructor to always return the same instance
+
   factory NaiveBayesClassifier() {
     return _instance;
   }
 
-  // 3. Define a private named constructor
+
   NaiveBayesClassifier._internal();
 
-  // Loads the model data from the JSON asset file
+  
   Future<void> loadModel() async {
     try {
       final String jsonString = await rootBundle.loadString('assets/naive_bayes_model.json');
@@ -41,13 +41,11 @@ class NaiveBayesClassifier {
     }
   }
 
-  // Predicts the class for a given text
   int predict(String text) {
     if (!_isModelLoaded) {
       throw Exception("Model is not loaded. Please call loadModel() first.");
     }
     
-    // Lowercase and split the text into words
     final words = text.toLowerCase().split(RegExp(r'\s+'));
     List<double> scores = List.from(_classLogPrior);
 

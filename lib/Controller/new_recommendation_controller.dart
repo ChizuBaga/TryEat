@@ -11,16 +11,12 @@ class NewRecommendationController {
   
   Future<List<DocumentSnapshot>> getRecentlyCreatedSellers() async {
     try {
-      // 1. Build the query
       Query query = _firestore
           .collection('items')
-          .where('createdAt', isGreaterThanOrEqualTo: twentyEightDaysAgoTimeStamp) // Filter by date
-          .orderBy('createdAt', descending: true); // Show newest first
+          .where('createdAt', isGreaterThanOrEqualTo: twentyEightDaysAgoTimeStamp)
+          .orderBy('createdAt', descending: true);
 
-      // 3. Execute the query ONCE using .get()
       final QuerySnapshot querySnapshot = await query.get();
-
-      // 4. Return the list of documents
       return querySnapshot.docs;
     } catch (e) {
       print("Error fetching recently created sellers: $e");

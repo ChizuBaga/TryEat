@@ -10,11 +10,9 @@ class DashboardController {
 
   Future<Map<String, dynamic>> getDailySalesData() async {
 
-    //Specific timestamp
     DateTime now = DateTime.now();
-    DateTime startOfToday = DateTime(now.year, now.month, now.day); //Todays date
+    DateTime startOfToday = DateTime(now.year, now.month, now.day);
     Timestamp startTimestamp = Timestamp.fromDate(startOfToday);
-    print(startOfToday);
 
     final QuerySnapshot snapshot = await _firestore
         .collection('orders')
@@ -23,7 +21,6 @@ class DashboardController {
         .where('completedAt', isGreaterThanOrEqualTo: startTimestamp)
         .get();
 
-    //Get sales info
     double totalSales = 0.0; 
     int completedOrders = 0;
     Map<String, double> itemSales = {};
@@ -34,7 +31,7 @@ class DashboardController {
       totalSales += orderTotal;
       completedOrders++;
 
-      //Map to OrderItem and get item price
+
       final List<dynamic> rawItems = data['items'] ?? [];
       final List<OrderItem> orderItems = rawItems
           .map((itemMap) => OrderItem.fromJson(itemMap as Map<String, dynamic>))

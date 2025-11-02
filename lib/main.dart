@@ -44,14 +44,13 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get AuthService instance from your locator
     final AuthService authService = locator<AuthService>();
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
 
       home: StreamBuilder<User?>(
-        stream: authService.authStateChanges, // Listen to login state
+        stream: authService.authStateChanges, 
         builder: (context, snapshot) {
           
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -61,9 +60,8 @@ class MainApp extends StatelessWidget {
           }
           
           if (snapshot.hasData && snapshot.data != null) {
-            final User user = snapshot.data!; // Get the logged-in user
+            final User user = snapshot.data!;
             return FutureBuilder<AuthStatus?>(
-              // Call the method from your AuthService to get role/status
               future: authService.getUserAuthStatus(user.uid), 
               builder: (context, authStatusSnapshot) {
             if (authStatusSnapshot.connectionState == ConnectionState.waiting) {
@@ -71,42 +69,36 @@ class MainApp extends StatelessWidget {
         }
 
         if (authStatusSnapshot.hasError) {
-          // Show an error page or redirect to login (safer)
-          return const SelectUserTypePage(); // Or a dedicated error screen
+          return const SelectUserTypePage();
         }
-        // --- Role check complete ---
         final AuthStatus? authStatus = authStatusSnapshot.data;
 
         if (authStatus != null) {
-          // --- User Role Found ---
           if (authStatus.role == UserRole.customer) {
-            return const CustomerTab(); // Navigate Customer
+            return const CustomerTab(); 
           } 
           else if (authStatus.role == UserRole.seller) {
-            // Check if seller is verified
             if (authStatus.isVerified == true) {
-              return const SellerMain(); // Navigate Verified Seller 
+              return const SellerMain();
             } else {
-              // Seller exists but is not verified
-              return const SellerVerification(); // Navigate Unverified Seller
+              return const SellerVerification();
             }
           }
         } 
-        // Log the user out to prevent being stuck
+
         authService.signOut(); 
-        return const SelectUserTypePage(); // Send back to login/selection
+        return const SelectUserTypePage(); 
       },
-    ); // End FutureBuilder for AuthStatus
-  } 
+    );
+  }
   else {
     return const SelectUserTypePage();
   }
         },
       ),
 
-      // Keep your routes for named navigation
       routes: {
-        '/select_user': (context) => const SelectUserTypePage(), // Add if needed
+        '/select_user': (context) => const SelectUserTypePage(),
         '/seller_login': (context) => const SellerLoginPage(),
         '/seller_verification': (context) => const SellerVerification(),
         '/seller_register': (context) => const SellerRegisterPage(),

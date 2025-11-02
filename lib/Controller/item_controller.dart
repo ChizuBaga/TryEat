@@ -49,18 +49,17 @@ class ItemController {
         'createdAt': FieldValue.serverTimestamp(),
         'OrderType': orderType,
         'DeliveryMode': deliveryMode,
-        'ReservedDays': orderType == 'Pre-order' ? reservedDays : 0, // Only save days if Pre-order
+        'ReservedDays': orderType == 'Pre-order' ? reservedDays : 0,
       });
       return true; // Success
     } catch (e) {
       print('Service Error (Firestore Save): $e');
-      return false; // Failure
+      return false;
     }
   }
 
-  //edit_item.dart
   Future<String?> uploadNewImage(File? newSelectedImage) async {
-    if (newSelectedImage == null) return null; // No new image to upload
+    if (newSelectedImage == null) return null;
 
     try {
       final storageRef = FirebaseStorage.instance
@@ -87,7 +86,7 @@ class ItemController {
 
   Future<void> deleteOldImage(String? oldImageUrl) async {
     if (oldImageUrl == null || oldImageUrl.isEmpty) return;
-    if (!oldImageUrl.contains('firebasestorage.googleapis.com')) return; // Not a Firebase Storage URL
+    if (!oldImageUrl.contains('firebasestorage.googleapis.com')) return; 
 
     try {
       final ref = FirebaseStorage.instance.refFromURL(oldImageUrl);
@@ -99,15 +98,14 @@ class ItemController {
 
   Future<bool> deleteItem(String itemId, String? imageUrl) async {
     try {
-      await deleteOldImage(imageUrl); //Delete image in firebase storage
+      await deleteOldImage(imageUrl);
 
-      // Delete document from Firestore
       await _firestore.collection('items').doc(itemId).delete();
       
-      return true; // Success
+      return true;
     } catch (e) {
       print('Service Error (Delete Item): $e');
-      return false; // Failure
+      return false;
     }
   }
 

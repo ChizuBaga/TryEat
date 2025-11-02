@@ -108,25 +108,22 @@ class LocationController {
 
   Future<List<DocumentSnapshot>> getNearbySellers({required double radiusKm}) async {
     try {
-      // 1. Get customer's current location
       Location customerLoc = await getLocation();
       if (customerLoc.latitude == null || customerLoc.longitude == null) {
         throw Exception("Could not get customer location.");
       }
 
-      // 2. Fetch ALL verified sellers from Firestore
+     
       QuerySnapshot sellerSnapshot = await _firestore
-          .collection('sellers') // Ensure this matches your collection name
+          .collection('sellers')
           .where('isVerified', isEqualTo: true)
           .get();
 
       List<DocumentSnapshot> nearbySellers = [];
 
       for (var doc in sellerSnapshot.docs) {
-        // Use your factory constructor to create a SellerTemp object
         SellerData seller = SellerData.fromFirestore(doc);
-        if (seller.coordinates != null && (seller.coordinates!.latitude != 0 || seller.coordinates!.longitude != 0)) { // Example check
-          // Initialize Harversine with customer's location and seller's info
+        if (seller.coordinates != null && (seller.coordinates!.latitude != 0 || seller.coordinates!.longitude != 0)) {
           Harversine calculator = Harversine(
             customerLat: customerLoc.latitude!,
             customerLon: customerLoc.longitude!,
@@ -134,10 +131,8 @@ class LocationController {
             sellerLon: seller.coordinates!.longitude,
           );
 
-          // Calculate distance to this seller
           double distanceInKm = calculator.calcDistance();
 
-          // 4. Add to list if within radius
           if (distanceInKm <= radiusKm) {
             nearbySellers.add(doc);
           }
@@ -146,7 +141,7 @@ class LocationController {
       return nearbySellers;
     } catch (e) {
       print("Error getting nearby sellers: $e");
-      rethrow; // Re-throwing allows the FutureBuilder to catch the error
+      rethrow;
     }
   }
 

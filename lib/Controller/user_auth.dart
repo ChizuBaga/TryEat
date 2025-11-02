@@ -107,13 +107,10 @@ class AuthService {
          return AuthStatus(UserRole.customer);
        }
 
-       //Check the 'sellers' collection
        final sellerDoc = await _db.collection('sellers').doc(uid).get();
        if (sellerDoc.exists) {
          final data = sellerDoc.data();
-         // Default false
          final isVerified = data?['isVerified'] ?? false;
-         // Return status
          return AuthStatus(
            UserRole.seller,
            isVerified: isVerified,

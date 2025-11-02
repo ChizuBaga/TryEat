@@ -51,10 +51,9 @@ class OrderController {
     return Future.wait(futures);
   }
 
-  //Pending Order
   Stream<List<Orders>> streamPendingOrders() {
     if (_currentSellerId == null) {
-      return Stream.value([]); // Return empty stream if no user is logged in
+      return Stream.value([]); 
     }
 
     return _db
@@ -87,7 +86,7 @@ class OrderController {
   // seller_dashboard.dart
   Stream<List<Orders>> streamCompletedOrders() {
     if (_currentSellerId == null) {
-      return Stream.value([]); // Return empty stream if no user is logged in
+      return Stream.value([]);
     }
 
     return _db

@@ -1,4 +1,4 @@
-// lib/locator.dart
+
 import 'package:get_it/get_it.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:chikankan/Controller/mnb_classifier.dart';
@@ -9,7 +9,7 @@ import 'package:chikankan/Controller/user_auth.dart';
 import 'package:chikankan/Controller/cart_controller.dart';
 import 'package:chikankan/Controller/customer_order_controller.dart';
 
-// Create a global instance of GetIt
+
 final GetIt locator = GetIt.instance;
 
 void setupLocator() {

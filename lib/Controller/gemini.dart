@@ -19,7 +19,6 @@ class GeminiService {
       return response.text ?? 'No summary generated.';
     } catch (e) {
       // Handle API errors gracefully
-      print('Gemini API Error: $e');
       return 'Could not generate summary at this time.';
     }
   }
