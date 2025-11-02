@@ -2,6 +2,7 @@
 # TryEat -- "吃看看" ;>
 
 A mobile application project during the UMPSA Hackathon 2025.
+
 *Code is a mess despite the attempt to follow MVC architecture, and few modules are shamlessly vibe-coded*🤡
 
 <br>
