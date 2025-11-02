@@ -3,6 +3,9 @@
 
 A mobile application project during the UMPSA Hackathon 2025.
 
+<br>
+
+
 ## Description 📟
 *What is this application about, who is it for, and why?*
 
