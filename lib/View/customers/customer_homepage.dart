@@ -274,7 +274,7 @@ class _CustomerHomepageState extends State<CustomerHomepage> {
                         doc.data() as Map<String, dynamic>;
                     return StoreCard(
                       name: data['businessName'] ?? 'Store Name',
-                      imageUrl: data['imageUrl'] ?? 'placeholder',
+                      imageUrl: data['profileImageUrl'] ?? 'placeholder',
                       onTap: () {
                         Navigator.push(
                           context,
@@ -296,9 +296,6 @@ class _CustomerHomepageState extends State<CustomerHomepage> {
   }
   // --- END MODIFICATION ---
 
-  // --- 3. MODIFIED: _buildNewStoreSection ---
-  // Changed to FutureBuilder to match its controller
- // This method now accesses _newSellersFuture directly from the state
 Widget _buildNewStoreSection(
   BuildContext context, {
   required String title,
@@ -408,7 +405,7 @@ Widget _buildNewStoreSection(
                       doc.data() as Map<String, dynamic>;
                   return StoreCard(
                     name: data['businessName'] ?? 'Store Name',
-                    imageUrl: data['imageUrl'] ?? 'placeholder',
+                    imageUrl: data['profileImageUrl'] ?? 'placeholder',
                     onTap: () {
                       Navigator.push(
                         context,

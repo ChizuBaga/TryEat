@@ -52,7 +52,7 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
           ),
         ]
       ),
-      child: Row( 
+      child: Row(
         mainAxisSize: MainAxisSize.min, 
         children: [
           if (icon != null)
