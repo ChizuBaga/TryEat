@@ -1,16 +1,52 @@
-# chikankan
 
-A new Flutter project.
+# TryEat -- "吃看看" ;>
 
-## Getting Started
+A mobile application project during the UMPSA Hackathon 2025.
 
-This project is a starting point for a Flutter application.
+*Code is a mess despite the attempt to follow MVC architecture, and few modules are shamlessly vibe-coded*🤡
 
-A few resources to get you started if this is your first Flutter project:
+<br>
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Description 📟
+*What is this application about, who is it for, and why?*
+
+### Who is it for?
+For home-based micro sellers, working in the Food & Beverage Service Sector.
+
+### Why?
+Sellers uses different digital platforms for different purposes such as posting/advertising, communication, payment, sales tracking and do not appear in established delivery platforms due to the absence of business registration. This results in a limited market visibility, constrained by the *organic exposure* on social media *(unless paid)*, affecting their opportunity for deserved growth.
+
+### The "what"?
+To provide a **centralized** digital platform and a digital storefront for **Micro** home-based F&B sellers.
+Functions included for sellers are:
+- Real-time chat for inquiry
+- Dashboard module to view sales information
+- Catalogue module to add/delete/edit items for sell
+- Instant order & delivery, OR Pre-order function
+- Accepting/Reject orders
+
+Functions for customers are:
+- Real-time chat for inquiry
+- Browse sellers catalogue
+- Recommends nearby sellers within the range of 50KM + Map visualisation
+- Cart & Ordering system
+- *Fake* Payment system
+- Good/Bad indicators based on comments using Naive Bayes
+- Summary of comments using Gemini
+
+---
+
+# Technologies used 🤖
+1. HMS Kits:
+	- Location kit (FusedLocationProvider)
+	- Site kit (Forward Geocoding)
+	- Map kit
+	- Push kit for notification *(fragile)*
+2. Artificial Intelligence:
+	- Multinomial NB - Sentiment analysis for comments
+	- Gemini LLM - Comments summarisation
+3. Programming Languages
+	- Dart + Flutter framework
+	- Python
+
