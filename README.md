@@ -1,9 +1,14 @@
+<p align="center">
+	<img width="250" height="250" class="center" alt="6850f91264af49f7b220006dd733e537" src="https://github.com/user-attachments/assets/6b918f54-46e2-4238-b57f-57a3a376b9e2" />
+</p>
 
-# TryEat -- "吃看看" ;>
+# TryEat -- "吃看看"
 
-A mobile application project during the UMPSA Hackathon 2025. *(TryIt - TryEat, get it? hahaha...yea nvm)*
+> [!NOTE]
+> A mobile application project during the UMPSA Hackathon 2025. *(TryIt - TryEat, get it? hahaha...yea nvm)*
+> 
+> *Code is a mess despite the attempt to follow MVC architecture, and few modules are shamlessly vibe-coded*🤡
 
-*Code is a mess despite the attempt to follow MVC architecture, and few modules are shamlessly vibe-coded*🤡
 
 <br>
 
