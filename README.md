@@ -11,16 +11,16 @@
 <br>
 
 
-## Description 📟
+# Description 📟
 *What is this application about, who is it for, and why?*
 
-### Who is it for?
+## Who is it for?
 For home-based micro sellers, working in the Food & Beverage Service Sector.
 
-### Why?
+## Why?
 Sellers uses different digital platforms for different purposes such as posting/advertising, communication, payment, sales tracking and do not appear in established delivery platforms due to the absence of business registration. This results in a limited market visibility, constrained by the *organic exposure* on social media *(unless paid)*, affecting their opportunity for deserved growth.
 
-### The "what"?
+## The "what"?
 To provide a **centralized** digital platform and a digital storefront for **Micro** home-based F&B sellers.
 Functions included for sellers are:
 - Real-time chat for inquiry
